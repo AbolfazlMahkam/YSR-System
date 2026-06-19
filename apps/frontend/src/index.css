@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --background: 0 0% 100%;
+        --foreground: 0 0% 10%;
+        --card: 0 0% 100%;
+        --card-foreground: 0 0% 10%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 0 0% 10%;
+        --primary: 0 75% 30%;
+        --primary-foreground: 0 0% 98%;
+        --secondary: 0 8% 95%;
+        --secondary-foreground: 0 0% 10%;
+        --muted: 0 8% 96%;
+        --muted-foreground: 0 5% 45%;
+        --accent: 149 75% 30%;
+        --accent-foreground: 0 0% 98%;
+        --destructive: 0 84% 60%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 0 8% 88%;
+        --input: 0 8% 82%;
+        --ring: 0 75% 30%;
+        --radius: 0.5rem;
+    }
+
+    .dark {
+        --background: 0 0% 6%;
+        --foreground: 0 0% 96%;
+        --card: 0 0% 10%;
+        --card-foreground: 0 0% 96%;
+        --popover: 0 0% 8%;
+        --popover-foreground: 0 0% 96%;
+        --primary: 0 80% 45%;
+        --primary-foreground: 0 0% 98%;
+        --secondary: 0 8% 16%;
+        --secondary-foreground: 0 0% 96%;
+        --muted: 0 8% 18%;
+        --muted-foreground: 0 5% 65%;
+        --accent: 149 75% 38%;
+        --accent-foreground: 0 0% 98%;
+        --destructive: 0 62% 50%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 0 8% 18%;
+        --input: 0 8% 18%;
+        --ring: 0 80% 45%;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+        font-family: "IBM Plex Sans Arabic", sans-serif;
+        font-feature-settings: "rlig" 1, "calt" 1;
+    }
+}
