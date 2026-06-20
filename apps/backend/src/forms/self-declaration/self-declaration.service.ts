@@ -51,6 +51,7 @@ export class SelfDeclarationService {
       existing.data = validatedData;
       existing.status = 'pending';
       existing.admin_notes = null;
+      existing.correction_fields = null;
       return this.selfDeclarationRepository.save(existing);
     }
 
@@ -101,14 +102,23 @@ export class SelfDeclarationService {
       throw new BadRequestException('Submission is already approved');
     }
 
-    if (dto.status === 'returned' && !dto.admin_notes) {
-      throw new BadRequestException(
-        'Admin notes are required when returning for correction',
-      );
+    if (dto.status === 'returned') {
+      if (!dto.admin_notes) {
+        throw new BadRequestException(
+          'Admin notes are required when returning for correction',
+        );
+      }
+      if (!dto.correction_fields || dto.correction_fields.length === 0) {
+        throw new BadRequestException(
+          'At least one field must be selected for correction',
+        );
+      }
     }
 
     submission.status = dto.status;
     submission.admin_notes = dto.admin_notes || null;
+    submission.correction_fields =
+      dto.status === 'returned' ? (dto.correction_fields ?? null) : null;
 
     return this.selfDeclarationRepository.save(submission);
   }

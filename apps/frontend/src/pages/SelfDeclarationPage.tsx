@@ -80,6 +80,7 @@ interface SelfDeclarationSubmission {
   data: Record<string, any>;
   status: "pending" | "approved" | "returned";
   admin_notes: string | null;
+  correction_fields: string[] | null;
   created_at: string;
   updated_at: string;
 }
@@ -578,6 +579,17 @@ export function SelfDeclarationPage() {
                 <AlertTriangle className="h-4 w-4" />
                 <span>اصلاحات مورد نیاز</span>
               </div>
+              {submission.correction_fields && submission.correction_fields.length > 0 && (
+                <div className="mb-2 text-sm text-yellow-600 dark:text-yellow-500">
+                  <span className="font-medium">فیلدهای نیازمند اصلاح: </span>
+                  {submission.correction_fields
+                    .map(
+                      (name) =>
+                        schema?.fields.find((f) => f.name === name)?.label || name,
+                    )
+                    .join("، ")}
+                </div>
+              )}
               <p className="text-sm text-yellow-600 dark:text-yellow-500">
                 {submission.admin_notes}
               </p>
@@ -585,22 +597,33 @@ export function SelfDeclarationPage() {
           )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {schema.fields.map((field) => (
-              <div key={field.name} className="space-y-2">
-                <Label>
-                  {field.label}
-                  {field.required && (
-                    <span className="text-destructive mr-1">*</span>
+            {schema.fields.map((field) => {
+              const isEditable =
+                submission?.status !== "returned" ||
+                !submission.correction_fields ||
+                submission.correction_fields.length === 0 ||
+                submission.correction_fields.includes(field.name);
+
+              return (
+                <div
+                  key={field.name}
+                  className={`space-y-2 ${!isEditable ? "pointer-events-none opacity-60" : ""}`}
+                >
+                  <Label>
+                    {field.label}
+                    {field.required && (
+                      <span className="text-destructive mr-1">*</span>
+                    )}
+                  </Label>
+                  {renderField(field)}
+                  {errors[field.name] && (
+                    <p className="text-sm text-destructive">
+                      {errors[field.name]?.message as string}
+                    </p>
                   )}
-                </Label>
-                {renderField(field)}
-                {errors[field.name] && (
-                  <p className="text-sm text-destructive">
-                    {errors[field.name]?.message as string}
-                  </p>
-                )}
-              </div>
-            ))}
+                </div>
+              );
+            })}
 
             <div className="flex gap-3">
               <Button type="submit" disabled={submitting}>

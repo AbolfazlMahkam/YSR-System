@@ -28,6 +28,9 @@ export default class SelfDeclaration {
   @Column('varchar', { nullable: true })
   admin_notes: string | null;
 
+  @Column('jsonb', { nullable: true })
+  correction_fields: string[] | null;
+
   @CreateDateColumn()
   created_at: Date;
 

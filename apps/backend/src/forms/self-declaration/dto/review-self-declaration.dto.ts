@@ -1,4 +1,4 @@
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsEnum, IsOptional, IsString } from 'class-validator';
 
 export class ReviewSelfDeclarationDto {
   @IsEnum(['approved', 'returned'])
@@ -7,4 +7,9 @@ export class ReviewSelfDeclarationDto {
   @IsOptional()
   @IsString()
   admin_notes?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  correction_fields?: string[];
 }

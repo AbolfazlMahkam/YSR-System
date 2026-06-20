@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Card,
   CardContent,
@@ -45,6 +46,7 @@ interface SelfDeclaration {
   data: Record<string, any>;
   status: "pending" | "approved" | "returned";
   admin_notes: string | null;
+  correction_fields: string[] | null;
   created_at: string;
   updated_at: string;
   user: SelfDeclarationUser;
@@ -64,6 +66,7 @@ export function SelfDeclarationSubmissions() {
   const [reviewingId, setReviewingId] = useState<number | null>(null);
   const [reviewAction, setReviewAction] = useState<"approved" | "returned">("approved");
   const [reviewNotes, setReviewNotes] = useState("");
+  const [correctionFields, setCorrectionFields] = useState<string[]>([]);
 
   useEffect(() => {
     fetchSubmissions();
@@ -103,6 +106,7 @@ export function SelfDeclarationSubmissions() {
     setReviewingId(id);
     setReviewAction("approved");
     setReviewNotes("");
+    setCorrectionFields([]);
   };
 
   const handleReview = async (id: number) => {
@@ -110,6 +114,7 @@ export function SelfDeclarationSubmissions() {
       await adminFormsApi.reviewSelfDeclaration(id, {
         status: reviewAction,
         admin_notes: reviewAction === "returned" ? reviewNotes : undefined,
+        correction_fields: reviewAction === "returned" ? correctionFields : undefined,
       });
       toast.success(
         reviewAction === "approved"
@@ -259,6 +264,27 @@ export function SelfDeclarationSubmissions() {
                           </div>
                         )}
 
+                        {sub.correction_fields && sub.correction_fields.length > 0 && (
+                          <div className="p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg text-sm">
+                            <span className="font-medium text-red-700 dark:text-red-400">
+                              فیلدهای نیازمند اصلاح:
+                            </span>
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {sub.correction_fields.map((fieldName) => {
+                                const fieldDef = getFieldDef(fieldName);
+                                return (
+                                  <span
+                                    key={fieldName}
+                                    className="inline-flex items-center px-2 py-0.5 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 rounded text-xs"
+                                  >
+                                    {fieldDef?.label || fieldName}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+
                         {sub.status !== "approved" && (
                           <div className="border-t pt-3">
                             {reviewingId === sub.id ? (
@@ -282,23 +308,59 @@ export function SelfDeclarationSubmissions() {
                                   </Button>
                                 </div>
                                 {reviewAction === "returned" && (
-                                  <div className="space-y-2">
-                                    <Label htmlFor={`notes-${sub.id}`}>
-                                      علت بازگشت (الزامی)
-                                    </Label>
-                                    <Textarea
-                                      id={`notes-${sub.id}`}
-                                      value={reviewNotes}
-                                      onChange={(e) => setReviewNotes(e.target.value)}
-                                      placeholder="توضیحات اصلاحات مورد نیاز را وارد کنید"
-                                      rows={3}
-                                    />
-                                  </div>
+                                  <>
+                                    <div className="space-y-2">
+                                      <Label htmlFor={`notes-${sub.id}`}>
+                                        علت بازگشت (الزامی)
+                                      </Label>
+                                      <Textarea
+                                        id={`notes-${sub.id}`}
+                                        value={reviewNotes}
+                                        onChange={(e) => setReviewNotes(e.target.value)}
+                                        placeholder="توضیحات اصلاحات مورد نیاز را وارد کنید"
+                                        rows={3}
+                                      />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label>فیلدهای نیازمند اصلاح (الزامی)</Label>
+                                      <div className="space-y-1 pr-2 max-h-48 overflow-y-auto border rounded-md p-2">
+                                        {schemaFields.length === 0 ? (
+                                          <p className="text-sm text-muted-foreground">
+                                            در حال بارگذاری فیلدها...
+                                          </p>
+                                        ) : (
+                                          schemaFields.map((field) => (
+                                            <div key={field.name} className="flex items-center gap-2">
+                                              <Checkbox
+                                                id={`field-${sub.id}-${field.name}`}
+                                                checked={correctionFields.includes(field.name)}
+                                                onCheckedChange={(checked) => {
+                                                  if (checked) {
+                                                    setCorrectionFields([...correctionFields, field.name]);
+                                                  } else {
+                                                    setCorrectionFields(
+                                                      correctionFields.filter((f) => f !== field.name),
+                                                    );
+                                                  }
+                                                }}
+                                              />
+                                              <Label
+                                                htmlFor={`field-${sub.id}-${field.name}`}
+                                                className="cursor-pointer text-sm"
+                                              >
+                                                {field.label}
+                                              </Label>
+                                            </div>
+                                          ))
+                                        )}
+                                      </div>
+                                    </div>
+                                  </>
                                 )}
                                 <div className="flex gap-2">
                                   <Button
                                     onClick={() => handleReview(sub.id)}
-                                    disabled={reviewAction === "returned" && !reviewNotes.trim()}
+                                    disabled={reviewAction === "returned" && (!reviewNotes.trim() || correctionFields.length === 0)}
                                   >
                                     ثبت بررسی
                                   </Button>
