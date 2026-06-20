@@ -102,6 +102,10 @@ class FieldDefinitionDto {
 
   @IsOptional()
   defaultValue?: any;
+
+  @IsOptional()
+  @IsBoolean()
+  multiple?: boolean;
 }
 
 export class CreateFormDto {

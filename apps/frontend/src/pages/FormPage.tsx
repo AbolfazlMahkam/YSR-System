@@ -29,6 +29,7 @@ import {
 } from "../components/ui/radio";
 import { Textarea } from "../components/ui/textarea";
 import { Slider } from "../components/ui/slider";
+import { MultiSelect } from "../components/ui/multi-select";
 import { toPersianDigits, toWesternDigits } from "../lib/utils";
 import { toast } from "sonner";
 import { IRANIAN_PROVINCES_CITIES } from "../data/iranian-provinces-cities";
@@ -62,6 +63,7 @@ interface FieldDefinition {
   validations?: Record<string, any>;
   fileConfig?: FileConfig;
   defaultValue?: any;
+  multiple?: boolean;
 }
 
 interface FormSchema {
@@ -111,6 +113,19 @@ function buildSchema(schema: FormSchema) {
             `حداکثر مقدار ${field.validations?.max ?? 10} است`,
           );
         else fieldSchema = fieldSchema.optional();
+        break;
+      case "select":
+        if (field.multiple) {
+          fieldSchema = z.array(z.string());
+          if (field.required)
+            fieldSchema = fieldSchema.min(1, "این فیلد الزامی است");
+          else fieldSchema = fieldSchema.optional();
+        } else {
+          fieldSchema = z.string();
+          if (field.required)
+            fieldSchema = fieldSchema.min(1, "این فیلد الزامی است");
+          else fieldSchema = fieldSchema.optional();
+        }
         break;
       case "province_city":
         fieldSchema = z.object({
@@ -239,6 +254,16 @@ export function FormPage() {
         );
 
       case "select":
+        if (field.multiple) {
+          return (
+            <MultiSelect
+              options={field.options}
+              selected={Array.isArray(value) ? value : []}
+              onChange={(selected) => setValue(field.name, selected)}
+              placeholder={field.placeholder}
+            />
+          );
+        }
         return (
           <Select
             value={value || ""}

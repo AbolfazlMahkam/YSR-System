@@ -36,6 +36,7 @@ export interface FieldDefinition {
   };
   fileConfig?: FileConfig;
   defaultValue?: any;
+  multiple?: boolean;
 }
 
 @Entity('form_schemas')

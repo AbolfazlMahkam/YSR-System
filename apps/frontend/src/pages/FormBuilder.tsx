@@ -55,6 +55,7 @@ interface FieldDefinition {
   validations?: Record<string, any>;
   fileConfig?: FileConfig;
   defaultValue?: any;
+  multiple?: boolean;
 }
 
 const FIELD_TYPES = [
@@ -709,6 +710,20 @@ export function FormBuilder() {
                         افزودن گزینه
                       </Button>
                     </div>
+                    {field.type === "select" && (
+                      <div className="flex items-center gap-2 pb-1">
+                        <Checkbox
+                          id={`multiple-${index}`}
+                          checked={field.multiple ?? false}
+                          onCheckedChange={(v) =>
+                            updateField(index, "multiple", v === true)
+                          }
+                        />
+                        <Label htmlFor={`multiple-${index}`}>
+                          انتخاب چندگانه
+                        </Label>
+                      </div>
+                    )}
                     {(field.options || []).map((opt, oi) => (
                       <div key={oi} className="flex items-center gap-2">
                         <Input

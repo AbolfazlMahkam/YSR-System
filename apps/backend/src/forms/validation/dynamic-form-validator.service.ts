@@ -78,6 +78,29 @@ export class DynamicFormValidatorService {
         }
         break;
       case 'select':
+        if (field.multiple) {
+          if (!Array.isArray(value)) {
+            return `"${field.label}" must be an array`;
+          }
+          if (field.options) {
+            const validValues = new Set(field.options.map((o) => o.value));
+            for (const v of value) {
+              if (!validValues.has(v)) {
+                const valid = field.options.map((o) => o.value).join(', ');
+                return `"${field.label}" contains invalid value "${v}". Valid options: ${valid}`;
+              }
+            }
+          }
+        } else {
+          if (typeof value !== 'string') {
+            return `"${field.label}" must be a string`;
+          }
+          if (field.options && !field.options.some((o) => o.value === value)) {
+            const valid = field.options.map((o) => o.value).join(', ');
+            return `"${field.label}" must be one of: ${valid}`;
+          }
+        }
+        break;
       case 'radio':
         if (typeof value !== 'string') {
           return `"${field.label}" must be a string`;
