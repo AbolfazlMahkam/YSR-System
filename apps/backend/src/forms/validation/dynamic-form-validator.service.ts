@@ -59,26 +59,14 @@ export class DynamicFormValidatorService {
     switch (field.type) {
       case 'text':
       case 'textarea':
-      case 'email':
         if (typeof value !== 'string') {
           return `"${field.label}" must be a string`;
-        }
-        if (field.type === 'email') {
-          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-          if (!emailRegex.test(value)) {
-            return `"${field.label}" must be a valid email address`;
-          }
         }
         break;
       case 'number':
       case 'range':
         if (typeof value !== 'number' || isNaN(value)) {
           return `"${field.label}" must be a number`;
-        }
-        break;
-      case 'boolean':
-        if (typeof value !== 'boolean') {
-          return `"${field.label}" must be a boolean`;
         }
         break;
       case 'date':
@@ -166,9 +154,6 @@ export class DynamicFormValidatorService {
     if ((field.type === 'number' || field.type === 'range') && typeof value === 'string') {
       const parsed = parseFloat(value);
       return isNaN(parsed) ? value : parsed;
-    }
-    if (field.type === 'boolean' && typeof value === 'string') {
-      return value === 'true' || value === '1';
     }
     return value;
   }

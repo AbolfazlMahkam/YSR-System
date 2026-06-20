@@ -29,7 +29,7 @@ import {
 } from "../components/ui/radio";
 import { Textarea } from "../components/ui/textarea";
 import { Slider } from "../components/ui/slider";
-import { toPersianDigits } from "../lib/utils";
+import { toPersianDigits, toWesternDigits } from "../lib/utils";
 import { toast } from "sonner";
 import { IRANIAN_PROVINCES_CITIES } from "../data/iranian-provinces-cities";
 import DatePicker from "react-multi-date-picker";
@@ -49,8 +49,6 @@ interface FieldDefinition {
     | "text"
     | "textarea"
     | "number"
-    | "email"
-    | "boolean"
     | "date"
     | "select"
     | "radio"
@@ -460,7 +458,7 @@ export function SelfDeclarationPage() {
             locale={persian_fa}
             value={(value as string) || null}
             onChange={(date) => {
-              setValue(field.name, date ? date.format("YYYY/MM/DD") : "");
+              setValue(field.name, date ? toWesternDigits(date.format("YYYY/MM/DD")) : "");
             }}
             placeholder={field.placeholder || "تاریخ را انتخاب کنید"}
             inputClass="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"

@@ -65,8 +65,6 @@ class FieldDefinitionDto {
     'text',
     'textarea',
     'number',
-    'email',
-    'boolean',
     'date',
     'select',
     'radio',

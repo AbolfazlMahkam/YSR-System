@@ -18,8 +18,6 @@ export interface FieldDefinition {
     | 'text'
     | 'textarea'
     | 'number'
-    | 'email'
-    | 'boolean'
     | 'date'
     | 'select'
     | 'radio'
