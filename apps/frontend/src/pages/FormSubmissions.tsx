@@ -21,10 +21,18 @@ import { LoadingSpinner } from "../components/LoadingSpinner";
 import { toast } from "sonner";
 import { cn, toPersianDigits } from "@/lib/utils";
 
+interface FieldDefinition {
+  name: string;
+  label: string;
+  type: string;
+  options?: { label: string; value: string }[];
+}
+
 interface FormSchema {
   id: number;
   slug: string;
   title: string;
+  fields: FieldDefinition[];
 }
 
 interface SubmissionUser {
@@ -51,6 +59,7 @@ export function FormSubmissions() {
   const [loadingForms, setLoadingForms] = useState(true);
   const [loadingSubs, setLoadingSubs] = useState(false);
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [formFields, setFormFields] = useState<FieldDefinition[]>([]);
 
   useEffect(() => {
     fetchForms();
@@ -74,6 +83,7 @@ export function FormSubmissions() {
       const data = await adminFormsApi.getSubmissions(formId);
       setSubmissions(data.submissions || []);
       setFormTitle(data.form?.title || "");
+      setFormFields(data.form?.fields || []);
     } catch (err: any) {
       toast.error(err.message || "Failed to fetch submissions");
       setSubmissions([]);
@@ -182,37 +192,65 @@ export function FormSubmissions() {
                   </button>
                   {expandedId === sub.id && (
                     <div className="border-t px-4 py-3 space-y-2 bg-muted/20">
-                      {Object.entries(sub.answers).map(([key, value]) => {
-                        const isFileUrl =
-                          typeof value === "string" &&
-                          (value.startsWith("/uploads/") ||
-                            value.startsWith("http"));
+                      {formFields.map((field) => {
+                        const value = sub.answers[field.name];
+                        if (value === undefined || value === null || value === "") return null;
+
+                        const formatValue = (val: any) => {
+                          const isFileUrl =
+                            typeof val === "string" &&
+                            (val.startsWith("/uploads/") ||
+                              val.startsWith("http"));
+                          if (isFileUrl) {
+                            return (
+                              <a
+                                href={val}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-primary hover:underline"
+                              >
+                                <File className="h-3 w-3" />
+                                مشاهده فایل
+                                <ExternalLink className="h-3 w-3" />
+                              </a>
+                            );
+                          }
+                          if (Array.isArray(val)) {
+                            if (field?.options) {
+                              return val
+                                .map(
+                                  (v) =>
+                                    field.options?.find((o) => o.value === v)
+                                      ?.label || v,
+                                )
+                                .join(", ");
+                            }
+                            return val.join(", ");
+                          }
+                          if (
+                            typeof val === "object" &&
+                            val !== null
+                          ) {
+                            return Object.entries(val)
+                              .map(([k, v]) => `${k}: ${v}`)
+                              .join(" | ");
+                          }
+                          if (field?.options) {
+                            const option = field.options.find(
+                              (o) => o.value === val,
+                            );
+                            if (option) return option.label;
+                          }
+                          return String(val ?? "");
+                        };
+
                         return (
-                          <div key={key} className="grid grid-cols-3 gap-2 text-sm">
+                          <div key={field.name} className="grid grid-cols-3 gap-2 text-sm">
                             <span className="font-medium text-muted-foreground col-span-1">
-                              {key}
+                              {field.label}
                             </span>
                             <span className="col-span-2">
-                              {isFileUrl ? (
-                                <a
-                                  href={value}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1 text-primary hover:underline"
-                                >
-                                  <File className="h-3 w-3" />
-                                  مشاهده فایل
-                                  <ExternalLink className="h-3 w-3" />
-                                </a>
-                              ) : Array.isArray(value) ? (
-                                value.join(", ")
-                              ) : typeof value === "object" && value !== null ? (
-                                Object.entries(value)
-                                  .map(([k, v]) => `${k}: ${v}`)
-                                  .join(" | ")
-                              ) : (
-                                String(value ?? "")
-                              )}
+                              {formatValue(value)}
                             </span>
                           </div>
                         );

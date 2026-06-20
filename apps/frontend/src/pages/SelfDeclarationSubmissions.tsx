@@ -25,6 +25,13 @@ import { LoadingSpinner } from "../components/LoadingSpinner";
 import { toast } from "sonner";
 import { cn, toPersianDigits } from "@/lib/utils";
 
+interface FieldDefinition {
+  name: string;
+  label: string;
+  type: string;
+  options?: { label: string; value: string }[];
+}
+
 interface SelfDeclarationUser {
   id: number;
   first_name: string;
@@ -53,13 +60,27 @@ export function SelfDeclarationSubmissions() {
   const [submissions, setSubmissions] = useState<SelfDeclaration[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [schemaFields, setSchemaFields] = useState<FieldDefinition[]>([]);
   const [reviewingId, setReviewingId] = useState<number | null>(null);
   const [reviewAction, setReviewAction] = useState<"approved" | "returned">("approved");
   const [reviewNotes, setReviewNotes] = useState("");
 
   useEffect(() => {
     fetchSubmissions();
+    fetchSchema();
   }, []);
+
+  const fetchSchema = async () => {
+    try {
+      const forms = await adminFormsApi.getAll();
+      const selfDeclForm = forms.find((f: any) => f.slug === "self-declaration");
+      if (selfDeclForm?.fields) {
+        setSchemaFields(selfDeclForm.fields);
+      }
+    } catch {
+      // schema fetch is non-critical
+    }
+  };
 
   const fetchSubmissions = async () => {
     try {
@@ -103,7 +124,11 @@ export function SelfDeclarationSubmissions() {
     }
   };
 
-  const renderValue = (value: any) => {
+  const getFieldDef = (name: string) =>
+    schemaFields.find((f) => f.name === name);
+
+  const renderValue = (fieldKey: string, value: any) => {
+    const field = getFieldDef(fieldKey);
     const isFileUrl =
       typeof value === "string" &&
       (value.startsWith("/uploads/") || value.startsWith("http"));
@@ -122,12 +147,24 @@ export function SelfDeclarationSubmissions() {
       );
     }
     if (Array.isArray(value)) {
+      if (field?.options) {
+        return value
+          .map(
+            (v) =>
+              field.options?.find((o) => o.value === v)?.label || v,
+          )
+          .join(", ");
+      }
       return value.join(", ");
     }
     if (typeof value === "object" && value !== null) {
       return Object.entries(value)
         .map(([k, v]) => `${k}: ${v}`)
         .join(" | ");
+    }
+    if (field?.options) {
+      const option = field.options.find((o) => o.value === value);
+      if (option) return option.label;
     }
     return String(value ?? "");
   };
@@ -195,16 +232,20 @@ export function SelfDeclarationSubmissions() {
                     {expandedId === sub.id && (
                       <div className="border-t px-4 py-3 space-y-4 bg-muted/20">
                         <div className="space-y-2">
-                          {Object.entries(sub.data).map(([key, value]) => (
-                            <div key={key} className="grid grid-cols-3 gap-2 text-sm">
-                              <span className="font-medium text-muted-foreground col-span-1">
-                                {key}
-                              </span>
-                              <span className="col-span-2">
-                                {renderValue(value)}
-                              </span>
-                            </div>
-                          ))}
+                          {schemaFields.map((field) => {
+                            const value = sub.data[field.name];
+                            if (value === undefined || value === null || value === "") return null;
+                            return (
+                              <div key={field.name} className="grid grid-cols-3 gap-2 text-sm">
+                                <span className="font-medium text-muted-foreground col-span-1">
+                                  {field.label}
+                                </span>
+                                <span className="col-span-2">
+                                  {renderValue(field.name, value)}
+                                </span>
+                              </div>
+                            );
+                          })}
                         </div>
 
                         {sub.admin_notes && (
