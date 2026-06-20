@@ -26,6 +26,7 @@ import {
   ChevronUp,
   ChevronDown,
   Save,
+  Copy,
 } from "lucide-react";
 import adminFormsApi from "../api/admin-forms";
 import { LoadingSpinner } from "../components/LoadingSpinner";
@@ -72,10 +73,12 @@ const FIELD_TYPES = [
 ];
 
 function generateFieldName(label: string, index: number): string {
-  return `field_${index}_${label
-    .replace(/\s+/g, "_")
-    .replace(/[^a-zA-Z0-9_]/g, "")
-    .toLowerCase() || "unnamed"}`;
+  return `field_${index}_${
+    label
+      .replace(/\s+/g, "_")
+      .replace(/[^a-zA-Z0-9_]/g, "")
+      .toLowerCase() || "unnamed"
+  }`;
 }
 
 export function FormBuilder() {
@@ -141,6 +144,20 @@ export function FormBuilder() {
     setFields(fields.filter((_, i) => i !== index));
   };
 
+  const copyField = (index: number) => {
+    const field = fields[index];
+    const cloned: FieldDefinition = {
+      ...field,
+      name: generateFieldName(field.label || "copy", fields.length),
+      options: field.options ? field.options.map((o) => ({ ...o })) : undefined,
+      validations: field.validations ? { ...field.validations } : undefined,
+      fileConfig: field.fileConfig ? { ...field.fileConfig } : undefined,
+    };
+    const updated = [...fields];
+    updated.splice(index + 1, 0, cloned);
+    setFields(updated);
+  };
+
   const updateField = (
     index: number,
     key: keyof FieldDefinition,
@@ -158,7 +175,10 @@ export function FormBuilder() {
       ) {
         next.options = undefined;
       }
-      if (["select", "radio", "checkbox", "province_city"].includes(value) && !next.options) {
+      if (
+        ["select", "radio", "checkbox", "province_city"].includes(value) &&
+        !next.options
+      ) {
         next.options = [];
       }
       if (key === "type" && value === "range" && !next.validations) {
@@ -240,7 +260,11 @@ export function FormBuilder() {
   };
 
   const handleDragEnd = () => {
-    if (dragIndex !== null && dragOverIndex.current !== null && dragIndex !== dragOverIndex.current) {
+    if (
+      dragIndex !== null &&
+      dragOverIndex.current !== null &&
+      dragIndex !== dragOverIndex.current
+    ) {
       moveField(dragIndex, dragOverIndex.current);
     }
     setDragIndex(null);
@@ -252,8 +276,7 @@ export function FormBuilder() {
     if (!slug.trim()) return "slug فرم الزامی است";
     if (fields.length === 0) return "حداقل یک فیلد به فرم اضافه کنید";
     for (let i = 0; i < fields.length; i++) {
-      if (!fields[i].label.trim())
-        return `برچسب فیلد ${i + 1} الزامی است`;
+      if (!fields[i].label.trim()) return `برچسب فیلد ${i + 1} الزامی است`;
     }
     return null;
   };
@@ -306,7 +329,11 @@ export function FormBuilder() {
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
-        <Button variant="ghost" size="sm" onClick={() => navigate("/admin/forms")}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate("/admin/forms")}
+        >
           <ArrowRight className="h-4 w-4 ml-1" />
           بازگشت
         </Button>
@@ -325,8 +352,7 @@ export function FormBuilder() {
               : "bg-muted text-muted-foreground",
           )}
         >
-          ۱
-          <span className="hidden sm:inline">تنظیمات فرم</span>
+          ۱<span className="hidden sm:inline">تنظیمات فرم</span>
         </div>
         <div className="h-px flex-1 bg-border" />
         <div
@@ -337,8 +363,7 @@ export function FormBuilder() {
               : "bg-muted text-muted-foreground",
           )}
         >
-          ۲
-          <span className="hidden sm:inline">ساختار فیلدها</span>
+          ۲<span className="hidden sm:inline">ساختار فیلدها</span>
         </div>
         <div className="h-px flex-1 bg-border" />
         <div
@@ -349,8 +374,7 @@ export function FormBuilder() {
               : "bg-muted text-muted-foreground",
           )}
         >
-          ۳
-          <span className="hidden sm:inline">اعلان پس از ارسال</span>
+          ۳<span className="hidden sm:inline">اعلان پس از ارسال</span>
         </div>
       </div>
 
@@ -380,9 +404,7 @@ export function FormBuilder() {
                 dir="ltr"
                 value={slug}
                 onChange={(e) =>
-                  setSlug(
-                    e.target.value.replace(/\s+/g, "-").toLowerCase(),
-                  )
+                  setSlug(e.target.value.replace(/\s+/g, "-").toLowerCase())
                 }
                 placeholder="form-slug"
               />
@@ -434,9 +456,7 @@ export function FormBuilder() {
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle>ساختار فیلدها</CardTitle>
-                <CardDescription>
-                  فیلدهای فرم را تعریف کنید
-                </CardDescription>
+                <CardDescription>فیلدهای فرم را تعریف کنید</CardDescription>
               </div>
               <Button variant="outline" size="sm" onClick={addField}>
                 <Plus className="h-4 w-4 ml-1" />
@@ -455,11 +475,16 @@ export function FormBuilder() {
                 key={index}
                 draggable
                 onDragStart={() => handleDragStart(index)}
-                onDragOver={(e) => { e.preventDefault(); handleDragOver(index); }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  handleDragOver(index);
+                }}
                 onDragEnd={handleDragEnd}
                 className={cn(
                   "border rounded-lg p-4 space-y-3 transition-shadow",
-                  dragIndex === index ? "opacity-50 shadow-inner" : "bg-muted/30",
+                  dragIndex === index
+                    ? "opacity-50 shadow-inner"
+                    : "bg-muted/30",
                 )}
               >
                 <div className="flex items-center justify-between">
@@ -491,14 +516,23 @@ export function FormBuilder() {
                       </Button>
                     </div>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeField(index)}
-                    className="text-destructive hover:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  <div className="flex items-center justify-end">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => copyField(index)}
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeField(index)}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-2">
@@ -529,9 +563,15 @@ export function FormBuilder() {
                       placeholder="برچسب فیلد"
                     />
                   </div>
-                  {!["select", "radio", "checkbox", "boolean", "file", "province_city", "range"].includes(
-                    field.type,
-                  ) && (
+                  {![
+                    "select",
+                    "radio",
+                    "checkbox",
+                    "boolean",
+                    "file",
+                    "province_city",
+                    "range",
+                  ].includes(field.type) && (
                     <div className="space-y-2">
                       <Label>Placeholder</Label>
                       <Input
@@ -630,9 +670,7 @@ export function FormBuilder() {
                           <SelectItem value=".xls,.xlsx">
                             صفحات گسترده
                           </SelectItem>
-                          <SelectItem value=".pdf">
-                            PDF
-                          </SelectItem>
+                          <SelectItem value=".pdf">PDF</SelectItem>
                           <SelectItem value=".jpg,.jpeg,.png,.pdf">
                             تصاویر و PDF
                           </SelectItem>
@@ -735,7 +773,8 @@ export function FormBuilder() {
           <CardHeader>
             <CardTitle>اعلان پس از ارسال</CardTitle>
             <CardDescription>
-              در صورت تمایل، پیام اعلانی پس از ارسال موفق فرم به کاربر نمایش دهید
+              در صورت تمایل، پیام اعلانی پس از ارسال موفق فرم به کاربر نمایش
+              دهید
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
