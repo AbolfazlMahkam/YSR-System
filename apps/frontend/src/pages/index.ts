@@ -5,3 +5,4 @@ export { SelfDeclarationPage } from "./SelfDeclarationPage";
 export { FormDefinitions } from "./FormDefinitions";
 export { FormBuilder } from "./FormBuilder";
 export { FormSubmissions } from "./FormSubmissions";
+export { SelfDeclarationSubmissions } from "./SelfDeclarationSubmissions";

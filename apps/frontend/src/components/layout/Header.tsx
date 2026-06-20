@@ -127,6 +127,15 @@ export function Header() {
                     <Database className="h-4 w-4" />
                   </NavLink>
                 </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <NavLink
+                    to="/admin/self-declarations"
+                    className="flex items-center gap-2 justify-end"
+                  >
+                    <span>اظهارنامه‌ها</span>
+                    <ClipboardList className="h-4 w-4" />
+                  </NavLink>
+                </DropdownMenuItem>
               </>
             )}
             <DropdownMenuSeparator />

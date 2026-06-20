@@ -10,6 +10,7 @@ import {
   SelfDeclarationPage,
   FormDefinitions,
   FormSubmissions,
+  SelfDeclarationSubmissions,
 } from "./pages";
 import { ProfilePage } from "./pages/ProfilePage";
 import { FormBuilder } from "./pages/FormBuilder";
@@ -48,6 +49,10 @@ function App() {
                 <Route
                   path="admin/form-submissions"
                   element={<FormSubmissions />}
+                />
+                <Route
+                  path="admin/self-declarations"
+                  element={<SelfDeclarationSubmissions />}
                 />
               </Route>
             </Route>

@@ -132,6 +132,23 @@ export function Sidebar() {
                       <span>ارسال‌های فرم‌ها</span>
                     </NavLink>
                   </li>
+                  <li>
+                    <NavLink
+                      to="/admin/self-declarations"
+                      className={({ isActive }) =>
+                        cn(
+                          "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 text-sm",
+                          "hover:bg-accent hover:text-accent-foreground",
+                          isActive
+                            ? "bg-accent text-accent-foreground font-medium"
+                            : "text-muted-foreground",
+                        )
+                      }
+                    >
+                      <ClipboardList className="h-4 w-4" />
+                      <span>اظهارنامه‌ها</span>
+                    </NavLink>
+                  </li>
                 </ul>
               )}
             </li>

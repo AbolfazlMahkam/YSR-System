@@ -4,7 +4,10 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
+import Users from './user.entity';
 
 export type SelfDeclarationStatus = 'pending' | 'approved' | 'returned';
 
@@ -30,4 +33,8 @@ export default class SelfDeclaration {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @ManyToOne(() => Users)
+  @JoinColumn({ name: 'user_id' })
+  user: Users;
 }

@@ -76,6 +76,7 @@ export class SelfDeclarationService {
 
   async findAll() {
     return this.selfDeclarationRepository.find({
+      relations: ['user'],
       order: { created_at: 'DESC' },
     });
   }
@@ -83,6 +84,7 @@ export class SelfDeclarationService {
   async findOne(id: number) {
     const submission = await this.selfDeclarationRepository.findOne({
       where: { id },
+      relations: ['user'],
     });
 
     if (!submission) {

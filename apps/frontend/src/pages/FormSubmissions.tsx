@@ -60,7 +60,7 @@ export function FormSubmissions() {
     try {
       setLoadingForms(true);
       const data = await adminFormsApi.getAll();
-      setForms(data || []);
+      setForms((data || []).filter((f: FormSchema) => f.slug !== "self-declaration"));
     } catch (err: any) {
       toast.error(err.message || "Failed to fetch forms");
     } finally {
