@@ -71,7 +71,7 @@ export function Header() {
                 <Home className="h-4 w-4" />
               </NavLink>
             </DropdownMenuItem>
-            {forms.length > 0 && (
+            {(forms.length > 0) && (
               <>
                 <DropdownMenuSeparator />
                 <DropdownMenuLabel className="text-end text-xs text-muted-foreground">
@@ -90,16 +90,16 @@ export function Header() {
                     </NavLink>
                   </DropdownMenuItem>
                 ))}
-                <DropdownMenuItem asChild>
-                  <NavLink
-                    to="/forms/self-declaration"
-                    className="flex items-center gap-2 justify-end"
-                  >
-                    <span>اظهارنامه</span>
-                  </NavLink>
-                </DropdownMenuItem>
               </>
             )}
+            <DropdownMenuItem asChild>
+              <NavLink
+                to="/forms/self-declaration"
+                className="flex items-center gap-2 justify-end"
+              >
+                <span>اظهارنامه</span>
+              </NavLink>
+            </DropdownMenuItem>
             {isAdmin && (
               <>
                 <DropdownMenuSeparator />

@@ -137,50 +137,31 @@ export function Sidebar() {
             </li>
           )}
           {/* User forms (for all roles) */}
-          {forms.length > 0 && (
-            <li>
-              <button
-                onClick={() => setFormsOpen((prev) => !prev)}
+          <li>
+            <button
+              onClick={() => setFormsOpen((prev) => !prev)}
+              className={cn(
+                "flex items-center gap-3 w-full px-3 py-2 rounded-md transition-all duration-200",
+                "hover:bg-accent hover:text-accent-foreground hover:translate-x-1",
+                "text-muted-foreground",
+                formsOpen && "bg-accent/50 text-accent-foreground",
+              )}
+            >
+              <ClipboardList className="h-5 w-5" />
+              <span className="flex-1 text-right">فرم‌ها</span>
+              <ChevronDown
                 className={cn(
-                  "flex items-center gap-3 w-full px-3 py-2 rounded-md transition-all duration-200",
-                  "hover:bg-accent hover:text-accent-foreground hover:translate-x-1",
-                  "text-muted-foreground",
-                  formsOpen && "bg-accent/50 text-accent-foreground",
+                  "h-4 w-4 transition-transform duration-200",
+                  formsOpen && "rotate-180",
                 )}
-              >
-                <ClipboardList className="h-5 w-5" />
-                <span className="flex-1 text-right">فرم‌ها</span>
-                <ChevronDown
-                  className={cn(
-                    "h-4 w-4 transition-transform duration-200",
-                    formsOpen && "rotate-180",
-                  )}
-                />
-              </button>
-              {formsOpen && (
-                <ul className="mr-6 mt-1 space-y-1">
-                  {forms.map((form) => (
-                    <li key={form.id}>
-                      <NavLink
-                        to={`/forms/${form.slug}`}
-                        className={({ isActive }) =>
-                          cn(
-                            "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 text-sm",
-                            "hover:bg-accent hover:text-accent-foreground",
-                            isActive
-                              ? "bg-accent text-accent-foreground font-medium"
-                              : "text-muted-foreground",
-                          )
-                        }
-                      >
-                        <span className="mr-1">•</span>
-                        <span>{form.title}</span>
-                      </NavLink>
-                    </li>
-                  ))}
-                  <li>
+              />
+            </button>
+            {formsOpen && (
+              <ul className="mr-6 mt-1 space-y-1">
+                {forms.map((form) => (
+                  <li key={form.id}>
                     <NavLink
-                      to="/forms/self-declaration"
+                      to={`/forms/${form.slug}`}
                       className={({ isActive }) =>
                         cn(
                           "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 text-sm",
@@ -192,13 +173,30 @@ export function Sidebar() {
                       }
                     >
                       <span className="mr-1">•</span>
-                      <span>اظهارنامه</span>
+                      <span>{form.title}</span>
                     </NavLink>
                   </li>
-                </ul>
-              )}
-            </li>
-          )}
+                ))}
+                <li>
+                  <NavLink
+                    to="/forms/self-declaration"
+                    className={({ isActive }) =>
+                      cn(
+                        "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 text-sm",
+                        "hover:bg-accent hover:text-accent-foreground",
+                        isActive
+                          ? "bg-accent text-accent-foreground font-medium"
+                          : "text-muted-foreground",
+                      )
+                    }
+                  >
+                    <span className="mr-1">•</span>
+                    <span>اظهارنامه</span>
+                  </NavLink>
+                </li>
+              </ul>
+            )}
+          </li>
         </ul>
       </nav>
       <div className="p-4 border-t">
