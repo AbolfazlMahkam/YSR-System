@@ -1,0 +1,17 @@
+# Effective only when this app dir is used as the build context (e.g. a PaaS that
+# builds with context=apps/backend). With the default root-context build, the root
+# .dockerignore applies instead. Harmless either way.
+node_modules
+dist
+build
+coverage
+.turbo
+test
+*.log
+.env
+.env.*
+!.env.example
+uploads
+.git
+.idea
+.vscode

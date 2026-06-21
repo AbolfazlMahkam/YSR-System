@@ -1,0 +1,20 @@
+# Applies to the root-context builds (both Dockerfiles use context = repo root).
+# Note: workspace package.json manifests are NOT matched by these globs, so the
+# Dockerfile COPY of each apps/*/package.json and packages/*/package.json still works.
+**/node_modules
+**/dist
+**/build
+**/.turbo
+**/coverage
+**/*.log
+.git
+.gitignore
+.idea
+.vscode
+apps/backend/uploads
+**/.env
+**/.env.*
+!**/.env.example
+.env.prod
+.env.prod.example
+README.md
