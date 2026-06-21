@@ -4,7 +4,6 @@ import localStorageService from "./localStorageService";
 const HttpClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:3000",
   timeout: 0,
-  withCredentials: true,
   headers: {
     "Content-Type": "application/json;charset=UTF-8",
     Accept: "application/json",
