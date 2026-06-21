@@ -7,9 +7,6 @@ const HttpClient = axios.create({
   headers: {
     "Content-Type": "application/json;charset=UTF-8",
     Accept: "application/json",
-    "Cache-Control": "no-cache, no-store, must-revalidate", // Disable caching
-    Pragma: "no-cache", // Disable caching for HTTP/1.0
-    Expires: "0", // Disable caching for proxies
   },
 });
 
