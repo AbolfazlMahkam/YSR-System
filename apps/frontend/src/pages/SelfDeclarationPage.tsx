@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { Loader2, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
 import formsApi from "../api/forms";
+import { useAuth } from "../hooks/useAuth";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -35,6 +36,8 @@ import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
 import "react-multi-date-picker/styles/layouts/prime.css";
+
+const USER_IDENTITY_FIELDS = new Set(["first_name", "last_name", "phone"]);
 
 interface FileConfig {
   accept?: string;
@@ -91,6 +94,7 @@ type SelfDeclarationForm = Record<string, any>;
 
 export function SelfDeclarationPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [schema, setSchema] = useState<FormSchema | null>(null);
   const [submission, setSubmission] =
     useState<SelfDeclarationSubmission | null>(null);
@@ -153,6 +157,12 @@ export function SelfDeclarationPage() {
 
         if (existing?.data) {
           reset(existing.data);
+        } else if (user) {
+          reset({
+            first_name: user.first_name || "",
+            last_name: user.last_name || "",
+            phone: user.phone || "",
+          });
         }
       } catch {
         if (!cancelled) setSchema(null);
@@ -166,7 +176,7 @@ export function SelfDeclarationPage() {
     return () => {
       cancelled = true;
     };
-  }, [reset]);
+  }, [reset, user]);
 
   async function onSubmit(data: SelfDeclarationForm) {
     setSubmitting(true);
@@ -426,6 +436,7 @@ export function SelfDeclarationPage() {
             type="text"
             {...register(field.name)}
             placeholder={field.placeholder}
+            readOnly={USER_IDENTITY_FIELDS.has(field.name)}
           />
         );
     }

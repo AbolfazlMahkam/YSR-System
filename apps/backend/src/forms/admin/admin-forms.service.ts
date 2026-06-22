@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import FormSchema from '../../entities/form-schema.entity';
+import FormSchema, { FieldDefinition } from '../../entities/form-schema.entity';
 import FormSubmission from '../../entities/form-submission.entity';
 import { CreateFormDto } from './dto/create-form.dto';
 import { UpdateFormDto } from './dto/update-form.dto';
@@ -39,7 +39,7 @@ export class AdminFormsService {
     form.show_notification = dto.show_notification ?? false;
     form.notification_title = dto.notification_title || null;
     form.notification_text = dto.notification_text || null;
-    form.fields = (dto.fields || []) as Record<string, unknown>[];
+    form.fields = (dto.fields || []) as FieldDefinition[];
 
     return this.formSchemaRepository.save(form);
   }

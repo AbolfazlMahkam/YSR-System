@@ -7,6 +7,7 @@ import Users from '../entities/user.entity';
 import { UsersService } from '../users/users.service';
 import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import type { StringValue } from 'ms';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import Codes from '../entities/code.entity';
 import { UniquePhonePipe } from '../common/pipes/unique-phone.pipe';
@@ -26,7 +27,7 @@ import { OtpCodeValidationPipe } from '../common/pipes/otp-code-validation.pipe'
 
         return {
           secret,
-          signOptions: { expiresIn },
+          signOptions: { expiresIn: expiresIn as StringValue },
         };
       },
       inject: [ConfigService],
