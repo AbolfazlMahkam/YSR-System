@@ -32,6 +32,34 @@ import { toast } from "sonner";
 import { translateServerError } from "../lib/error-translations";
 import { toPersianDigits } from "@/lib/utils";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+const userBaseSchema = z.object({
+  first_name: z.string().min(1, "نام الزامی است"),
+  last_name: z.string().min(1, "نام خانوادگی الزامی است"),
+  phone: z
+    .string()
+    .min(1, "شماره همراه الزامی است")
+    .regex(/^\+98\d{10,14}$/, "شماره تلفن باید با 98+ شروع شود"),
+  role: z.string().min(1, "نقش الزامی است"),
+});
+
+const addUserSchema = userBaseSchema.extend({
+  password: z
+    .string()
+    .min(8, "رمز عبور باید حداقل ۸ کاراکتر باشد"),
+});
+
+const editUserSchema = userBaseSchema.extend({
+  password: z
+    .string()
+    .optional()
+    .refine((val) => !val || val.length >= 8, "رمز عبور در صورت ارائه باید حداقل ۸ کاراکتر باشد"),
+});
+
+type AddUserFormData = z.infer<typeof addUserSchema>;
+type EditUserFormData = z.infer<typeof editUserSchema>;
 
 interface User {
   id: number;
@@ -39,14 +67,6 @@ interface User {
   role: string;
   first_name: string;
   last_name: string;
-}
-
-interface UserFormData {
-  phone: string;
-  role: string;
-  first_name: string;
-  last_name: string;
-  password?: string;
 }
 
 export function UsersPage() {
@@ -60,8 +80,27 @@ export function UsersPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [roleFilter, setRoleFilter] = useState<string>("all");
 
-  const addForm = useForm<UserFormData>();
-  const editForm = useForm<UserFormData>();
+  const addForm = useForm<AddUserFormData>({
+    resolver: zodResolver(addUserSchema),
+    defaultValues: {
+      first_name: "",
+      last_name: "",
+      phone: "",
+      role: "user",
+      password: "",
+    },
+  });
+
+  const editForm = useForm<EditUserFormData>({
+    resolver: zodResolver(editUserSchema),
+    defaultValues: {
+      first_name: "",
+      last_name: "",
+      phone: "",
+      role: "user",
+      password: "",
+    },
+  });
 
   const isSuperAdmin = currentUser?.role === "super_admin";
 
@@ -87,12 +126,7 @@ export function UsersPage() {
       ? users
       : users.filter((user) => user.role === roleFilter);
 
-  const handleAddUser = async (data: UserFormData) => {
-    if (!data.password || data.password.length < 8) {
-      toast.error("رمز عبور باید حداقل 8 کاراکتر باشد");
-      return;
-    }
-
+  const handleAddUser = async (data: AddUserFormData) => {
     const toastId = toast.loading("در حال ایجاد کاربر...");
     setIsSubmitting(true);
 
@@ -109,7 +143,7 @@ export function UsersPage() {
     }
   };
 
-  const handleEditUser = async (data: UserFormData) => {
+  const handleEditUser = async (data: EditUserFormData) => {
     if (!selectedUser) return;
 
     const toastId = toast.loading("در حال بروزرسانی کاربر");
@@ -343,17 +377,29 @@ export function UsersPage() {
                 <Label htmlFor="add-first-name">نام</Label>
                 <Input
                   id="add-first-name"
-                  {...addForm.register("first_name", { required: true })}
+                  {...addForm.register("first_name")}
                   placeholder="جان"
+                  className={addForm.formState.errors.first_name ? "border-destructive" : ""}
                 />
+                {addForm.formState.errors.first_name && (
+                  <p className="text-sm text-destructive">
+                    {addForm.formState.errors.first_name.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="add-last-name">نام خانوادگی</Label>
                 <Input
                   id="add-last-name"
-                  {...addForm.register("last_name", { required: true })}
+                  {...addForm.register("last_name")}
                   placeholder="دو"
+                  className={addForm.formState.errors.last_name ? "border-destructive" : ""}
                 />
+                {addForm.formState.errors.last_name && (
+                  <p className="text-sm text-destructive">
+                    {addForm.formState.errors.last_name.message}
+                  </p>
+                )}
               </div>
             </div>
             <div className="space-y-2">
@@ -361,26 +407,38 @@ export function UsersPage() {
               <Input
                 id="add-phone"
                 dir="ltr"
-                {...addForm.register("phone", { required: true })}
+                {...addForm.register("phone")}
                 placeholder="+989123456789"
+                className={addForm.formState.errors.phone ? "border-destructive" : ""}
               />
+              {addForm.formState.errors.phone && (
+                <p className="text-sm text-destructive">
+                  {addForm.formState.errors.phone.message}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="add-password">رمز عبور</Label>
               <Input
                 id="add-password"
                 type="password"
-                {...addForm.register("password", { required: true })}
+                {...addForm.register("password")}
                 placeholder="حداقل 8 کاراکتر"
+                className={addForm.formState.errors.password ? "border-destructive" : ""}
               />
+              {addForm.formState.errors.password && (
+                <p className="text-sm text-destructive">
+                  {addForm.formState.errors.password.message}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="add-role">نقش</Label>
               <Select
-                onValueChange={(value) => addForm.setValue("role", value)}
+                onValueChange={(value) => addForm.setValue("role", value, { shouldValidate: true })}
                 defaultValue="user"
               >
-                <SelectTrigger id="add-role">
+                <SelectTrigger id="add-role" className={addForm.formState.errors.role ? "border-destructive" : ""}>
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
                 <SelectContent>
@@ -389,6 +447,11 @@ export function UsersPage() {
                   <SelectItem value="user">USER</SelectItem>
                 </SelectContent>
               </Select>
+              {addForm.formState.errors.role && (
+                <p className="text-sm text-destructive">
+                  {addForm.formState.errors.role.message}
+                </p>
+              )}
             </div>
             <DialogFooter>
               <Button
@@ -431,17 +494,29 @@ export function UsersPage() {
                 <Label htmlFor="edit-first-name">نام</Label>
                 <Input
                   id="edit-first-name"
-                  {...editForm.register("first_name", { required: true })}
+                  {...editForm.register("first_name")}
                   placeholder="John"
+                  className={editForm.formState.errors.first_name ? "border-destructive" : ""}
                 />
+                {editForm.formState.errors.first_name && (
+                  <p className="text-sm text-destructive">
+                    {editForm.formState.errors.first_name.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="edit-last-name">نام خانوادگی</Label>
                 <Input
                   id="edit-last-name"
-                  {...editForm.register("last_name", { required: true })}
+                  {...editForm.register("last_name")}
                   placeholder="Doe"
+                  className={editForm.formState.errors.last_name ? "border-destructive" : ""}
                 />
+                {editForm.formState.errors.last_name && (
+                  <p className="text-sm text-destructive">
+                    {editForm.formState.errors.last_name.message}
+                  </p>
+                )}
               </div>
             </div>
             <div className="space-y-2">
@@ -449,9 +524,15 @@ export function UsersPage() {
               <Input
                 id="edit-phone"
                 dir="ltr"
-                {...editForm.register("phone", { required: true })}
+                {...editForm.register("phone")}
                 placeholder="+1234567890"
+                className={editForm.formState.errors.phone ? "border-destructive" : ""}
               />
+              {editForm.formState.errors.phone && (
+                <p className="text-sm text-destructive">
+                  {editForm.formState.errors.phone.message}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="edit-password">
@@ -462,15 +543,21 @@ export function UsersPage() {
                 type="password"
                 {...editForm.register("password")}
                 placeholder="رمز عبور جدید"
+                className={editForm.formState.errors.password ? "border-destructive" : ""}
               />
+              {editForm.formState.errors.password && (
+                <p className="text-sm text-destructive">
+                  {editForm.formState.errors.password.message}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="edit-role">نقش</Label>
               <Select
-                onValueChange={(value) => editForm.setValue("role", value)}
+                onValueChange={(value) => editForm.setValue("role", value, { shouldValidate: true })}
                 value={editForm.watch("role")}
               >
-                <SelectTrigger id="edit-role">
+                <SelectTrigger id="edit-role" className={editForm.formState.errors.role ? "border-destructive" : ""}>
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
                 <SelectContent>
@@ -479,6 +566,11 @@ export function UsersPage() {
                   <SelectItem value="user">USER</SelectItem>
                 </SelectContent>
               </Select>
+              {editForm.formState.errors.role && (
+                <p className="text-sm text-destructive">
+                  {editForm.formState.errors.role.message}
+                </p>
+              )}
             </div>
             <DialogFooter>
               <Button

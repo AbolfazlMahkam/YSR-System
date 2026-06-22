@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useNavigate } from "react-router-dom";
 import { Loader2, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
 import formsApi from "../api/forms";
@@ -78,6 +80,90 @@ interface FormSchema {
   fields: FieldDefinition[];
 }
 
+function buildSchema(schema: FormSchema) {
+  const shape: Record<string, z.ZodTypeAny> = {};
+
+  const requiredMsg = "این فیلد الزامی است";
+
+  for (const field of schema.fields) {
+    let fieldSchema: z.ZodTypeAny;
+
+    switch (field.type) {
+      case "number":
+        if (field.required) {
+          fieldSchema = z.coerce.number(requiredMsg);
+        } else {
+          fieldSchema = z.coerce.number().optional();
+        }
+        break;
+      case "checkbox":
+        if (field.required) {
+          fieldSchema = z.array(z.string()).min(1, requiredMsg);
+        } else {
+          fieldSchema = z.array(z.string()).optional();
+        }
+        break;
+      case "date":
+        if (field.required) {
+          fieldSchema = z.string(requiredMsg).min(1, requiredMsg);
+        } else {
+          fieldSchema = z.string().optional();
+        }
+        break;
+      case "range":
+        if (field.required) {
+          fieldSchema = z.coerce.number(requiredMsg);
+        } else {
+          fieldSchema = z.coerce.number().optional();
+        }
+        break;
+      case "select":
+        if (field.multiple) {
+          if (field.required) {
+            fieldSchema = z.array(z.string()).min(1, requiredMsg);
+          } else {
+            fieldSchema = z.array(z.string()).optional();
+          }
+        } else {
+          if (field.required) {
+            fieldSchema = z.string(requiredMsg).min(1, requiredMsg);
+          } else {
+            fieldSchema = z.string().optional();
+          }
+        }
+        break;
+      case "province_city":
+        fieldSchema = z.object({
+          province: z
+            .string("استان الزامی است")
+            .min(1, "استان الزامی است"),
+          city: z
+            .string("شهر الزامی است")
+            .min(1, "شهر الزامی است"),
+        });
+        if (!field.required) fieldSchema = fieldSchema.optional();
+        break;
+      case "file":
+        if (field.required) {
+          fieldSchema = z.string(requiredMsg).min(1, requiredMsg);
+        } else {
+          fieldSchema = z.string().optional();
+        }
+        break;
+      default:
+        if (field.required) {
+          fieldSchema = z.string(requiredMsg).min(1, requiredMsg);
+        } else {
+          fieldSchema = z.string().optional();
+        }
+    }
+
+    shape[field.name] = fieldSchema;
+  }
+
+  return z.object(shape);
+}
+
 interface SelfDeclarationSubmission {
   id: number;
   user_id: number;
@@ -114,6 +200,7 @@ export function SelfDeclarationPage() {
     watch,
     formState: { errors },
   } = useForm<SelfDeclarationForm>({
+    resolver: schema ? zodResolver(buildSchema(schema)) : undefined,
     mode: "onChange",
   });
 

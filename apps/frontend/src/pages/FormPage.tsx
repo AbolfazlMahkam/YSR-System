@@ -83,71 +83,87 @@ interface FormSchema {
 function buildSchema(schema: FormSchema) {
   const shape: Record<string, z.ZodTypeAny> = {};
 
+  const requiredMsg = "این فیلد الزامی است";
+
   for (const field of schema.fields) {
     let fieldSchema: z.ZodTypeAny;
 
     switch (field.type) {
       case "number":
-        fieldSchema = z.coerce.number();
-        if (field.required)
-          fieldSchema = (fieldSchema as z.ZodNumber).min(0 as number);
-        else fieldSchema = fieldSchema.optional();
+        if (field.required) {
+          fieldSchema = z.coerce.number(requiredMsg);
+        } else {
+          fieldSchema = z.coerce.number().optional();
+        }
         break;
       case "checkbox":
-        fieldSchema = z.array(z.string());
-        if (field.required)
-          fieldSchema = fieldSchema.min(1, "این فیلد الزامی است");
-        else fieldSchema = fieldSchema.optional();
+        if (field.required) {
+          fieldSchema = z.array(z.string()).min(1, requiredMsg);
+        } else {
+          fieldSchema = z.array(z.string()).optional();
+        }
         break;
       case "date":
-        fieldSchema = z.string();
-        if (field.required)
-          fieldSchema = fieldSchema.min(1, "این فیلد الزامی است");
-        else fieldSchema = fieldSchema.optional();
+        if (field.required) {
+          fieldSchema = z.string(requiredMsg).min(1, requiredMsg);
+        } else {
+          fieldSchema = z.string().optional();
+        }
         break;
       case "range":
-        fieldSchema = z.coerce.number();
-        if (field.required)
-          fieldSchema = (fieldSchema as z.ZodNumber).min(
-            field.validations?.min ?? 0,
-            `حداقل مقدار ${field.validations?.min ?? 0} است`,
-          ).max(
-            field.validations?.max ?? 10,
-            `حداکثر مقدار ${field.validations?.max ?? 10} است`,
-          );
-        else fieldSchema = fieldSchema.optional();
+        if (field.required) {
+          fieldSchema = z.coerce.number(requiredMsg)
+            .min(
+              field.validations?.min ?? 0,
+              `حداقل مقدار ${field.validations?.min ?? 0} است`,
+            )
+            .max(
+              field.validations?.max ?? 10,
+              `حداکثر مقدار ${field.validations?.max ?? 10} است`,
+            );
+        } else {
+          fieldSchema = z.coerce.number().optional();
+        }
         break;
       case "select":
         if (field.multiple) {
-          fieldSchema = z.array(z.string());
-          if (field.required)
-            fieldSchema = fieldSchema.min(1, "این فیلد الزامی است");
-          else fieldSchema = fieldSchema.optional();
+          if (field.required) {
+            fieldSchema = z.array(z.string()).min(1, requiredMsg);
+          } else {
+            fieldSchema = z.array(z.string()).optional();
+          }
         } else {
-          fieldSchema = z.string();
-          if (field.required)
-            fieldSchema = fieldSchema.min(1, "این فیلد الزامی است");
-          else fieldSchema = fieldSchema.optional();
+          if (field.required) {
+            fieldSchema = z.string(requiredMsg).min(1, requiredMsg);
+          } else {
+            fieldSchema = z.string().optional();
+          }
         }
         break;
       case "province_city":
         fieldSchema = z.object({
-          province: z.string().min(1, "استان الزامی است"),
-          city: z.string().min(1, "شهر الزامی است"),
+          province: z
+            .string("استان الزامی است")
+            .min(1, "استان الزامی است"),
+          city: z
+            .string("شهر الزامی است")
+            .min(1, "شهر الزامی است"),
         });
         if (!field.required) fieldSchema = fieldSchema.optional();
         break;
       case "file":
-        fieldSchema = z.string();
-        if (field.required)
-          fieldSchema = fieldSchema.min(1, "این فیلد الزامی است");
-        else fieldSchema = fieldSchema.optional();
+        if (field.required) {
+          fieldSchema = z.string(requiredMsg).min(1, requiredMsg);
+        } else {
+          fieldSchema = z.string().optional();
+        }
         break;
       default:
-        fieldSchema = z.string();
-        if (field.required)
-          fieldSchema = fieldSchema.min(1, "این فیلد الزامی است");
-        else fieldSchema = fieldSchema.optional();
+        if (field.required) {
+          fieldSchema = z.string(requiredMsg).min(1, requiredMsg);
+        } else {
+          fieldSchema = z.string().optional();
+        }
     }
 
     shape[field.name] = fieldSchema;
