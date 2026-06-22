@@ -60,8 +60,10 @@ interface FieldDefinition {
   required: boolean;
   placeholder?: string;
   options?: { label: string; value: string }[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   validations?: Record<string, any>;
   fileConfig?: FileConfig;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   defaultValue?: any;
   multiple?: boolean;
 }
@@ -153,6 +155,7 @@ function buildSchema(schema: FormSchema) {
   return z.object(shape);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type DynamicFormData = Record<string, any>;
 
 export function FormPage() {
@@ -195,8 +198,8 @@ export function FormPage() {
       );
       setValue(fieldName, result.url);
       toast.success(`فایل "${file.name}" با موفقیت بارگذاری شد`);
-    } catch (err: any) {
-      toast.error(err.message || "خطا در بارگذاری فایل");
+    } catch (err: unknown) {
+      toast.error((err as Error).message || "خطا در بارگذاری فایل");
       setValue(fieldName, "");
     } finally {
       setUploadingFiles((prev) => ({ ...prev, [fieldName]: false }));
@@ -233,8 +236,8 @@ export function FormPage() {
       await formsApi.submitForm(formSlug!, data);
       setSubmitted(true);
       toast.success("فرم با موفقیت ارسال شد");
-    } catch (err: any) {
-      toast.error(err.message || "خطا در ارسال فرم");
+    } catch (err: unknown) {
+      toast.error((err as Error).message || "خطا در ارسال فرم");
     } finally {
       setSubmitting(false);
     }

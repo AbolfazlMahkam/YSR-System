@@ -28,6 +28,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return super.canActivate(context);
   }
 
+  /* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */
   handleRequest(err: any, user: any, info: any) {
     // Custom error handling
     if (err || !user) {
@@ -41,4 +42,5 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     }
     return user;
   }
+  /* eslint-enable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */
 }

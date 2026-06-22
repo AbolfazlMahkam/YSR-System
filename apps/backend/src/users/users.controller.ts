@@ -46,7 +46,7 @@ export class UsersController {
     @Param('id', UserExistsPipe) user: Users,
     @GetUser('id') userId: number,
   ) {
-    // Users can view their own profile or admins can view any profile
+    void userId;
     return user;
   }
 
@@ -56,6 +56,7 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
     @GetUser('id') userId: number,
   ) {
+    void userId;
     // Users can update their own profile or admins can update any profile
     return this.usersService.update(user, updateUserDto);
   }

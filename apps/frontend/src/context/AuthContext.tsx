@@ -35,6 +35,7 @@ interface RegisterData {
   role?: string;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext<AuthContextType | undefined>(
   undefined,
 );
@@ -47,11 +48,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const isAuthenticated = !!token && !!user;
 
-  // Check authentication on mount
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
   function checkAuth() {
     const storedToken = localStorageService.getToken();
     const storedUser = localStorageService.getUserInfo();
@@ -62,6 +58,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     setIsLoading(false);
   }
+
+  // Check authentication on mount
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    checkAuth();
+  }, []);
 
   async function login(phone: string, password: string) {
     try {
@@ -79,8 +81,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(userData);
 
       navigate("/");
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || "Login failed");
+    } catch (error: unknown) {
+      throw new Error(
+        (error as { response?: { data?: { message?: string } } }).response
+          ?.data?.message || "Login failed",
+      );
     }
   }
 
@@ -110,8 +115,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       return {};
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || "OTP login failed");
+    } catch (error: unknown) {
+      throw new Error(
+        (error as { response?: { data?: { message?: string } } }).response
+          ?.data?.message || "OTP login failed",
+      );
     }
   }
 
@@ -130,8 +138,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(userData);
 
       navigate("/");
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || "Google login failed");
+    } catch (error: unknown) {
+      throw new Error(
+        (error as { response?: { data?: { message?: string } } }).response
+          ?.data?.message || "Google login failed",
+      );
     }
   }
 
@@ -145,8 +156,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await login(userData.phone, userData.password);
 
       navigate("/forms/self-declaration");
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || "Registration failed");
+    } catch (error: unknown) {
+      throw new Error(
+        (error as { response?: { data?: { message?: string } } }).response
+          ?.data?.message || "Registration failed",
+      );
     }
   }
 

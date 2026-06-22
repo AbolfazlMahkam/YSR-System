@@ -100,8 +100,8 @@ export function RegisterPage() {
       });
 
       toast.success("Account created successfully!", { id: toastId });
-    } catch (err: any) {
-      toast.error(err.message || "Registration failed. Please try again.", {
+    } catch (err: unknown) {
+      toast.error((err as Error).message || "Registration failed. Please try again.", {
         id: toastId,
       });
     } finally {

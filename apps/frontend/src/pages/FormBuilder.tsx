@@ -52,8 +52,10 @@ interface FieldDefinition {
   required: boolean;
   placeholder?: string;
   options?: FieldOption[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   validations?: Record<string, any>;
   fileConfig?: FileConfig;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   defaultValue?: any;
   multiple?: boolean;
 }
@@ -103,6 +105,7 @@ export function FormBuilder() {
     if (isEdit) {
       fetchForm();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const fetchForm = async () => {
@@ -118,8 +121,8 @@ export function FormBuilder() {
       setNotificationTitle(data.notification_title || "");
       setNotificationText(data.notification_text || "");
       setFields(data.fields || []);
-    } catch (err: any) {
-      toast.error(err.message || "خطا در بارگذاری فرم");
+    } catch (err: unknown) {
+      toast.error((err as Error).message || "خطا در بارگذاری فرم");
       navigate("/admin/forms");
     } finally {
       setLoading(false);
@@ -160,6 +163,7 @@ export function FormBuilder() {
   const updateField = (
     index: number,
     key: keyof FieldDefinition,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: any,
   ) => {
     const updated = fields.map((field, i) => {
@@ -310,8 +314,8 @@ export function FormBuilder() {
         toast.success("فرم با موفقیت ایجاد شد", { id: toastId });
       }
       navigate("/admin/forms");
-    } catch (err: any) {
-      toast.error(err.message || "خطا در ذخیره فرم", { id: toastId });
+    } catch (err: unknown) {
+      toast.error((err as Error).message || "خطا در ذخیره فرم", { id: toastId });
     } finally {
       setSaving(false);
     }

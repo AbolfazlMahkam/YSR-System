@@ -9,7 +9,10 @@ export class AddStatusToSelfDeclarations1740000000004 implements MigrationInterf
       return;
     }
 
-    const hasColumn = await queryRunner.hasColumn('self_declarations', 'status');
+    const hasColumn = await queryRunner.hasColumn(
+      'self_declarations',
+      'status',
+    );
     if (!hasColumn) {
       await queryRunner.query(`
         ALTER TABLE "self_declarations"

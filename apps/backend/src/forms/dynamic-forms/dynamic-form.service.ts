@@ -24,7 +24,15 @@ export class DynamicFormService {
         is_active: true,
         slug: Not(SELF_DECLARATION_SLUG),
       },
-      select: ['id', 'slug', 'title', 'description', 'show_notification', 'notification_title', 'notification_text'],
+      select: [
+        'id',
+        'slug',
+        'title',
+        'description',
+        'show_notification',
+        'notification_title',
+        'notification_text',
+      ],
       order: { created_at: 'ASC' },
     });
   }

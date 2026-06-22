@@ -22,7 +22,9 @@ import { RolesGuard } from './common/guards/roles.guard';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        type: (configService.get<string>('DB_TYPE') || 'postgres') as any,
+        type: (configService.get<string>('DB_TYPE') || 'postgres') as
+          | 'postgres'
+          | 'mysql',
         host: configService.get<string>('DB_HOST') || 'localhost',
         port: parseInt(configService.get<string>('DB_PORT') || '5432', 10),
         username: configService.get<string>('DB_USERNAME') || 'postgres',

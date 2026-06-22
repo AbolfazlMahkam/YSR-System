@@ -4,9 +4,9 @@ export class SeedSelfDeclarationSchema1740000000002 implements MigrationInterfac
   name = 'SeedSelfDeclarationSchema1740000000002';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    const existing = await queryRunner.query(
+    const existing = (await queryRunner.query(
       `SELECT id FROM "form_schemas" WHERE slug = 'self-declaration'`,
-    );
+    )) as { id: number }[];
     if (existing.length > 0) {
       return;
     }

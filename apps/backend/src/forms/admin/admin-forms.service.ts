@@ -39,7 +39,7 @@ export class AdminFormsService {
     form.show_notification = dto.show_notification ?? false;
     form.notification_title = dto.notification_title || null;
     form.notification_text = dto.notification_text || null;
-    form.fields = (dto.fields || []) as any;
+    form.fields = (dto.fields || []) as Record<string, unknown>[];
 
     return this.formSchemaRepository.save(form);
   }
@@ -57,7 +57,7 @@ export class AdminFormsService {
       .getRawMany();
 
     const countMap = new Map<number, number>();
-    for (const row of counts) {
+    for (const row of counts as { form_id: unknown; count: unknown }[]) {
       countMap.set(Number(row.form_id), Number(row.count));
     }
 

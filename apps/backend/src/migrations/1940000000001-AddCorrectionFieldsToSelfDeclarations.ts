@@ -4,7 +4,10 @@ export class AddCorrectionFieldsToSelfDeclarations1940000000001 implements Migra
   name = 'AddCorrectionFieldsToSelfDeclarations1940000000001';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    const hasColumn = await queryRunner.hasColumn('self_declarations', 'correction_fields');
+    const hasColumn = await queryRunner.hasColumn(
+      'self_declarations',
+      'correction_fields',
+    );
     if (!hasColumn) {
       await queryRunner.query(`
         ALTER TABLE "self_declarations"

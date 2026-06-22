@@ -58,9 +58,9 @@ export function LoginPage() {
       setIsSubmitting(true);
       await login(data.phone, data.password);
       toast.success("Logged in successfully!", { id: toastId });
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.error(
-        err.message || "Login failed. Please check your credentials.",
+        (err as Error).message || "Login failed. Please check your credentials.",
         { id: toastId },
       );
     } finally {

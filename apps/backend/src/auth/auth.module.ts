@@ -26,7 +26,7 @@ import { OtpCodeValidationPipe } from '../common/pipes/otp-code-validation.pipe'
 
         return {
           secret,
-          signOptions: { expiresIn: expiresIn as any },
+          signOptions: { expiresIn },
         };
       },
       inject: [ConfigService],

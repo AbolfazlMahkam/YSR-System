@@ -15,11 +15,11 @@ export class UniquePhonePipe implements PipeTransform {
     private readonly usersRepository: Repository<Users>,
   ) {}
 
-  async transform(value: any, metadata: ArgumentMetadata) {
-    // Only validate if the value has a phone property
-    if (value && value.phone) {
+  async transform(value: Record<string, unknown>, _metadata: ArgumentMetadata) {
+    void _metadata;
+    if (value?.phone) {
       const existingPhone = await this.usersRepository.findOne({
-        where: { phone: value.phone },
+        where: { phone: value.phone as string },
       });
 
       if (existingPhone) {

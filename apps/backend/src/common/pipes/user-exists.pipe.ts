@@ -15,7 +15,8 @@ export class UserExistsPipe implements PipeTransform<number, Promise<Users>> {
     private readonly usersRepository: Repository<Users>,
   ) {}
 
-  async transform(value: number, metadata: ArgumentMetadata): Promise<Users> {
+  async transform(value: number, _metadata: ArgumentMetadata): Promise<Users> {
+    void _metadata;
     const id = Number(value);
 
     if (isNaN(id)) {

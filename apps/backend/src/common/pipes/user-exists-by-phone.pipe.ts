@@ -15,12 +15,12 @@ export class UserExistsByPhonePipe implements PipeTransform {
     private readonly usersRepository: Repository<Users>,
   ) {}
 
-  async transform(value: any, metadata: ArgumentMetadata) {
-    // Only validate if the value has a phone property
-    if (value && value.phone) {
+  async transform(value: Record<string, unknown>, _metadata: ArgumentMetadata) {
+    void _metadata;
+    if (value?.phone) {
       const user = await this.usersRepository
         .createQueryBuilder('user')
-        .where('user.phone = :phone', { phone: value.phone })
+        .where('user.phone = :phone', { phone: value.phone as string })
         .addSelect('user.password')
         .getOne();
 
@@ -28,7 +28,6 @@ export class UserExistsByPhonePipe implements PipeTransform {
         throw new NotFoundException('User not found');
       }
 
-      // Attach the loaded user to the DTO for service to use
       value._user = user;
     }
 

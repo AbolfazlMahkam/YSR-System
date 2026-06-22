@@ -73,8 +73,8 @@ export function UsersPage() {
       setLoading(true);
       const data = await usersApi.getAllUsers();
       setUsers(data || []);
-    } catch (err: any) {
-      toast.error(err.message || "Failed to fetch users");
+    } catch (err: unknown) {
+      toast.error((err as Error).message || "Failed to fetch users");
     } finally {
       setLoading(false);
     }
@@ -101,8 +101,8 @@ export function UsersPage() {
       setIsAddDialogOpen(false);
       addForm.reset();
       fetchAllUsers();
-    } catch (err: any) {
-      toast.error(err.message || "خطا در ایجاد کاربر", { id: toastId });
+    } catch (err: unknown) {
+      toast.error((err as Error).message || "خطا در ایجاد کاربر", { id: toastId });
     } finally {
       setIsSubmitting(false);
     }
@@ -125,8 +125,8 @@ export function UsersPage() {
       setSelectedUser(null);
       editForm.reset();
       fetchAllUsers();
-    } catch (err: any) {
-      toast.error(err.message || "خطا در بروزرسانی کاربر", { id: toastId });
+    } catch (err: unknown) {
+      toast.error((err as Error).message || "خطا در بروزرسانی کاربر", { id: toastId });
     } finally {
       setIsSubmitting(false);
     }
@@ -143,8 +143,8 @@ export function UsersPage() {
       setIsDeleteDialogOpen(false);
       setSelectedUser(null);
       fetchAllUsers();
-    } catch (err: any) {
-      toast.error(err.message || "خطا درحذق کاربر", { id: toastId });
+    } catch (err: unknown) {
+      toast.error((err as Error).message || "خطا درحذق کاربر", { id: toastId });
     }
   };
 

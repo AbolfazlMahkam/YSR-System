@@ -49,8 +49,8 @@ export function FormDefinitions() {
       setLoading(true);
       const data = await adminFormsApi.getAll();
       setForms(data || []);
-    } catch (err: any) {
-      toast.error(err.message || "Failed to fetch forms");
+    } catch (err: unknown) {
+      toast.error((err as Error).message || "Failed to fetch forms");
     } finally {
       setLoading(false);
     }
@@ -65,8 +65,8 @@ export function FormDefinitions() {
       toast.success("فرم با موفقیت حذف شد", { id: toastId });
       setDeleteTarget(null);
       fetchForms();
-    } catch (err: any) {
-      toast.error(err.message || "خطا در حذف فرم", { id: toastId });
+    } catch (err: unknown) {
+      toast.error((err as Error).message || "خطا در حذف فرم", { id: toastId });
     } finally {
       setDeleting(false);
     }

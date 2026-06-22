@@ -43,6 +43,7 @@ interface SelfDeclarationUser {
 interface SelfDeclaration {
   id: number;
   user_id: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: Record<string, any>;
   status: "pending" | "approved" | "returned";
   admin_notes: string | null;
@@ -76,7 +77,7 @@ export function SelfDeclarationSubmissions() {
   const fetchSchema = async () => {
     try {
       const forms = await adminFormsApi.getAll();
-      const selfDeclForm = forms.find((f: any) => f.slug === "self-declaration");
+      const selfDeclForm = forms.find((f: { slug: string }) => f.slug === "self-declaration");
       if (selfDeclForm?.fields) {
         setSchemaFields(selfDeclForm.fields);
       }
@@ -90,8 +91,8 @@ export function SelfDeclarationSubmissions() {
       setLoading(true);
       const data = await adminFormsApi.getSelfDeclarations();
       setSubmissions(data || []);
-    } catch (err: any) {
-      toast.error(err.message || "خطا در دریافت اظهارنامه‌ها");
+    } catch (err: unknown) {
+      toast.error((err as Error).message || "خطا در دریافت اظهارنامه‌ها");
     } finally {
       setLoading(false);
     }
@@ -124,14 +125,15 @@ export function SelfDeclarationSubmissions() {
       setReviewingId(null);
       setExpandedId(null);
       await fetchSubmissions();
-    } catch (err: any) {
-      toast.error(err.message || "خطا در بررسی اظهارنامه");
+    } catch (err: unknown) {
+      toast.error((err as Error).message || "خطا در بررسی اظهارنامه");
     }
   };
 
   const getFieldDef = (name: string) =>
     schemaFields.find((f) => f.name === name);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const renderValue = (fieldKey: string, value: any) => {
     const field = getFieldDef(fieldKey);
     const isFileUrl =

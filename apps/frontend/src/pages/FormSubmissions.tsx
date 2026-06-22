@@ -15,11 +15,10 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { ClipboardList, Eye, ChevronDown, ChevronUp, ExternalLink, File } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import adminFormsApi from "../api/admin-forms";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { toast } from "sonner";
-import { cn, toPersianDigits } from "@/lib/utils";
+import { toPersianDigits } from "@/lib/utils";
 
 interface FieldDefinition {
   name: string;
@@ -46,6 +45,7 @@ interface Submission {
   id: number;
   user_id: number;
   form_id: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   answers: Record<string, any>;
   created_at: string;
   user: SubmissionUser;
@@ -70,8 +70,8 @@ export function FormSubmissions() {
       setLoadingForms(true);
       const data = await adminFormsApi.getAll();
       setForms((data || []).filter((f: FormSchema) => f.slug !== "self-declaration"));
-    } catch (err: any) {
-      toast.error(err.message || "Failed to fetch forms");
+    } catch (err: unknown) {
+      toast.error((err as Error).message || "Failed to fetch forms");
     } finally {
       setLoadingForms(false);
     }
@@ -84,8 +84,8 @@ export function FormSubmissions() {
       setSubmissions(data.submissions || []);
       setFormTitle(data.form?.title || "");
       setFormFields(data.form?.fields || []);
-    } catch (err: any) {
-      toast.error(err.message || "Failed to fetch submissions");
+    } catch (err: unknown) {
+      toast.error((err as Error).message || "Failed to fetch submissions");
       setSubmissions([]);
     } finally {
       setLoadingSubs(false);
@@ -196,7 +196,7 @@ export function FormSubmissions() {
                         const value = sub.answers[field.name];
                         if (value === undefined || value === null || value === "") return null;
 
-                        const formatValue = (val: any) => {
+                        const formatValue = (val: unknown) => {
                           const isFileUrl =
                             typeof val === "string" &&
                             (val.startsWith("/uploads/") ||

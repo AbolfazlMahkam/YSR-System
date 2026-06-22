@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { useNavigate } from "react-router-dom";
 import { Loader2, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
 import formsApi from "../api/forms";
@@ -60,8 +58,10 @@ interface FieldDefinition {
   required: boolean;
   placeholder?: string;
   options?: { label: string; value: string }[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   validations?: Record<string, any>;
   fileConfig?: FileConfig;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   defaultValue?: any;
   multiple?: boolean;
 }
@@ -77,6 +77,7 @@ interface FormSchema {
 interface SelfDeclarationSubmission {
   id: number;
   user_id: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: Record<string, any>;
   status: "pending" | "approved" | "returned";
   admin_notes: string | null;
@@ -85,82 +86,7 @@ interface SelfDeclarationSubmission {
   updated_at: string;
 }
 
-function buildSchema(schema: FormSchema) {
-  const shape: Record<string, z.ZodTypeAny> = {};
-
-  for (const field of schema.fields) {
-    let fieldSchema: z.ZodTypeAny;
-
-    switch (field.type) {
-      case "number":
-        fieldSchema = z.coerce.number();
-        if (field.required)
-          fieldSchema = (fieldSchema as z.ZodNumber).min(0 as number);
-        else fieldSchema = fieldSchema.optional();
-        break;
-      case "checkbox":
-        fieldSchema = z.array(z.string());
-        if (field.required)
-          fieldSchema = fieldSchema.min(1, "این فیلد الزامی است");
-        else fieldSchema = fieldSchema.optional();
-        break;
-      case "date":
-        fieldSchema = z.string();
-        if (field.required)
-          fieldSchema = fieldSchema.min(1, "این فیلد الزامی است");
-        else fieldSchema = fieldSchema.optional();
-        break;
-      case "range":
-        fieldSchema = z.coerce.number();
-        if (field.required)
-          fieldSchema = (fieldSchema as z.ZodNumber).min(
-            field.validations?.min ?? 0,
-            `حداقل مقدار ${field.validations?.min ?? 0} است`,
-          ).max(
-            field.validations?.max ?? 10,
-            `حداکثر مقدار ${field.validations?.max ?? 10} است`,
-          );
-        else fieldSchema = fieldSchema.optional();
-        break;
-      case "select":
-        if (field.multiple) {
-          fieldSchema = z.array(z.string());
-          if (field.required)
-            fieldSchema = fieldSchema.min(1, "این فیلد الزامی است");
-          else fieldSchema = fieldSchema.optional();
-        } else {
-          fieldSchema = z.string();
-          if (field.required)
-            fieldSchema = fieldSchema.min(1, "این فیلد الزامی است");
-          else fieldSchema = fieldSchema.optional();
-        }
-        break;
-      case "province_city":
-        fieldSchema = z.object({
-          province: z.string().min(1, "استان الزامی است"),
-          city: z.string().min(1, "شهر الزامی است"),
-        });
-        if (!field.required) fieldSchema = fieldSchema.optional();
-        break;
-      case "file":
-        fieldSchema = z.string();
-        if (field.required)
-          fieldSchema = fieldSchema.min(1, "این فیلد الزامی است");
-        else fieldSchema = fieldSchema.optional();
-        break;
-      default:
-        fieldSchema = z.string();
-        if (field.required)
-          fieldSchema = fieldSchema.min(1, "این فیلد الزامی است");
-        else fieldSchema = fieldSchema.optional();
-    }
-
-    shape[field.name] = fieldSchema;
-  }
-
-  return z.object(shape);
-}
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SelfDeclarationForm = Record<string, any>;
 
 export function SelfDeclarationPage() {
@@ -202,8 +128,8 @@ export function SelfDeclarationPage() {
       );
       setValue(fieldName, result.url);
       toast.success(`فایل "${file.name}" با موفقیت بارگذاری شد`);
-    } catch (err: any) {
-      toast.error(err.message || "خطا در بارگذاری فایل");
+    } catch (err: unknown) {
+      toast.error((err as Error).message || "خطا در بارگذاری فایل");
       setValue(fieldName, "");
     } finally {
       setUploadingFiles((prev) => ({ ...prev, [fieldName]: false }));
@@ -249,15 +175,14 @@ export function SelfDeclarationPage() {
       const updated = await formsApi.getMySelfDeclaration();
       setSubmission(updated);
       toast.success("اظهارنامه با موفقیت ارسال شد");
-    } catch (err: any) {
-      toast.error(err.message || "خطا در ارسال اظهارنامه");
+    } catch (err: unknown) {
+      toast.error((err as Error).message || "خطا در ارسال اظهارنامه");
     } finally {
       setSubmitting(false);
     }
   }
 
   function renderField(field: FieldDefinition) {
-    const error = errors[field.name];
     const value = formValues[field.name];
 
     switch (field.type) {

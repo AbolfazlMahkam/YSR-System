@@ -15,13 +15,13 @@ export class OtpCodeValidationPipe implements PipeTransform {
     private readonly codeRepository: Repository<Codes>,
   ) {}
 
-  async transform(value: any, metadata: ArgumentMetadata) {
-    // Only validate if the value has both code and phone properties
-    if (value && value.code && value.phone) {
+  async transform(value: Record<string, unknown>, _metadata: ArgumentMetadata) {
+    void _metadata;
+    if (value?.code && value?.phone) {
       const checkCode = await this.codeRepository.findOne({
         where: {
-          code: value.code,
-          phone: value.phone,
+          code: value.code as number,
+          phone: value.phone as string,
           is_used: false,
         },
       });
@@ -30,7 +30,6 @@ export class OtpCodeValidationPipe implements PipeTransform {
         throw new BadRequestException('code is not valid');
       }
 
-      // Attach the validated code to the DTO for service to use
       value._validatedCode = checkCode;
     }
 

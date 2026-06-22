@@ -65,11 +65,11 @@ export function ProfilePage() {
     setIsSubmitting(true);
 
     try {
-      const updateData: any = {
+      const updateData: Record<string, unknown> = {
         first_name: data.first_name,
         last_name: data.last_name,
         phone: data.phone,
-        role: user.role, // Keep the same role
+        role: user.role,
       };
 
       // Only include password if it was provided
@@ -90,8 +90,8 @@ export function ProfilePage() {
         ...data,
         password: "",
       });
-    } catch (err: any) {
-      toast.error(err.message || "خطا در بروزرسانی حساب کاربری", { id: toastId });
+    } catch (err: unknown) {
+      toast.error((err as Error).message || "خطا در بروزرسانی حساب کاربری", { id: toastId });
     } finally {
       setIsSubmitting(false);
     }

@@ -138,11 +138,10 @@ export class AuthService {
       });
 
       return { access_token: accessToken };
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Google login error:', error);
       throw new HttpException(
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        error.message || 'Google authentication failed',
+        (error as Error).message || 'Google authentication failed',
         401,
       );
     }

@@ -21,9 +21,13 @@ const ALLOWED_MIME_TYPES: Record<string, string[]> = {
   '.svg': ['image/svg+xml'],
   '.pdf': ['application/pdf'],
   '.doc': ['application/msword'],
-  '.docx': ['application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+  '.docx': [
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  ],
   '.xls': ['application/vnd.ms-excel'],
-  '.xlsx': ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+  '.xlsx': [
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  ],
   '.zip': ['application/zip'],
   '.rar': ['application/vnd.rar'],
   '.txt': ['text/plain'],
@@ -53,11 +57,19 @@ export class UploadsController {
       fileFilter: (_req, file, cb) => {
         const ext = path.extname(file.originalname).toLowerCase();
         if (!ALLOWED_MIME_TYPES[ext]) {
-          cb(new BadRequestException(`File type "${ext}" is not allowed`), false);
+          cb(
+            new BadRequestException(`File type "${ext}" is not allowed`),
+            false,
+          );
           return;
         }
         if (!ALLOWED_MIME_TYPES[ext].includes(file.mimetype)) {
-          cb(new BadRequestException(`MIME type "${file.mimetype}" does not match extension "${ext}"`), false);
+          cb(
+            new BadRequestException(
+              `MIME type "${file.mimetype}" does not match extension "${ext}"`,
+            ),
+            false,
+          );
           return;
         }
         cb(null, true);

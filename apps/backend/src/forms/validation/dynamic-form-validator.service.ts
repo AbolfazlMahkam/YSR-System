@@ -5,9 +5,10 @@ import { FieldDefinition } from './field-definition.interface';
 export class DynamicFormValidatorService {
   validate(
     fields: FieldDefinition[],
-    data: Record<string, any>,
-  ): Record<string, any> {
-    const cleaned: Record<string, any> = {};
+
+    data: Record<string, unknown>,
+  ): Record<string, unknown> {
+    const cleaned: Record<string, unknown> = {};
     const errors: string[] = [];
 
     const fieldMap = new Map<string, FieldDefinition>();
@@ -55,7 +56,7 @@ export class DynamicFormValidatorService {
     return cleaned;
   }
 
-  private validateType(field: FieldDefinition, value: any): string | null {
+  private validateType(field: FieldDefinition, value: unknown): string | null {
     switch (field.type) {
       case 'text':
       case 'textarea':
@@ -84,7 +85,7 @@ export class DynamicFormValidatorService {
           }
           if (field.options) {
             const validValues = new Set(field.options.map((o) => o.value));
-            for (const v of value) {
+            for (const v of value as string[]) {
               if (!validValues.has(v)) {
                 const valid = field.options.map((o) => o.value).join(', ');
                 return `"${field.label}" contains invalid value "${v}". Valid options: ${valid}`;
@@ -116,7 +117,7 @@ export class DynamicFormValidatorService {
         }
         if (field.options) {
           const validValues = new Set(field.options.map((o) => o.value));
-          for (const v of value) {
+          for (const v of value as string[]) {
             if (!validValues.has(v)) {
               const valid = field.options.map((o) => o.value).join(', ');
               return `"${field.label}" contains invalid value "${v}". Valid options: ${valid}`;
@@ -135,7 +136,10 @@ export class DynamicFormValidatorService {
     return null;
   }
 
-  private applyValidations(field: FieldDefinition, value: any): string | null {
+  private applyValidations(
+    field: FieldDefinition,
+    value: unknown,
+  ): string | null {
     const validations = field.validations;
     if (!validations) return null;
 
@@ -161,7 +165,10 @@ export class DynamicFormValidatorService {
       }
     }
 
-    if ((field.type === 'number' || field.type === 'range') && typeof value === 'number') {
+    if (
+      (field.type === 'number' || field.type === 'range') &&
+      typeof value === 'number'
+    ) {
       if (validations.min !== undefined && value < validations.min) {
         return `"${field.label}" must be at least ${validations.min}`;
       }
@@ -173,8 +180,11 @@ export class DynamicFormValidatorService {
     return null;
   }
 
-  private castValue(field: FieldDefinition, value: any): any {
-    if ((field.type === 'number' || field.type === 'range') && typeof value === 'string') {
+  private castValue(field: FieldDefinition, value: unknown): unknown {
+    if (
+      (field.type === 'number' || field.type === 'range') &&
+      typeof value === 'string'
+    ) {
       const parsed = parseFloat(value);
       return isNaN(parsed) ? value : parsed;
     }
