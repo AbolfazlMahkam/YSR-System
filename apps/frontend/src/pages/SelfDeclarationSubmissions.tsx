@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import adminFormsApi from "../api/admin-forms";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { toast } from "sonner";
+import { translateServerError } from "../lib/error-translations";
 import { cn, toPersianDigits } from "@/lib/utils";
 
 interface FieldDefinition {
@@ -92,7 +93,7 @@ export function SelfDeclarationSubmissions() {
       const data = await adminFormsApi.getSelfDeclarations();
       setSubmissions(data || []);
     } catch (err: unknown) {
-      toast.error((err as Error).message || "خطا در دریافت اظهارنامه‌ها");
+      toast.error(translateServerError(err) || "خطا در دریافت اظهارنامه‌ها");
     } finally {
       setLoading(false);
     }
@@ -126,7 +127,7 @@ export function SelfDeclarationSubmissions() {
       setExpandedId(null);
       await fetchSubmissions();
     } catch (err: unknown) {
-      toast.error((err as Error).message || "خطا در بررسی اظهارنامه");
+      toast.error(translateServerError(err) || "خطا در بررسی اظهارنامه");
     }
   };
 

@@ -18,6 +18,7 @@ import {
 } from "../components/ui/card";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { toast } from "sonner";
+import { translateServerError } from "../lib/error-translations";
 import logo from "../assets/logo-nt.png";
 
 // Validation schema - Only phone and password required now
@@ -52,17 +53,17 @@ export function LoginPage() {
 
   // Password login handler
   const onLogin = async (data: LoginFormData) => {
-    const toastId = toast.loading("Signing in...");
+    const toastId = toast.loading("در حال ورود...");
 
     try {
       setIsSubmitting(true);
       await login(data.phone, data.password);
-      toast.success("Logged in successfully!", { id: toastId });
+      toast.success("با موفقیت وارد شدید!", { id: toastId });
     } catch (err: unknown) {
-      toast.error(
-        (err as Error).message || "Login failed. Please check your credentials.",
-        { id: toastId },
-      );
+toast.error(
+          translateServerError(err) || "ورود ناموفق. لطفاً اطلاعات خود را بررسی کنید.",
+          { id: toastId },
+        );
     } finally {
       setIsSubmitting(false);
     }

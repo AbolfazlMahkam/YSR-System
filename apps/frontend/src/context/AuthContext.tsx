@@ -84,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error: unknown) {
       throw new Error(
         (error as { response?: { data?: { message?: string } } }).response
-          ?.data?.message || "Login failed",
+          ?.data?.message || "ورود ناموفق",
       );
     }
   }
@@ -118,7 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error: unknown) {
       throw new Error(
         (error as { response?: { data?: { message?: string } } }).response
-          ?.data?.message || "OTP login failed",
+          ?.data?.message || "ورود با رمز یکبار مصرف ناموفق",
       );
     }
   }
@@ -141,7 +141,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error: unknown) {
       throw new Error(
         (error as { response?: { data?: { message?: string } } }).response
-          ?.data?.message || "Google login failed",
+          ?.data?.message || "ورود با گوگل ناموفق",
       );
     }
   }
@@ -159,7 +159,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error: unknown) {
       throw new Error(
         (error as { response?: { data?: { message?: string } } }).response
-          ?.data?.message || "Registration failed",
+          ?.data?.message || "ثبت نام ناموفق",
       );
     }
   }

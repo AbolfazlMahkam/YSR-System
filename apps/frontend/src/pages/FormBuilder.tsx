@@ -31,6 +31,7 @@ import {
 import adminFormsApi from "../api/admin-forms";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { toast } from "sonner";
+import { translateServerError } from "../lib/error-translations";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { cn, toPersianDigits } from "@/lib/utils";
@@ -122,7 +123,7 @@ export function FormBuilder() {
       setNotificationText(data.notification_text || "");
       setFields(data.fields || []);
     } catch (err: unknown) {
-      toast.error((err as Error).message || "خطا در بارگذاری فرم");
+      toast.error(translateServerError(err) || "خطا در بارگذاری فرم");
       navigate("/admin/forms");
     } finally {
       setLoading(false);
@@ -315,7 +316,7 @@ export function FormBuilder() {
       }
       navigate("/admin/forms");
     } catch (err: unknown) {
-      toast.error((err as Error).message || "خطا در ذخیره فرم", { id: toastId });
+      toast.error(translateServerError(err) || "خطا در ذخیره فرم", { id: toastId });
     } finally {
       setSaving(false);
     }

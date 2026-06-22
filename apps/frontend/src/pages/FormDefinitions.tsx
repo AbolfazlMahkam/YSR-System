@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import adminFormsApi from "../api/admin-forms";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { toast } from "sonner";
+import { translateServerError } from "../lib/error-translations";
 import { toPersianDigits } from "@/lib/utils";
 
 interface FormSchema {
@@ -50,7 +51,7 @@ export function FormDefinitions() {
       const data = await adminFormsApi.getAll();
       setForms(data || []);
     } catch (err: unknown) {
-      toast.error((err as Error).message || "Failed to fetch forms");
+      toast.error(translateServerError(err) || "خطا در دریافت فرم‌ها");
     } finally {
       setLoading(false);
     }
@@ -66,7 +67,7 @@ export function FormDefinitions() {
       setDeleteTarget(null);
       fetchForms();
     } catch (err: unknown) {
-      toast.error((err as Error).message || "خطا در حذف فرم", { id: toastId });
+      toast.error(translateServerError(err) || "خطا در حذف فرم", { id: toastId });
     } finally {
       setDeleting(false);
     }

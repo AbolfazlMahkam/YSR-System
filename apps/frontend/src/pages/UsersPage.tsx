@@ -29,6 +29,7 @@ import usersApi from "../api/users";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { useAuth } from "../hooks/useAuth";
 import { toast } from "sonner";
+import { translateServerError } from "../lib/error-translations";
 import { toPersianDigits } from "@/lib/utils";
 import { useForm } from "react-hook-form";
 
@@ -74,7 +75,7 @@ export function UsersPage() {
       const data = await usersApi.getAllUsers();
       setUsers(data || []);
     } catch (err: unknown) {
-      toast.error((err as Error).message || "Failed to fetch users");
+      toast.error(translateServerError(err) || "خطا در دریافت کاربران");
     } finally {
       setLoading(false);
     }
@@ -102,7 +103,7 @@ export function UsersPage() {
       addForm.reset();
       fetchAllUsers();
     } catch (err: unknown) {
-      toast.error((err as Error).message || "خطا در ایجاد کاربر", { id: toastId });
+      toast.error(translateServerError(err) || "خطا در ایجاد کاربر", { id: toastId });
     } finally {
       setIsSubmitting(false);
     }
@@ -126,7 +127,7 @@ export function UsersPage() {
       editForm.reset();
       fetchAllUsers();
     } catch (err: unknown) {
-      toast.error((err as Error).message || "خطا در بروزرسانی کاربر", { id: toastId });
+      toast.error(translateServerError(err) || "خطا در بروزرسانی کاربر", { id: toastId });
     } finally {
       setIsSubmitting(false);
     }
@@ -144,7 +145,7 @@ export function UsersPage() {
       setSelectedUser(null);
       fetchAllUsers();
     } catch (err: unknown) {
-      toast.error((err as Error).message || "خطا درحذق کاربر", { id: toastId });
+      toast.error(translateServerError(err) || "خطا در حذف کاربر", { id: toastId });
     }
   };
 

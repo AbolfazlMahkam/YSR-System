@@ -18,6 +18,7 @@ import { ClipboardList, Eye, ChevronDown, ChevronUp, ExternalLink, File } from "
 import adminFormsApi from "../api/admin-forms";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { toast } from "sonner";
+import { translateServerError } from "../lib/error-translations";
 import { toPersianDigits } from "@/lib/utils";
 
 interface FieldDefinition {
@@ -71,7 +72,7 @@ export function FormSubmissions() {
       const data = await adminFormsApi.getAll();
       setForms((data || []).filter((f: FormSchema) => f.slug !== "self-declaration"));
     } catch (err: unknown) {
-      toast.error((err as Error).message || "Failed to fetch forms");
+      toast.error(translateServerError(err) || "خطا در دریافت فرم‌ها");
     } finally {
       setLoadingForms(false);
     }
@@ -85,7 +86,7 @@ export function FormSubmissions() {
       setFormTitle(data.form?.title || "");
       setFormFields(data.form?.fields || []);
     } catch (err: unknown) {
-      toast.error((err as Error).message || "Failed to fetch submissions");
+      toast.error(translateServerError(err) || "خطا در دریافت ارسال‌ها");
       setSubmissions([]);
     } finally {
       setLoadingSubs(false);

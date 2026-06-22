@@ -17,6 +17,7 @@ import {
 } from "../components/ui/card";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { toast } from "sonner";
+import { translateServerError } from "../lib/error-translations";
 import logo from "../assets/logo-nt.png";
 
 const registerSchema = z
@@ -78,16 +79,16 @@ export function RegisterPage() {
     if (/[^A-Za-z0-9]/.test(pwd)) strength++;
 
     if (strength <= 2)
-      return { strength, label: "Weak", color: "bg-destructive" };
+      return { strength, label: "ضعیف", color: "bg-destructive" };
     if (strength <= 4)
-      return { strength, label: "Medium", color: "bg-yellow-500" };
-    return { strength, label: "Strong", color: "bg-green-500" };
+      return { strength, label: "متوسط", color: "bg-yellow-500" };
+    return { strength, label: "قوی", color: "bg-green-500" };
   };
 
   const passwordStrength = getPasswordStrength(password);
 
   const onSubmit = async (data: RegisterForm) => {
-    const toastId = toast.loading("Creating your account...");
+    const toastId = toast.loading("در حال ایجاد حساب کاربری...");
 
     try {
       setIsSubmitting(true);
@@ -99,9 +100,9 @@ export function RegisterPage() {
         password: data.password,
       });
 
-      toast.success("Account created successfully!", { id: toastId });
+      toast.success("حساب کاربری با موفقیت ایجاد شد!", { id: toastId });
     } catch (err: unknown) {
-      toast.error((err as Error).message || "Registration failed. Please try again.", {
+      toast.error(translateServerError(err) || "ثبت نام ناموفق. لطفاً دوباره تلاش کنید.", {
         id: toastId,
       });
     } finally {
@@ -208,7 +209,7 @@ export function RegisterPage() {
                     ))}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Strength: {passwordStrength.label}
+                    قدرت: {passwordStrength.label}
                   </p>
                 </div>
               )}

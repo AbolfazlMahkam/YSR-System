@@ -32,6 +32,7 @@ import { Slider } from "../components/ui/slider";
 import { MultiSelect } from "../components/ui/multi-select";
 import { toPersianDigits, toWesternDigits } from "../lib/utils";
 import { toast } from "sonner";
+import { translateServerError } from "../lib/error-translations";
 import { IRANIAN_PROVINCES_CITIES } from "../data/iranian-provinces-cities";
 import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
@@ -199,7 +200,7 @@ export function FormPage() {
       setValue(fieldName, result.url);
       toast.success(`فایل "${file.name}" با موفقیت بارگذاری شد`);
     } catch (err: unknown) {
-      toast.error((err as Error).message || "خطا در بارگذاری فایل");
+      toast.error(translateServerError(err) || "خطا در بارگذاری فایل");
       setValue(fieldName, "");
     } finally {
       setUploadingFiles((prev) => ({ ...prev, [fieldName]: false }));
@@ -237,7 +238,7 @@ export function FormPage() {
       setSubmitted(true);
       toast.success("فرم با موفقیت ارسال شد");
     } catch (err: unknown) {
-      toast.error((err as Error).message || "خطا در ارسال فرم");
+      toast.error(translateServerError(err) || "خطا در ارسال فرم");
     } finally {
       setSubmitting(false);
     }

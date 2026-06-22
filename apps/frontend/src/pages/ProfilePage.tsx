@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { useAuth } from "../hooks/useAuth";
 import { toast } from "sonner";
+import { translateServerError } from "../lib/error-translations";
 import { toPersianDigits } from "@/lib/utils";
 
 const profileSchema = z.object({
@@ -91,7 +92,7 @@ export function ProfilePage() {
         password: "",
       });
     } catch (err: unknown) {
-      toast.error((err as Error).message || "خطا در بروزرسانی حساب کاربری", { id: toastId });
+      toast.error(translateServerError(err) || "خطا در بروزرسانی حساب کاربری", { id: toastId });
     } finally {
       setIsSubmitting(false);
     }
