@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>به‌روزرسانی سایت</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', Tahoma, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #e2e8f0;
+      padding: 1rem;
+    }
+    .container {
+      max-width: 520px;
+      text-align: center;
+      padding: 3rem 2rem;
+    }
+    .icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 1.5rem;
+      background: #3b82f6;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    .icon svg { width: 40px; height: 40px; fill: white; }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.08); opacity: 0.85; }
+    }
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      color: #f8fafc;
+    }
+    p {
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: #94a3b8;
+      margin-bottom: 0.5rem;
+    }
+    .time {
+      margin-top: 2rem;
+      padding: 0.75rem 1.5rem;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      display: inline-block;
+      font-size: 0.9rem;
+      color: #60a5fa;
+    }
+    .footer {
+      margin-top: 2.5rem;
+      font-size: 0.85rem;
+      color: #475569;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+      </svg>
+    </div>
+    <h1>سایت در حال به‌روزرسانی است</h1>
+    <p>طبق برنامه، سایت از ساعت ۱ بامداد تا ۶ صبح هر روز برای به‌روزرسانی و نگهداری در دسترس نیست.</p>
+    <p>لطفاً از ساعت ۶ صبح به بعد مراجعه فرمایید.</p>
+    <div class="time">از ساعت ۶ صبح دوباره امتحان کنید</div>
+    <div class="footer">YSR-System</div>
+  </div>
+</body>
+</html>
