@@ -157,9 +157,20 @@ export function Index() {
     }
   }
 
+  const selfDeclSubmitted = !!selfDeclaration;
   const submittedFormIds = new Set(submissions.map((s) => s.form_id));
   const remainingForms = forms.filter((f) => !submittedFormIds.has(f.id));
   const completedForms = forms.filter((f) => submittedFormIds.has(f.id));
+
+  const totalForms = forms.length + 1;
+  const totalSubmissions = submissions.length + (selfDeclSubmitted ? 1 : 0);
+  const totalRemaining = remainingForms.length + (selfDeclSubmitted ? 0 : 1);
+  const selfDeclForm = {
+    id: -1,
+    slug: "self-declaration",
+    title: "اظهارنامه",
+    description: "فرم اظهارنامه شخصی",
+  };
 
   if (loading || formsLoading) {
     return (
@@ -186,9 +197,9 @@ export function Index() {
           navigate={navigate}
         />
         <StatsCard
-          totalForms={forms.length}
-          submissionsCount={submissions.length}
-          remainingCount={remainingForms.length}
+          totalForms={totalForms}
+          submissionsCount={totalSubmissions}
+          remainingCount={totalRemaining}
           selfDeclaration={selfDeclaration}
         />
       </div>
@@ -197,6 +208,8 @@ export function Index() {
         <QuickAccessCard
           remainingForms={remainingForms}
           completedForms={completedForms}
+          selfDeclaration={selfDeclaration}
+          selfDeclForm={selfDeclForm}
           navigate={navigate}
         />
         <NotificationsCard notifications={notifications} navigate={navigate} />
@@ -317,10 +330,14 @@ function StatsCard({
 function QuickAccessCard({
   remainingForms,
   completedForms,
+  selfDeclaration,
+  selfDeclForm,
   navigate,
 }: {
   remainingForms: { id: number; slug: string; title: string; description: string | null }[];
   completedForms: { id: number; slug: string; title: string }[];
+  selfDeclaration: SelfDeclaration | null;
+  selfDeclForm: { id: number; slug: string; title: string; description: string };
   navigate: ReturnType<typeof useNavigate>;
 }) {
   return (
@@ -332,76 +349,108 @@ function QuickAccessCard({
         </div>
       </CardHeader>
       <CardContent>
-        {remainingForms.length === 0 && completedForms.length === 0 ? (
-          <div className="text-center py-4">
-            <FileText className="h-12 w-12 mx-auto text-muted-foreground" />
-            <p className="text-muted-foreground mt-2">
-              هیچ فرمی در دسترس نیست
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {remainingForms.length > 0 && (
-              <div>
-                <p className="text-xs text-muted-foreground mb-2 font-medium">
-                  نیاز به تکمیل
-                </p>
-                {remainingForms.map((form) => (
-                  <div
-                    key={form.slug}
-                    className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors mb-2"
-                  >
-                    <div className="min-w-0 flex-1 ml-2">
-                      <p className="font-medium text-sm truncate">
-                        {form.title}
+        <div className="space-y-2">
+          {(remainingForms.length > 0 || !selfDeclaration) && (
+            <div>
+              <p className="text-xs text-muted-foreground mb-2 font-medium">
+                نیاز به تکمیل
+              </p>
+              {remainingForms.map((form) => (
+                <div
+                  key={form.slug}
+                  className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors mb-2"
+                >
+                  <div className="min-w-0 flex-1 ml-2">
+                    <p className="font-medium text-sm truncate">
+                      {form.title}
+                    </p>
+                    {form.description && (
+                      <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                        {form.description}
                       </p>
-                      {form.description && (
-                        <p className="text-xs text-muted-foreground mt-0.5 truncate">
-                          {form.description}
-                        </p>
-                      )}
-                    </div>
-                    <Button
-                      size="sm"
-                      onClick={() => navigate(`/forms/${form.slug}`)}
-                    >
-                      <ChevronLeft className="h-4 w-4 ml-1" />
-                      پر کردن
-                    </Button>
+                    )}
                   </div>
-                ))}
-              </div>
-            )}
-            {completedForms.length > 0 && (
-              <div>
-                <p className="text-xs text-muted-foreground mb-2 font-medium">
-                  تکمیل شده
-                </p>
-                {completedForms.map((form) => (
-                  <div
-                    key={form.slug}
-                    className="flex items-center justify-between p-3 rounded-lg bg-green-50 dark:bg-green-950/50 mb-2"
+                  <Button
+                    size="sm"
+                    onClick={() => navigate(`/forms/${form.slug}`)}
                   >
-                    <div className="flex items-center gap-2 min-w-0 flex-1 ml-2">
-                      <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
-                      <p className="font-medium text-sm truncate">
-                        {form.title}
-                      </p>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => navigate(`/forms/${form.slug}`)}
-                    >
-                      <ListChecks className="h-4 w-4 ml-1" />
-                      مشاهده
-                    </Button>
+                    <ChevronLeft className="h-4 w-4 ml-1" />
+                    پر کردن
+                  </Button>
+                </div>
+              ))}
+              {!selfDeclaration && (
+                <div
+                  className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors mb-2"
+                >
+                  <div className="min-w-0 flex-1 ml-2">
+                    <p className="font-medium text-sm truncate">
+                      {selfDeclForm.title}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                      {selfDeclForm.description}
+                    </p>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+                  <Button
+                    size="sm"
+                    onClick={() => navigate(`/forms/${selfDeclForm.slug}`)}
+                  >
+                    <ChevronLeft className="h-4 w-4 ml-1" />
+                    پر کردن
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+          {(completedForms.length > 0 || selfDeclaration) && (
+            <div>
+              <p className="text-xs text-muted-foreground mb-2 font-medium">
+                تکمیل شده
+              </p>
+              {completedForms.map((form) => (
+                <div
+                  key={form.slug}
+                  className="flex items-center justify-between p-3 rounded-lg bg-green-50 dark:bg-green-950/50 mb-2"
+                >
+                  <div className="flex items-center gap-2 min-w-0 flex-1 ml-2">
+                    <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+                    <p className="font-medium text-sm truncate">
+                      {form.title}
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => navigate(`/forms/${form.slug}`)}
+                  >
+                    <ListChecks className="h-4 w-4 ml-1" />
+                    مشاهده
+                  </Button>
+                </div>
+              ))}
+              {selfDeclaration && (
+                <div
+                  className="flex items-center justify-between p-3 rounded-lg bg-green-50 dark:bg-green-950/50 mb-2"
+                >
+                  <div className="flex items-center gap-2 min-w-0 flex-1 ml-2">
+                    <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+                    <p className="font-medium text-sm truncate">
+                      {selfDeclForm.title}
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => navigate(`/forms/${selfDeclForm.slug}`)}
+                  >
+                    <ListChecks className="h-4 w-4 ml-1" />
+                    مشاهده
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
