@@ -70,8 +70,16 @@ toast.error(
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/40 p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center p-4"
+      style={{
+        background: `
+          radial-gradient(ellipse at 30% 20%, hsl(var(--primary) / 0.1) 0%, transparent 60%),
+          radial-gradient(ellipse at 70% 80%, hsl(var(--accent) / 0.08) 0%, transparent 60%),
+          hsl(var(--muted) / 0.4)
+        `
+      }}
+    >
+      <Card className="w-full max-w-md glass">
         <CardHeader className="space-y-4">
           <div className="flex justify-center">
             <img src={logo} alt="Logo" className="h-40 w-auto" />

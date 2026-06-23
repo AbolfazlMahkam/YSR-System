@@ -89,3 +89,15 @@ html {
     scrollbar-width: thin;
     scrollbar-color: hsl(var(--primary) / 0.35) hsl(var(--muted));
 }
+
+@layer utilities {
+    .glass {
+        background: hsl(var(--background) / 0.55);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+    }
+    
+    .dark .glass {
+        background: hsl(var(--background) / 0.45);
+    }
+}

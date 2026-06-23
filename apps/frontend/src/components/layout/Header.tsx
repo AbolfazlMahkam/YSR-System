@@ -53,7 +53,7 @@ export function Header() {
   }[theme];
 
   return (
-    <header className="h-[75px] border-b bg-background flex items-center justify-between px-4 md:px-6">
+    <header className="h-[75px] border-b glass flex items-center justify-between px-4 md:px-6">
       <div className="flex items-center gap-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild className="md:hidden">

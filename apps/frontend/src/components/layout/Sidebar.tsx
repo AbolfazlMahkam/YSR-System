@@ -44,7 +44,7 @@ export function Sidebar() {
   );
 
   return (
-    <aside className="w-64 border-l bg-background flex flex-col h-full hidden md:flex">
+    <aside className="w-64 border-l glass flex flex-col h-full hidden md:flex">
       <div className="p-4 h-[74px]">
         <div className="flex items-center gap-2">
           <div className="flex justify-center">
