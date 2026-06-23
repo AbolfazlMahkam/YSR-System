@@ -1,14 +1,18 @@
+import { useRef } from "react";
 import { Outlet } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
+import { ScrollToTop } from "./ScrollToTop";
 
 export function AppLayout() {
+  const mainRef = useRef<HTMLDivElement>(null!);
+
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
       <div className="flex flex-col flex-1 overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-y-auto"
+        <main ref={mainRef} className="flex-1 overflow-y-auto"
           style={{
             background: `
               radial-gradient(ellipse at 80% 20%, hsl(var(--primary) / 0.05) 0%, transparent 50%),
@@ -19,6 +23,7 @@ export function AppLayout() {
         >
           <Outlet />
         </main>
+        <ScrollToTop containerRef={mainRef} />
         <div className="p-2 border-t md:hidden">
           <p className="text-xs text-center text-muted-foreground" dir="ltr">
             Designed and developed by{" "}
