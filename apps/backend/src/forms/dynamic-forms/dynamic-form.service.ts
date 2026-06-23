@@ -86,4 +86,12 @@ export class DynamicFormService {
       order: { created_at: 'DESC' },
     });
   }
+
+  async getMyAllSubmissions(userId: number) {
+    return this.submissionRepository.find({
+      where: { user_id: userId },
+      relations: ['form'],
+      order: { created_at: 'DESC' },
+    });
+  }
 }

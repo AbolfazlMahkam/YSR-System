@@ -19,6 +19,7 @@ export default {
     HttpClient.post(`/forms/${formSlug}/submit`, { answers }),
   getMySubmissions: (formSlug) =>
     HttpClient.get(`/forms/${formSlug}/submissions`),
+  getMyAllSubmissions: () => HttpClient.get("/forms/my-submissions"),
   submitSelfDeclaration: (data) =>
     HttpClient.post("/forms/self-declaration", { data }),
   getMySelfDeclaration: () => HttpClient.get("/forms/self-declaration"),

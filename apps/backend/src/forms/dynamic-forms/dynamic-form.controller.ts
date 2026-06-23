@@ -26,6 +26,11 @@ export class DynamicFormController {
     return this.dynamicFormService.submit(formSlug, userId, dto);
   }
 
+  @Get('my-submissions')
+  getMyAllSubmissions(@GetUser('id') userId: number) {
+    return this.dynamicFormService.getMyAllSubmissions(userId);
+  }
+
   @Get(':formSlug/submissions')
   getMySubmissions(
     @Param('formSlug') formSlug: string,
