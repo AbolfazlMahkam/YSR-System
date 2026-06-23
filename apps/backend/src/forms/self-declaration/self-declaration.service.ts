@@ -11,6 +11,7 @@ import FormSchema from '../../entities/form-schema.entity';
 import { DynamicFormValidatorService } from '../validation/dynamic-form-validator.service';
 import { CreateSelfDeclarationDto } from './dto/create-self-declaration.dto';
 import { ReviewSelfDeclarationDto } from './dto/review-self-declaration.dto';
+import { UsersService } from '../../users/users.service';
 
 const SELF_DECLARATION_SLUG = 'self-declaration';
 
@@ -22,6 +23,7 @@ export class SelfDeclarationService {
     @InjectRepository(FormSchema)
     private readonly formSchemaRepository: Repository<FormSchema>,
     private readonly validator: DynamicFormValidatorService,
+    private readonly usersService: UsersService,
   ) {}
 
   async submit(userId: number, dto: CreateSelfDeclarationDto) {
@@ -46,6 +48,11 @@ export class SelfDeclarationService {
     }
 
     const validatedData = this.validator.validate(schema.fields, dto.data);
+
+    const user = await this.usersService.findOne(userId);
+    if (user) {
+      await this.usersService.update(user, { self_declaration_data: validatedData });
+    }
 
     if (existing) {
       existing.data = validatedData;

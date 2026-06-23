@@ -12,10 +12,12 @@ import { AdminFormsController } from './admin/admin-forms.controller';
 import { AdminFormsService } from './admin/admin-forms.service';
 import { AdminSubmissionsController } from './admin/admin-submissions.controller';
 import { AdminSubmissionsService } from './admin/admin-submissions.service';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([SelfDeclaration, FormSchema, FormSubmission]),
+    UsersModule,
   ],
   controllers: [
     SelfDeclarationController,

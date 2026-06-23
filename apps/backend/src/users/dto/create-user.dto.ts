@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, Matches, MinLength } from 'class-validator';
+import { IsNotEmpty, IsObject, IsOptional, IsString, Matches, MinLength } from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
@@ -24,4 +24,8 @@ export class CreateUserDto {
   @MinLength(8)
   @IsNotEmpty()
   password: string;
+
+  @IsObject()
+  @IsOptional()
+  self_declaration_data?: Record<string, any>;
 }

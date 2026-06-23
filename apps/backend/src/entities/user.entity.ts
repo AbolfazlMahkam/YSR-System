@@ -14,4 +14,17 @@ export default class Users {
   last_name: string;
   @Column({ select: false, nullable: false })
   password: string;
+  @Column({ length: 10, nullable: true })
+  national_code: string;
+  @Column({ length: 10, nullable: true })
+  birth_date: string;
+  @Column({ length: 10, nullable: true })
+  gender: string;
+  @Column({ length: 25, nullable: true })
+  education: string;
+  @Column({ nullable: true })
+  address: string;
+
+  @Column('jsonb', { default: {} })
+  self_declaration_data: Record<string, any>;
 }

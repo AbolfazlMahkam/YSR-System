@@ -5,7 +5,6 @@ import { z } from "zod";
 import { useNavigate } from "react-router-dom";
 import { Loader2, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
 import formsApi from "../api/forms";
-import { useAuth } from "../hooks/useAuth";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -40,7 +39,7 @@ import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
 import "react-multi-date-picker/styles/layouts/prime.css";
 
-const USER_IDENTITY_FIELDS = new Set(["first_name", "last_name", "phone"]);
+const REMOVED_FIELDS = new Set(["first_name", "last_name", "phone"]);
 
 interface FileConfig {
   accept?: string;
@@ -85,7 +84,7 @@ function buildSchema(schema: FormSchema) {
 
   const requiredMsg = "این فیلد الزامی است";
 
-  for (const field of schema.fields) {
+  for (const field of schema.fields.filter((f) => !REMOVED_FIELDS.has(f.name))) {
     let fieldSchema: z.ZodTypeAny;
 
     switch (field.type) {
@@ -181,7 +180,6 @@ type SelfDeclarationForm = Record<string, any>;
 
 export function SelfDeclarationPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [schema, setSchema] = useState<FormSchema | null>(null);
   const [submission, setSubmission] =
     useState<SelfDeclarationSubmission | null>(null);
@@ -244,13 +242,12 @@ export function SelfDeclarationPage() {
         setSubmission(existing);
 
         if (existing?.data) {
-          reset(existing.data);
-        } else if (user) {
-          reset({
-            first_name: user.first_name || "",
-            last_name: user.last_name || "",
-            phone: user.phone || "",
-          });
+          const cleanData = Object.fromEntries(
+            Object.entries(existing.data).filter(
+              ([key]) => !REMOVED_FIELDS.has(key),
+            ),
+          );
+          reset(cleanData);
         }
       } catch {
         if (!cancelled) setSchema(null);
@@ -264,7 +261,7 @@ export function SelfDeclarationPage() {
     return () => {
       cancelled = true;
     };
-  }, [reset, user]);
+  }, [reset]);
 
   async function onSubmit(data: SelfDeclarationForm) {
     setSubmitting(true);
@@ -524,7 +521,6 @@ export function SelfDeclarationPage() {
             type="text"
             {...register(field.name)}
             placeholder={field.placeholder}
-            readOnly={USER_IDENTITY_FIELDS.has(field.name)}
           />
         );
     }
@@ -621,7 +617,7 @@ export function SelfDeclarationPage() {
           )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {schema.fields.map((field) => {
+            {schema.fields.filter((f) => !REMOVED_FIELDS.has(f.name)).map((field) => {
               const isEditable =
                 submission?.status !== "returned" ||
                 !submission.correction_fields ||

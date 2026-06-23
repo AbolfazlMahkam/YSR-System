@@ -9,6 +9,11 @@ interface User {
   last_name: string;
   phone: string;
   role: string;
+  national_code?: string;
+  birth_date?: string;
+  gender?: string;
+  education?: string;
+  address?: string;
 }
 
 interface AuthContextType {

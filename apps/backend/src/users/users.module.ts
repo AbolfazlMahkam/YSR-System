@@ -10,5 +10,6 @@ import { UserExistsPipe } from '../common/pipes/user-exists.pipe';
   imports: [TypeOrmModule.forFeature([Users])],
   controllers: [UsersController],
   providers: [UsersService, UniquePhonePipe, UserExistsPipe],
+  exports: [UsersService],
 })
 export class UsersModule {}
