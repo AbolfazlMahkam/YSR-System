@@ -68,8 +68,7 @@
 }
 
 ::-webkit-scrollbar-track {
-    background: hsl(var(--muted));
-    border-radius: 4px;
+    background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -81,13 +80,25 @@
     background: hsl(var(--primary) / 0.65);
 }
 
+::-webkit-scrollbar-button {
+    width: 0;
+    height: 0;
+}
+
+::-webkit-scrollbar-button:vertical:decrement,
+::-webkit-scrollbar-button:vertical:increment,
+::-webkit-scrollbar-button:horizontal:decrement,
+::-webkit-scrollbar-button:horizontal:increment {
+    display: none;
+}
+
 ::-webkit-scrollbar-corner {
-    background: hsl(var(--muted));
+    background: transparent;
 }
 
 html {
     scrollbar-width: thin;
-    scrollbar-color: hsl(var(--primary) / 0.35) hsl(var(--muted));
+    scrollbar-color: hsl(var(--primary) / 0.35) transparent;
 }
 
 @layer utilities {
