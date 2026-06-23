@@ -120,7 +120,7 @@ export function RegisterPage() {
         `
       }}
     >
-      <Card className="w-full max-w-lg glass">
+      <Card className="w-full max-w-lg">
         <CardHeader className="space-y-4">
           <div className="flex justify-center">
             <img src={logo} alt="Logo" className="h-40 w-auto" />

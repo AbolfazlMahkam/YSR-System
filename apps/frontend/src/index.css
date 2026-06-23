@@ -92,12 +92,22 @@ html {
 
 @layer utilities {
     .glass {
-        background: hsl(var(--background) / 0.55);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
+        background: hsl(var(--background) / 0.72);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+    }
+    
+    .glass-smoked {
+        background: hsl(var(--background) / 0.78);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
     }
     
     .dark .glass {
-        background: hsl(var(--background) / 0.45);
+        background: hsl(var(--background) / 0.62);
+    }
+    
+    .dark .glass-smoked {
+        background: hsl(var(--card) / 0.7);
     }
 }

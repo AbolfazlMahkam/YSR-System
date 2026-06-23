@@ -79,7 +79,7 @@ toast.error(
         `
       }}
     >
-      <Card className="w-full max-w-md glass">
+      <Card className="w-full max-w-md">
         <CardHeader className="space-y-4">
           <div className="flex justify-center">
             <img src={logo} alt="Logo" className="h-40 w-auto" />
