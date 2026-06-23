@@ -36,8 +36,7 @@ export function Sidebar() {
   const [formsOpen, setFormsOpen] = useState(false);
   const [formsMgmtOpen, setFormsMgmtOpen] = useState(false);
 
-  const isAdmin =
-    user?.role === "admin" || user?.role === "super_admin";
+  const isAdmin = user?.role === "admin" || user?.role === "super_admin";
 
   const filteredNavItems = navItems.filter((item) =>
     item.roles.includes(user?.role || "user"),
@@ -217,7 +216,7 @@ export function Sidebar() {
         </ul>
       </nav>
       <div className="p-4 border-t">
-        <p className="text-xs text-end text-muted-foreground">
+        <p className="text-xs text-start text-muted-foreground" dir="ltr">
           Designed and developed by{" "}
           <a
             className="hover:text-[#cf1717] hover:text-[13px] font-bold duration-300"
@@ -225,7 +224,8 @@ export function Sidebar() {
             target="_blank"
           >
             a.mahkam.950
-          </a>
+          </a>{" "}
+          ©
         </p>
       </div>
     </aside>

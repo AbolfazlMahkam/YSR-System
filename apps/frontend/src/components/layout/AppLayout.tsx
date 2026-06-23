@@ -19,6 +19,19 @@ export function AppLayout() {
         >
           <Outlet />
         </main>
+        <div className="p-2 border-t md:hidden">
+          <p className="text-xs text-center text-muted-foreground" dir="ltr">
+            Designed and developed by{" "}
+            <a
+              className="hover:text-[#cf1717] font-bold duration-300"
+              href="https://github.com/AbolfazlMahkam"
+              target="_blank"
+            >
+              a.mahkam.950
+            </a>{" "}
+            ©
+          </p>
+        </div>
       </div>
     </div>
   );
