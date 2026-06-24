@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
@@ -6,12 +6,27 @@ import { ScrollToTop } from "./ScrollToTop";
 
 export function AppLayout() {
   const mainRef = useRef<HTMLDivElement>(null!);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    if (isMobileSidebarOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileSidebarOpen]);
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <Sidebar />
+      <Sidebar
+        isMobileOpen={isMobileSidebarOpen}
+        onMobileClose={() => setIsMobileSidebarOpen(false)}
+      />
       <div className="flex flex-col flex-1 overflow-hidden">
-        <Header />
+        <Header onMenuToggle={() => setIsMobileSidebarOpen((prev) => !prev)} />
         <main ref={mainRef} className="flex-1 overflow-y-auto"
           style={{
             background: `

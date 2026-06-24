@@ -8,6 +8,7 @@ import {
   Settings,
   FileText,
   Database,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
@@ -30,7 +31,12 @@ const navItems = [
   },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  isMobileOpen?: boolean;
+  onMobileClose?: () => void;
+}
+
+export function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
   const { user } = useAuth();
   const { forms } = useActiveForms();
   const [formsOpen, setFormsOpen] = useState(false);
@@ -42,23 +48,34 @@ export function Sidebar() {
     item.roles.includes(user?.role || "user"),
   );
 
-  return (
-    <aside className="w-64 border-l glass flex flex-col h-full hidden md:flex">
-      <div className="p-4 h-[74px]">
+  const handleNavClick = () => {
+    onMobileClose?.();
+  };
+
+  const sidebarContent = (
+    <>
+      <div className="p-4 h-[74px] flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="flex justify-center">
             <img src={logo} alt="Logo" className="h-10 w-10" />
           </div>
           <h2 className="font-semibold">موسسه یاوران سلامت روان</h2>
         </div>
+        <button
+          onClick={onMobileClose}
+          className="md:hidden p-1 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
+        >
+          <X className="h-5 w-5" />
+        </button>
       </div>
       <Separator />
-      <nav className="flex-1 p-4">
+      <nav className="flex-1 p-4 overflow-y-auto">
         <ul className="space-y-2">
           {filteredNavItems.map((item) => (
             <li key={item.to}>
               <NavLink
                 to={item.to}
+                onClick={handleNavClick}
                 className={({ isActive }) =>
                   cn(
                     "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200",
@@ -74,7 +91,6 @@ export function Sidebar() {
               </NavLink>
             </li>
           ))}
-          {/* Forms Management (admin) */}
           {isAdmin && (
             <li>
               <button
@@ -100,6 +116,7 @@ export function Sidebar() {
                   <li>
                     <NavLink
                       to="/admin/forms"
+                      onClick={handleNavClick}
                       className={({ isActive }) =>
                         cn(
                           "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 text-sm",
@@ -117,6 +134,7 @@ export function Sidebar() {
                   <li>
                     <NavLink
                       to="/admin/form-submissions"
+                      onClick={handleNavClick}
                       className={({ isActive }) =>
                         cn(
                           "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 text-sm",
@@ -134,6 +152,7 @@ export function Sidebar() {
                   <li>
                     <NavLink
                       to="/admin/self-declarations"
+                      onClick={handleNavClick}
                       className={({ isActive }) =>
                         cn(
                           "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 text-sm",
@@ -152,7 +171,6 @@ export function Sidebar() {
               )}
             </li>
           )}
-          {/* User forms (for all roles) */}
           <li>
             <button
               onClick={() => setFormsOpen((prev) => !prev)}
@@ -178,6 +196,7 @@ export function Sidebar() {
                   <li key={form.id}>
                     <NavLink
                       to={`/forms/${form.slug}`}
+                      onClick={handleNavClick}
                       className={({ isActive }) =>
                         cn(
                           "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 text-sm",
@@ -196,6 +215,7 @@ export function Sidebar() {
                 <li>
                   <NavLink
                     to="/forms/self-declaration"
+                    onClick={handleNavClick}
                     className={({ isActive }) =>
                       cn(
                         "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 text-sm",
@@ -215,7 +235,7 @@ export function Sidebar() {
           </li>
         </ul>
       </nav>
-      <div className="p-4 border-t">
+      <div className="p-4 border-t hidden md:block">
         <p className="text-xs text-start text-muted-foreground" dir="ltr">
           Designed and developed by{" "}
           <a
@@ -228,6 +248,32 @@ export function Sidebar() {
           ©
         </p>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      <aside className="w-64 border-l glass flex-col h-full hidden md:flex">
+        {sidebarContent}
+      </aside>
+
+      <div
+        className={cn(
+          "fixed inset-0 bg-black/50 z-40 md:hidden transition-opacity duration-300",
+          isMobileOpen ? "opacity-100" : "opacity-0 pointer-events-none",
+        )}
+        onClick={onMobileClose}
+      />
+
+      <aside
+        className={cn(
+          "fixed top-0 right-0 h-full w-64 border-l glass z-50 md:hidden flex flex-col",
+          "transition-transform duration-300 ease-in-out",
+          isMobileOpen ? "translate-x-0" : "translate-x-full",
+        )}
+      >
+        {sidebarContent}
+      </aside>
+    </>
   );
 }

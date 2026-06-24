@@ -5,17 +5,10 @@ import {
   LogOut,
   User,
   Menu,
-  Users as UsersIcon,
-  Home,
-  ClipboardList,
-  Settings,
-  FileText,
-  Database,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useTheme } from "@/components/theme-provider";
 import { useAuth } from "@/hooks/useAuth";
-import { useActiveForms } from "@/hooks/useActiveForms";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -29,12 +22,13 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { toPersianDigits } from "@/lib/utils";
 import logo from "../../assets/logo-nt.png";
 
-export function Header() {
+interface HeaderProps {
+  onMenuToggle?: () => void;
+}
+
+export function Header({ onMenuToggle }: HeaderProps) {
   const { theme, setTheme } = useTheme();
   const { user, logout } = useAuth();
-  const { forms } = useActiveForms();
-  const isAdmin =
-    user?.role === "admin" || user?.role === "super_admin";
 
   const handleLogout = () => {
     logout();
@@ -55,110 +49,15 @@ export function Header() {
   return (
     <header className="h-[75px] border-b glass flex items-center justify-between px-4 md:px-6">
       <div className="flex items-center gap-4">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild className="md:hidden">
-            <Button variant="outline" size="icon">
-              <Menu className="h-5 w-5" />
-              <span className="sr-only">Toggle menu</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-52">
-            <DropdownMenuLabel className="text-end">منو</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <NavLink to="/" className="flex items-center gap-2 justify-end">
-                <span>خانه</span>
-                <Home className="h-4 w-4" />
-              </NavLink>
-            </DropdownMenuItem>
-            {(forms.length > 0) && (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuLabel className="text-end text-xs text-muted-foreground">
-                  <span className="flex items-center gap-2 justify-end">
-                    <ClipboardList className="h-4 w-4" />
-                    فرم‌ها
-                  </span>
-                </DropdownMenuLabel>
-                {forms.map((form) => (
-                  <DropdownMenuItem key={form.id} asChild>
-                    <NavLink
-                      to={`/forms/${form.slug}`}
-                      className="flex items-center gap-2 justify-end"
-                    >
-                      <span>{form.title}</span>
-                    </NavLink>
-                  </DropdownMenuItem>
-                ))}
-              </>
-            )}
-            <DropdownMenuItem asChild>
-              <NavLink
-                to="/forms/self-declaration"
-                className="flex items-center gap-2 justify-end"
-              >
-                <span>اظهارنامه</span>
-              </NavLink>
-            </DropdownMenuItem>
-            {isAdmin && (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuLabel className="text-end text-xs text-muted-foreground">
-                  <span className="flex items-center gap-2 justify-end">
-                    <Settings className="h-4 w-4" />
-                    مدیریت فرم‌ها
-                  </span>
-                </DropdownMenuLabel>
-                <DropdownMenuItem asChild>
-                  <NavLink
-                    to="/admin/forms"
-                    className="flex items-center gap-2 justify-end"
-                  >
-                    <span>تعاریف فرم‌ها</span>
-                    <FileText className="h-4 w-4" />
-                  </NavLink>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <NavLink
-                    to="/admin/form-submissions"
-                    className="flex items-center gap-2 justify-end"
-                  >
-                    <span>ارسال‌های فرم‌ها</span>
-                    <Database className="h-4 w-4" />
-                  </NavLink>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <NavLink
-                    to="/admin/self-declarations"
-                    className="flex items-center gap-2 justify-end"
-                  >
-                    <span>اظهارنامه‌ها</span>
-                    <ClipboardList className="h-4 w-4" />
-                  </NavLink>
-                </DropdownMenuItem>
-              </>
-            )}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <NavLink
-                to="/users"
-                className="flex items-center gap-2 justify-end"
-              >
-                <span>کاربران</span>
-                <UsersIcon className="h-4 w-4" />
-              </NavLink>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <NavLink
-                to="/profile"
-                className="flex items-center gap-2 justify-end"
-              >
-                <span>حساب کاربری</span>
-                <User className="h-4 w-4" />
-              </NavLink>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Button
+          variant="outline"
+          size="icon"
+          className="md:hidden"
+          onClick={onMenuToggle}
+        >
+          <Menu className="h-5 w-5" />
+          <span className="sr-only">Toggle menu</span>
+        </Button>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
