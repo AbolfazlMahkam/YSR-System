@@ -26,6 +26,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useActiveForms } from "../hooks/useActiveForms";
 import formsApi from "../api/forms";
 import { toPersianDigits } from "@/lib/utils";
+import Image from "@/assets/IMG_20260405_115046_685.jpg";
 
 interface Submission {
   id: number;
@@ -182,6 +183,11 @@ export function Index() {
 
   return (
     <div className="p-6 space-y-6">
+
+      <div>
+        <img src={Image} className="rounded-2xl" />
+      </div>
+
       <div>
         <h1 className="text-2xl font-bold">
           خوش آمدید، {user?.first_name} {user?.last_name}
