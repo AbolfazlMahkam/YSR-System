@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { AuthProvider } from "./context/AuthContext";
@@ -17,43 +16,13 @@ import { ProfilePage } from "./pages/ProfilePage";
 import { FormBuilder } from "./pages/FormBuilder";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
-import MaintenancePage from "./pages/MaintenancePage";
 import { Toaster } from "./components/ui/sonner";
-import { LoadingSpinner } from "./components/LoadingSpinner";
 
 // Google OAuth Client ID (should be in env variable)
 const GOOGLE_CLIENT_ID =
   import.meta.env.VITE_GOOGLE_CLIENT_ID || "YOUR_GOOGLE_CLIENT_ID";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
-
 function App() {
-  const [maintenance, setMaintenance] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    fetch(API_BASE_URL, { signal: controller.signal })
-      .then((res) => {
-        if (res.status === 503) setMaintenance(true);
-        else setMaintenance(false);
-      })
-      .catch(() => setMaintenance(false));
-    return () => controller.abort();
-  }, []);
-
-  if (maintenance === null) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <LoadingSpinner />
-      </div>
-    );
-  }
-
-  if (maintenance) {
-    return <MaintenancePage />;
-  }
-
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <BrowserRouter>
