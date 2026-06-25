@@ -30,22 +30,24 @@ const registerSchema = z
         /^\+98\d{10,14}$/,
         "شماره تلفن باید با 98+ شروع شود (مانند: 989123456789+)",
       ),
-    password: z
-      .string()
-      .min(8, "رمز عبور باید حداقل ۸ کاراکتر باشد")
-      .regex(/[A-Z]/, "رمز عبور باید شامل حداقل یک حرف بزرگ باشد")
-      .regex(/[a-z]/, "رمز عبور باید شامل حداقل یک حرف کوچک باشد")
-      .regex(/[0-9]/, "رمز عبور باید شامل حداقل یک عدد باشد")
-      .regex(
-        /[^A-Za-z0-9]/,
-        "رمز عبور باید شامل حداقل یک کاراکتر خاص (@، $، ! و...) باشد",
-      ),
+    // # password validation disabled — any password accepted
+    // password: z
+    //   .string()
+    //   .min(8, "رمز عبور باید حداقل ۸ کاراکتر باشد")
+    //   .regex(/[A-Z]/, "رمز عبور باید شامل حداقل یک حرف بزرگ باشد")
+    //   .regex(/[a-z]/, "رمز عبور باید شامل حداقل یک حرف کوچک باشد")
+    //   .regex(/[0-9]/, "رمز عبور باید شامل حداقل یک عدد باشد")
+    //   .regex(
+    //     /[^A-Za-z0-9]/,
+    //     "رمز عبور باید شامل حداقل یک کاراکتر خاص (@، $، ! و...) باشد",
+    //   ),
+    password: z.string(),
     confirmPassword: z.string(),
   })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "رمز عبور و تکرار آن مطابقت ندارند",
-    path: ["confirmPassword"],
-  });
+  // .refine((data) => data.password === data.confirmPassword, {
+  //   message: "رمز عبور و تکرار آن مطابقت ندارند",
+  //   path: ["confirmPassword"],
+  // });
 
 type RegisterForm = z.infer<typeof registerSchema>;
 

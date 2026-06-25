@@ -122,3 +122,7 @@ html {
         background: hsl(var(--card) / 0.7);
     }
 }
+
+Slider {
+    direction: ltr;
+}

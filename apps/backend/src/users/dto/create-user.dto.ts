@@ -21,7 +21,7 @@ export class CreateUserDto {
   last_name: string;
 
   @IsString()
-  @MinLength(8)
+  // @MinLength(8)  // password validation disabled — any password accepted
   @IsNotEmpty()
   password: string;
 

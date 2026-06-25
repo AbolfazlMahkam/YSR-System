@@ -390,6 +390,7 @@ export function SelfDeclarationPage() {
         return (
           <div className="space-y-3 pt-2">
             <Slider
+              dir="rtl"
               value={[current]}
               onValueChange={([v]) => setValue(field.name, v)}
               min={min}
