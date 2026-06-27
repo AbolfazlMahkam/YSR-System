@@ -203,9 +203,26 @@ export function FormSubmissions() {
                             (val.startsWith("/uploads/") ||
                               val.startsWith("http"));
                           if (isFileUrl) {
+                            const fileUrl =
+                              typeof val === "string" && val.startsWith("/uploads/")
+                                ? `https://api.rohanian-ysr.ir${val}`
+                                : val;
+                            const isImage =
+                              typeof val === "string" && /\.(png|jpe?g|gif|webp|svg)$/i.test(val);
+                            if (isImage) {
+                              return (
+                                <a href={fileUrl} target="_blank" rel="noopener noreferrer">
+                                  <img
+                                    src={fileUrl}
+                                    alt=""
+                                    className="max-w-xs max-h-48 rounded border object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                  />
+                                </a>
+                              );
+                            }
                             return (
                               <a
-                                href={val}
+                                href={fileUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-1 text-primary hover:underline"

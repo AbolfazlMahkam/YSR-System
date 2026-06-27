@@ -146,9 +146,26 @@ export function SelfDeclarationSubmissions() {
       typeof value === "string" &&
       (value.startsWith("/uploads/") || value.startsWith("http"));
     if (isFileUrl) {
+      const fileUrl =
+        typeof value === "string" && value.startsWith("/uploads/")
+          ? `https://api.rohanian-ysr.ir${value}`
+          : value;
+      const isImage =
+        typeof value === "string" && /\.(png|jpe?g|gif|webp|svg)$/i.test(value);
+      if (isImage) {
+        return (
+          <a href={fileUrl} target="_blank" rel="noopener noreferrer">
+            <img
+              src={fileUrl}
+              alt=""
+              className="max-w-xs max-h-48 rounded border object-cover cursor-pointer hover:opacity-90 transition-opacity"
+            />
+          </a>
+        );
+      }
       return (
         <a
-          href={value}
+          href={fileUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1 text-primary hover:underline"
