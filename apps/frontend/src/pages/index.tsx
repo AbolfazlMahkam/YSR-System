@@ -240,12 +240,60 @@ export function Index() {
 
       {isAdmin && (
         <>
+          <div className="border-t pt-6" />
+
           {adminStatsLoading ? (
             <div className="flex items-center justify-center p-12">
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
           ) : adminStats ? (
             <>
+              <div className="relative mb-6">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent rounded-xl" />
+                <div className="relative flex items-center gap-3 p-4">
+                  <div className="p-2.5 rounded-xl bg-primary/10">
+                    <BarChart3 className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold">داشبورد مدیریت</h2>
+                    <p className="text-sm text-muted-foreground">
+                      آمار و وضعیت کلی سیستم
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <SummaryWidget
+                  icon={Users}
+                  label="کل کاربران"
+                  value={adminStats.users.total}
+                  color="text-blue-600"
+                  bgColor="bg-blue-50 dark:bg-blue-950"
+                />
+                <SummaryWidget
+                  icon={FileText}
+                  label="کل اظهارنامه‌ها"
+                  value={adminStats.selfDeclarations.total}
+                  color="text-purple-600"
+                  bgColor="bg-purple-50 dark:bg-purple-950"
+                />
+                <SummaryWidget
+                  icon={Clock}
+                  label="در انتظار مصاحبه"
+                  value={adminStats.users.byStatus.awaiting_interview}
+                  color="text-yellow-600"
+                  bgColor="bg-yellow-50 dark:bg-yellow-950"
+                />
+                <SummaryWidget
+                  icon={CheckCircle2}
+                  label="پذیرفته شده"
+                  value={adminStats.users.byStatus.accepted}
+                  color="text-green-600"
+                  bgColor="bg-green-50 dark:bg-green-950"
+                />
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <UsersStatsCard stats={adminStats.users} />
                 <SelfDeclarationStatsCard stats={adminStats.selfDeclarations} />
@@ -539,62 +587,116 @@ function QuickAccessCard({
   );
 }
 
+function SummaryWidget({
+  icon: Icon,
+  label,
+  value,
+  color,
+  bgColor,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: number;
+  color: string;
+  bgColor: string;
+}) {
+  return (
+    <Card className="overflow-hidden">
+      <CardContent className="p-4">
+        <div className="flex items-center gap-3">
+          <div className={`p-2.5 rounded-xl ${bgColor}`}>
+            <Icon className={`h-5 w-5 ${color}`} />
+          </div>
+          <div>
+            <p className="text-2xl font-bold">{toPersianDigits(value)}</p>
+            <p className="text-xs text-muted-foreground">{label}</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 function UsersStatsCard({ stats }: { stats: AdminDashboardStats["users"] }) {
   const statusItems = [
     {
       key: "not_started",
       label: "ثبت‌نام نکرده",
       value: stats.byStatus.not_started,
-      color: "text-gray-600 bg-gray-50 dark:bg-gray-950",
+      barColor: "bg-gray-400",
+      textColor: "text-gray-600",
+      bgColor: "bg-gray-50 dark:bg-gray-950",
     },
     {
       key: "form_completed",
       label: "تکمیل فرم",
       value: stats.byStatus.form_completed,
-      color: "text-blue-600 bg-blue-50 dark:bg-blue-950",
+      barColor: "bg-blue-500",
+      textColor: "text-blue-600",
+      bgColor: "bg-blue-50 dark:bg-blue-950",
     },
     {
       key: "awaiting_interview",
       label: "در انتظار مصاحبه",
       value: stats.byStatus.awaiting_interview,
-      color: "text-yellow-600 bg-yellow-50 dark:bg-yellow-950",
+      barColor: "bg-yellow-500",
+      textColor: "text-yellow-600",
+      bgColor: "bg-yellow-50 dark:bg-yellow-950",
     },
     {
       key: "accepted",
       label: "پذیرفته شده",
       value: stats.byStatus.accepted,
-      color: "text-green-600 bg-green-50 dark:bg-green-950",
+      barColor: "bg-green-500",
+      textColor: "text-green-600",
+      bgColor: "bg-green-50 dark:bg-green-950",
     },
     {
       key: "not_meeting_requirements",
       label: "عدم احراز شرایط",
       value: stats.byStatus.not_meeting_requirements,
-      color: "text-red-600 bg-red-50 dark:bg-red-950",
+      barColor: "bg-red-500",
+      textColor: "text-red-600",
+      bgColor: "bg-red-50 dark:bg-red-950",
     },
   ];
 
+  const maxVal = Math.max(...statusItems.map((i) => i.value), 1);
+
   return (
     <Card>
-      <CardHeader>
-        <div className="flex items-center gap-2">
-          <Users className="h-5 w-5 text-primary" />
-          <CardTitle className="text-lg">کاربران</CardTitle>
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-lg bg-primary/10">
+              <Users className="h-5 w-5 text-primary" />
+            </div>
+            <CardTitle className="text-lg">کاربران</CardTitle>
+          </div>
+          <div className="text-left">
+            <p className="text-2xl font-bold text-primary">
+              {toPersianDigits(stats.total)}
+            </p>
+            <p className="text-xs text-muted-foreground">کل</p>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
-        <div className="text-center p-4 bg-muted/50 rounded-lg mb-4">
-          <p className="text-3xl font-bold text-primary">
-            {toPersianDigits(stats.total)}
-          </p>
-          <p className="text-sm text-muted-foreground mt-1">کل کاربران</p>
-        </div>
-        <div className="space-y-2">
+        <div className="space-y-3">
           {statusItems.map((item) => (
-            <div
-              key={item.key}
-              className={`flex items-center justify-between p-3 rounded-lg ${item.color}`}>
-              <span className="font-medium text-sm">{item.label}</span>
-              <span className="font-bold">{toPersianDigits(item.value)}</span>
+            <div key={item.key}>
+              <div className="flex items-center justify-between mb-1">
+                <div className={`flex items-center gap-2 px-2 py-1 rounded-md ${item.bgColor}`}>
+                  <span className={`text-xs font-medium ${item.textColor}`}>{item.label}</span>
+                </div>
+                <span className="text-sm font-bold">{toPersianDigits(item.value)}</span>
+              </div>
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-500 ${item.barColor}`}
+                  style={{ width: `${(item.value / maxVal) * 100}%` }}
+                />
+              </div>
             </div>
           ))}
         </div>
@@ -614,51 +716,69 @@ function SelfDeclarationStatsCard({
       label: "در انتظار تأیید",
       value: stats.byStatus.pending,
       icon: Clock,
-      color: "text-yellow-600 bg-yellow-50 dark:bg-yellow-950",
+      textColor: "text-yellow-600",
+      barColor: "bg-yellow-500",
+      bgColor: "bg-yellow-50 dark:bg-yellow-950",
     },
     {
       key: "approved",
       label: "تأیید شده",
       value: stats.byStatus.approved,
       icon: CheckCircle2,
-      color: "text-green-600 bg-green-50 dark:bg-green-950",
+      textColor: "text-green-600",
+      barColor: "bg-green-500",
+      bgColor: "bg-green-50 dark:bg-green-950",
     },
     {
       key: "returned",
       label: "نیازمند اصلاح",
       value: stats.byStatus.returned,
       icon: AlertTriangle,
-      color: "text-red-600 bg-red-50 dark:bg-red-950",
+      textColor: "text-red-600",
+      barColor: "bg-red-500",
+      bgColor: "bg-red-50 dark:bg-red-950",
     },
   ];
 
+  const maxVal = Math.max(...statusItems.map((i) => i.value), 1);
+
   return (
     <Card>
-      <CardHeader>
-        <div className="flex items-center gap-2">
-          <FileText className="h-5 w-5 text-primary" />
-          <CardTitle className="text-lg">اظهارنامه‌ها</CardTitle>
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-lg bg-primary/10">
+              <FileText className="h-5 w-5 text-primary" />
+            </div>
+            <CardTitle className="text-lg">اظهارنامه‌ها</CardTitle>
+          </div>
+          <div className="text-left">
+            <p className="text-2xl font-bold text-primary">
+              {toPersianDigits(stats.total)}
+            </p>
+            <p className="text-xs text-muted-foreground">کل</p>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
-        <div className="text-center p-4 bg-muted/50 rounded-lg mb-4">
-          <p className="text-3xl font-bold text-primary">
-            {toPersianDigits(stats.total)}
-          </p>
-          <p className="text-sm text-muted-foreground mt-1">کل اظهارنامه‌ها</p>
-        </div>
-        <div className="space-y-2">
+        <div className="space-y-3">
           {statusItems.map((item) => {
             const Icon = item.icon;
             return (
-              <div
-                key={item.key}
-                className={`flex items-center justify-between p-3 rounded-lg ${item.color}`}>
-                <div className="flex items-center gap-2">
-                  <Icon className="h-4 w-4 shrink-0" />
-                  <span className="font-medium text-sm">{item.label}</span>
+              <div key={item.key}>
+                <div className="flex items-center justify-between mb-1">
+                  <div className={`flex items-center gap-1.5 px-2 py-1 rounded-md ${item.bgColor}`}>
+                    <Icon className={`h-3.5 w-3.5 ${item.textColor}`} />
+                    <span className={`text-xs font-medium ${item.textColor}`}>{item.label}</span>
+                  </div>
+                  <span className="text-sm font-bold">{toPersianDigits(item.value)}</span>
                 </div>
-                <span className="font-bold">{toPersianDigits(item.value)}</span>
+                <div className="h-2 bg-muted rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${item.barColor}`}
+                    style={{ width: `${(item.value / maxVal) * 100}%` }}
+                  />
+                </div>
               </div>
             );
           })}
