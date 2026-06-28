@@ -12,6 +12,7 @@ import { DynamicFormValidatorService } from '../validation/dynamic-form-validato
 import { CreateSelfDeclarationDto } from './dto/create-self-declaration.dto';
 import { ReviewSelfDeclarationDto } from './dto/review-self-declaration.dto';
 import { UsersService } from '../../users/users.service';
+import { UpdateUserDto } from '../../users/dto/update-user.dto';
 
 const SELF_DECLARATION_SLUG = 'self-declaration';
 
@@ -126,6 +127,15 @@ export class SelfDeclarationService {
     submission.admin_notes = dto.admin_notes || null;
     submission.correction_fields =
       dto.status === 'returned' ? (dto.correction_fields ?? null) : null;
+
+    if (dto.status === 'approved') {
+      const user = await this.usersService.findOne(submission.user_id);
+      if (user) {
+        await this.usersService.update(user, {
+          interview_status: 'awaiting_interview',
+        } as UpdateUserDto);
+      }
+    }
 
     return this.selfDeclarationRepository.save(submission);
   }

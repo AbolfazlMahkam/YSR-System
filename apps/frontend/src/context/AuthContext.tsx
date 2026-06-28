@@ -14,6 +14,7 @@ interface User {
   gender?: string;
   education?: string;
   address?: string;
+  interview_status?: string | null;
 }
 
 interface AuthContextType {

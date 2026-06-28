@@ -7,4 +7,6 @@ export default {
   createUser: (data) => HttpClient.post("/users", data),
   updateUser: (user_id, data) => HttpClient.patch(`users/${user_id}`, data),
   deleteUser: (user_id) => HttpClient.delete(`users/${user_id}`),
+  updateInterview: (user_id, data) =>
+    HttpClient.patch(`users/${user_id}/interview`, data),
 };

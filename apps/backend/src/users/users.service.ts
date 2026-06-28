@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateInterviewDto } from './dto/update-interview.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import Users from '../entities/user.entity';
+import SelfDeclaration from '../entities/self-declaration.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -10,6 +12,8 @@ export class UsersService {
   constructor(
     @InjectRepository(Users)
     private readonly usersRepository: Repository<Users>,
+    @InjectRepository(SelfDeclaration)
+    private readonly selfDeclarationRepository: Repository<SelfDeclaration>,
   ) {}
 
   findUserByPhone = async (phone: string) => {
@@ -50,6 +54,27 @@ export class UsersService {
     await this.usersRepository.save(user);
 
     return user;
+  }
+
+  async updateInterview(user: Users, dto: UpdateInterviewDto) {
+    user.interview_status = dto.status;
+
+    if (dto.status === 'not_meeting_requirements') {
+      user.interview_notes = dto.notes || null;
+      const selfDecl = await this.selfDeclarationRepository.findOne({
+        where: { user_id: user.id },
+      });
+      if (selfDecl) {
+        selfDecl.status = 'returned';
+        selfDecl.admin_notes = dto.notes || null;
+        selfDecl.correction_fields = null;
+        await this.selfDeclarationRepository.save(selfDecl);
+      }
+    } else {
+      user.interview_notes = null;
+    }
+
+    return this.usersRepository.save(user);
   }
 
   async remove(user: Users) {

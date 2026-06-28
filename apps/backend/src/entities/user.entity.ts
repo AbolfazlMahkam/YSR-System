@@ -27,4 +27,10 @@ export default class Users {
 
   @Column('jsonb', { default: {} })
   self_declaration_data: Record<string, any>;
+
+  @Column({ type: 'varchar', nullable: true })
+  interview_status: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  interview_notes: string | null;
 }

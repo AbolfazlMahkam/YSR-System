@@ -14,9 +14,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Shield, Lock, Plus, Pencil, Trash2 } from "lucide-react";
+import { Shield, Lock, Plus, Pencil, Trash2, UserCheck, UserX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -67,6 +68,8 @@ interface User {
   role: string;
   first_name: string;
   last_name: string;
+  interview_status: string | null;
+  interview_notes: string | null;
 }
 
 export function UsersPage() {
@@ -76,9 +79,12 @@ export function UsersPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isInterviewDialogOpen, setIsInterviewDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [interviewStatus, setInterviewStatus] = useState<string>("");
+  const [interviewNotes, setInterviewNotes] = useState<string>("");
 
   const addForm = useForm<AddUserFormData>({
     resolver: zodResolver(addUserSchema),
@@ -199,6 +205,64 @@ export function UsersPage() {
     setIsDeleteDialogOpen(true);
   };
 
+  const openInterviewDialog = (user: User) => {
+    setSelectedUser(user);
+    setInterviewStatus(user.interview_status || "accepted");
+    setInterviewNotes(user.interview_notes || "");
+    setIsInterviewDialogOpen(true);
+  };
+
+  const handleInterviewUpdate = async () => {
+    if (!selectedUser) return;
+
+    const toastId = toast.loading("در حال بروزرسانی وضعیت مصاحبه...");
+    setIsSubmitting(true);
+
+    try {
+      const data: { status: string; notes?: string } = {
+        status: interviewStatus,
+      };
+      if (interviewStatus === "not_meeting_requirements" && interviewNotes) {
+        data.notes = interviewNotes;
+      }
+      await usersApi.updateInterview(selectedUser.id, data);
+      toast.success("وضعیت مصاحبه با موفقیت بروز شد!", { id: toastId });
+      setIsInterviewDialogOpen(false);
+      setSelectedUser(null);
+      fetchAllUsers();
+    } catch (err: unknown) {
+      toast.error(translateServerError(err) || "خطا در بروزرسانی وضعیت مصاحبه", { id: toastId });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const getInterviewBadgeColor = (status: string | null) => {
+    switch (status) {
+      case "awaiting_interview":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+      case "accepted":
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+      case "not_meeting_requirements":
+        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200";
+    }
+  };
+
+  const getInterviewLabel = (status: string | null) => {
+    switch (status) {
+      case "awaiting_interview":
+        return "در انتظار مصاحبه";
+      case "accepted":
+        return "پذیرفته شده";
+      case "not_meeting_requirements":
+        return "عدم احراز شرایط";
+      default:
+        return "ثبت‌نام نکرده";
+    }
+  };
+
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case "super_admin":
@@ -303,9 +367,8 @@ export function UsersPage() {
                     <th className="text-right p-3 font-semibold"> کاربرنام</th>
                     <th className="text-right p-3 font-semibold">شماره همراه</th>
                     <th className="text-right p-3 font-semibold">نقش</th>
-                    {isSuperAdmin && (
-                      <th className="text-right p-3 font-semibold">عملیات</th>
-                    )}
+                    <th className="text-right p-3 font-semibold">وضعیت مصاحبه</th>
+                    <th className="text-right p-3 font-semibold">عملیات</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -330,28 +393,47 @@ export function UsersPage() {
                           {user.role.replace("_", " ").toUpperCase()}
                         </span>
                       </td>
-                      {isSuperAdmin && (
-                        <td className="p-3">
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => openEditDialog(user)}
-                            >
-                              ویرایش
-                              <Pencil className="h-3 w-3 mr-1" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => openDeleteDialog(user)}
-                            >
-                              حذف
-                              <Trash2 className="h-3 w-3 mr-1" />
-                            </Button>
-                          </div>
-                        </td>
-                      )}
+                      <td className="p-3">
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${getInterviewBadgeColor(
+                            user.interview_status,
+                          )}`}
+                        >
+                          {getInterviewLabel(user.interview_status)}
+                        </span>
+                      </td>
+                      <td className="p-3">
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => openInterviewDialog(user)}
+                          >
+                            <UserCheck className="h-3 w-3 ml-1" />
+                            مصاحبه
+                          </Button>
+                          {isSuperAdmin && (
+                            <>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => openEditDialog(user)}
+                              >
+                                ویرایش
+                                <Pencil className="h-3 w-3 mr-1" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => openDeleteDialog(user)}
+                              >
+                                حذف
+                                <Trash2 className="h-3 w-3 mr-1" />
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -639,6 +721,105 @@ export function UsersPage() {
               onClick={handleDeleteUser}
             >
               حذف کاربر
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Interview Dialog */}
+      <Dialog open={isInterviewDialogOpen} onOpenChange={setIsInterviewDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader style={{ textAlign: "center" }}>
+            <DialogTitle>نتیجه مصاحبه</DialogTitle>
+            <DialogDescription>
+              {selectedUser
+                ? `${selectedUser.first_name} ${selectedUser.last_name}`
+                : ""}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedUser && (
+            <div className="space-y-4">
+              {selectedUser.interview_status && (
+                <div className="flex items-center justify-center">
+                  <span
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getInterviewBadgeColor(
+                      selectedUser.interview_status,
+                    )}`}
+                  >
+                    {getInterviewLabel(selectedUser.interview_status)}
+                  </span>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label>نتیجه مصاحبه</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  <Button
+                    type="button"
+                    variant={interviewStatus === "accepted" ? "default" : "outline"}
+                    className="w-full"
+                    onClick={() => setInterviewStatus("accepted")}
+                  >
+                    <UserCheck className="h-4 w-4 ml-2" />
+                    پذیرفته شده
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={
+                      interviewStatus === "not_meeting_requirements"
+                        ? "default"
+                        : "outline"
+                    }
+                    className="w-full"
+                    onClick={() => setInterviewStatus("not_meeting_requirements")}
+                  >
+                    <UserX className="h-4 w-4 ml-2" />
+                    عدم احراز شرایط
+                  </Button>
+                </div>
+              </div>
+
+              {interviewStatus === "not_meeting_requirements" && (
+                <div className="space-y-2">
+                  <Label htmlFor="interview-notes">توضیحات</Label>
+                  <Textarea
+                    id="interview-notes"
+                    placeholder="دلیل عدم احراز شرایط را وارد کنید"
+                    value={interviewNotes}
+                    onChange={(e) => setInterviewNotes(e.target.value)}
+                    rows={4}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsInterviewDialogOpen(false)}
+              disabled={isSubmitting}
+              className="ml-2"
+            >
+              لغو
+            </Button>
+            <Button
+              type="button"
+              onClick={handleInterviewUpdate}
+              disabled={
+                isSubmitting ||
+                (interviewStatus === "not_meeting_requirements" &&
+                  !interviewNotes.trim())
+              }
+            >
+              {isSubmitting ? (
+                <>
+                  <LoadingSpinner size={16} />
+                  در حال بروزرسانی...
+                </>
+              ) : (
+                "ثبت نتیجه"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

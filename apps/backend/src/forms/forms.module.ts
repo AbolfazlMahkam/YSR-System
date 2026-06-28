@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import SelfDeclaration from '../entities/self-declaration.entity';
 import FormSchema from '../entities/form-schema.entity';
 import FormSubmission from '../entities/form-submission.entity';
+import Users from '../entities/user.entity';
 import { SelfDeclarationController } from './self-declaration/self-declaration.controller';
 import { SelfDeclarationService } from './self-declaration/self-declaration.service';
 import { DynamicFormController } from './dynamic-forms/dynamic-form.controller';
@@ -12,11 +13,13 @@ import { AdminFormsController } from './admin/admin-forms.controller';
 import { AdminFormsService } from './admin/admin-forms.service';
 import { AdminSubmissionsController } from './admin/admin-submissions.controller';
 import { AdminSubmissionsService } from './admin/admin-submissions.service';
+import { AdminDashboardController } from './admin/admin-dashboard.controller';
+import { AdminDashboardService } from './admin/admin-dashboard.service';
 import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([SelfDeclaration, FormSchema, FormSubmission]),
+    TypeOrmModule.forFeature([SelfDeclaration, FormSchema, FormSubmission, Users]),
     UsersModule,
   ],
   controllers: [
@@ -24,6 +27,7 @@ import { UsersModule } from '../users/users.module';
     DynamicFormController,
     AdminFormsController,
     AdminSubmissionsController,
+    AdminDashboardController,
   ],
   providers: [
     SelfDeclarationService,
@@ -31,6 +35,7 @@ import { UsersModule } from '../users/users.module';
     DynamicFormValidatorService,
     AdminFormsService,
     AdminSubmissionsService,
+    AdminDashboardService,
   ],
 })
 export class FormsModule {}

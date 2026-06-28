@@ -11,6 +11,7 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateInterviewDto } from './dto/update-interview.dto';
 import { Roles } from '../common/decorators/roles.decorator';
 import { GetUser } from '../common/decorators/get-user.decorator';
 import { UniquePhonePipe } from '../common/pipes/unique-phone.pipe';
@@ -39,6 +40,15 @@ export class UsersController {
   @Roles('admin', 'super_admin')
   async findAll() {
     return await this.usersService.findAll();
+  }
+
+  @Patch(':id/interview')
+  @Roles('admin', 'super_admin')
+  async updateInterview(
+    @Param('id', UserExistsPipe) user: Users,
+    @Body() dto: UpdateInterviewDto,
+  ) {
+    return this.usersService.updateInterview(user, dto);
   }
 
   @Get(':id')

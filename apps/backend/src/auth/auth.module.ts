@@ -4,6 +4,7 @@ import { AuthController } from './auth.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import Users from '../entities/user.entity';
+import SelfDeclaration from '../entities/self-declaration.entity';
 import { UsersService } from '../users/users.service';
 import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
@@ -32,7 +33,7 @@ import { OtpCodeValidationPipe } from '../common/pipes/otp-code-validation.pipe'
       },
       inject: [ConfigService],
     }),
-    TypeOrmModule.forFeature([Users, Codes]),
+    TypeOrmModule.forFeature([Users, Codes, SelfDeclaration]),
   ],
   controllers: [AuthController],
   providers: [

@@ -28,4 +28,12 @@ export class CreateUserDto {
   @IsObject()
   @IsOptional()
   self_declaration_data?: Record<string, any>;
+
+  @IsString()
+  @IsOptional()
+  interview_status?: string;
+
+  @IsString()
+  @IsOptional()
+  interview_notes?: string;
 }
