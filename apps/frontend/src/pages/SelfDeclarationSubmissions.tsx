@@ -31,6 +31,7 @@ import { LoadingSpinner } from "../components/LoadingSpinner";
 import { toast } from "sonner";
 import { translateServerError } from "../lib/error-translations";
 import { cn, toPersianDigits } from "@/lib/utils";
+import { formatProvinceCity } from "../data/iranian-provinces-cities";
 
 interface FieldDefinition {
   name: string;
@@ -188,9 +189,11 @@ export function SelfDeclarationSubmissions() {
       return value.join(", ");
     }
     if (typeof value === "object" && value !== null) {
-      return Object.entries(value as Record<string, unknown>)
-        .map(([k, v]) => `${k}: ${v}`)
-        .join(" | ");
+      return field?.type === "province_city"
+        ? formatProvinceCity(value)
+        : Object.entries(value as Record<string, unknown>)
+            .map(([k, v]) => `${k}: ${v}`)
+            .join(" | ");
     }
     if (field?.options) {
       const option = field.options.find((o) => o.value === value);

@@ -20,6 +20,7 @@ import { LoadingSpinner } from "../components/LoadingSpinner";
 import { toast } from "sonner";
 import { translateServerError } from "../lib/error-translations";
 import { toPersianDigits } from "@/lib/utils";
+import { formatProvinceCity } from "../data/iranian-provinces-cities";
 
 interface FieldDefinition {
   name: string;
@@ -249,9 +250,11 @@ export function FormSubmissions() {
                             typeof val === "object" &&
                             val !== null
                           ) {
-                            return Object.entries(val)
-                              .map(([k, v]) => `${k}: ${v}`)
-                              .join(" | ");
+                            return field?.type === "province_city"
+                              ? formatProvinceCity(val)
+                              : Object.entries(val)
+                                  .map(([k, v]) => `${k}: ${v}`)
+                                  .join(" | ");
                           }
                           if (field?.options) {
                             const option = field.options.find(

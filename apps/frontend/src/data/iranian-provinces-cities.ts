@@ -537,3 +537,25 @@ export const IRANIAN_PROVINCES_CITIES: Province[] = [
     ],
   },
 ];
+
+export function getProvinceLabel(value: string): string {
+  const province = IRANIAN_PROVINCES_CITIES.find((p) => p.value === value);
+  return province?.label ?? value;
+}
+
+export function getCityLabel(provinceValue: string, cityValue: string): string {
+  const province = IRANIAN_PROVINCES_CITIES.find(
+    (p) => p.value === provinceValue,
+  );
+  const city = province?.cities.find((c) => c.value === cityValue);
+  return city?.label ?? cityValue;
+}
+
+export function formatProvinceCity(value: unknown): string {
+  if (typeof value !== "object" || value === null) return String(value ?? "");
+  const obj = value as Record<string, string>;
+  const province = obj.province ? getProvinceLabel(obj.province) : "";
+  const city = obj.city ? getCityLabel(obj.province ?? "", obj.city) : "";
+  if (province && city) return `${province} - ${city}`;
+  return province || city || "";
+}

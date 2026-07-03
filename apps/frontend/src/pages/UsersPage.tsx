@@ -33,6 +33,7 @@ import { useAuth } from "../hooks/useAuth";
 import { toast } from "sonner";
 import { translateServerError } from "../lib/error-translations";
 import { toPersianDigits } from "@/lib/utils";
+import { formatProvinceCity } from "../data/iranian-provinces-cities";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -201,11 +202,12 @@ export function UsersPage() {
                 row[field.label] = value.join(", ");
               }
             } else if (typeof value === "object") {
-              row[field.label] = Object.entries(
-                value as Record<string, unknown>,
-              )
-                .map(([k, v]) => `${k}: ${v}`)
-                .join(" | ");
+              row[field.label] =
+                field.type === "province_city"
+                  ? formatProvinceCity(value)
+                  : Object.entries(value as Record<string, unknown>)
+                      .map(([k, v]) => `${k}: ${v}`)
+                      .join(" | ");
             } else if (field.options) {
               const option = field.options.find((o) => o.value === value);
               row[field.label] = option ? option.label : String(value);
