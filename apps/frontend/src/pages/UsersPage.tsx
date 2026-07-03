@@ -14,7 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Shield, Lock, Plus, Pencil, Trash2, UserCheck, UserX } from "lucide-react";
+import { Shield, Lock, Plus, Pencil, Trash2, UserCheck, UserX, Eye, File, ExternalLink, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import usersApi from "../api/users";
+import formsApi from "../api/forms";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { useAuth } from "../hooks/useAuth";
 import { toast } from "sonner";
@@ -35,6 +36,7 @@ import { toPersianDigits } from "@/lib/utils";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import * as XLSX from "xlsx";
 
 const userBaseSchema = z.object({
   first_name: z.string().min(1, "نام الزامی است"),
@@ -62,12 +64,25 @@ const editUserSchema = userBaseSchema.extend({
 type AddUserFormData = z.infer<typeof addUserSchema>;
 type EditUserFormData = z.infer<typeof editUserSchema>;
 
+interface FieldDefinition {
+  name: string;
+  label: string;
+  type: string;
+  options?: { label: string; value: string }[];
+}
+
 interface User {
   id: number;
   phone: string;
   role: string;
   first_name: string;
   last_name: string;
+  national_code: string | null;
+  birth_date: string | null;
+  gender: string | null;
+  education: string | null;
+  address: string | null;
+  self_declaration_data: Record<string, unknown>;
   interview_status: string | null;
   interview_notes: string | null;
 }
@@ -83,8 +98,15 @@ export function UsersPage() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [interviewStatus, setInterviewStatus] = useState<string>("");
   const [interviewNotes, setInterviewNotes] = useState<string>("");
+  const [isShowInfoDialogOpen, setIsShowInfoDialogOpen] = useState(false);
+  const [showInfoUser, setShowInfoUser] = useState<User | null>(null);
+  const [schemaFields, setSchemaFields] = useState<FieldDefinition[]>([]);
+  const [loadingSchema, setLoadingSchema] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const addForm = useForm<AddUserFormData>({
     resolver: zodResolver(addUserSchema),
@@ -126,11 +148,128 @@ export function UsersPage() {
     }
   };
 
-  // Filter users based on selected role
-  const filteredUsers =
-    roleFilter === "all"
-      ? users
-      : users.filter((user) => user.role === roleFilter);
+  const handleExportExcel = async () => {
+    setExporting(true);
+    try {
+      let fields: FieldDefinition[] = [];
+      try {
+        const schema = await formsApi.getSchemaBySlug("self-declaration");
+        if (schema?.fields) {
+          fields = schema.fields.filter(
+            (f: FieldDefinition) => f.type !== "file",
+          );
+        }
+      } catch {
+        // If schema fetch fails, proceed with empty fields (will use raw keys)
+      }
+
+      const rows = users.map((user, idx) => {
+        const row: Record<string, string> = {
+          "ردیف": String(idx + 1),
+          "نام": user.first_name || "",
+          "نام خانوادگی": user.last_name || "",
+          "شماره همراه": user.phone || "",
+          "نقش": user.role || "",
+          "کد ملی": user.national_code || "",
+          "تاریخ تولد": user.birth_date || "",
+          "جنسیت":
+            user.gender === "male"
+              ? "مرد"
+              : user.gender === "female"
+                ? "زن"
+                : user.gender || "",
+          "تحصیلات": user.education || "",
+          "آدرس": user.address || "",
+          "وضعیت مصاحبه": getInterviewLabel(user.interview_status),
+        };
+
+        const selfDeclData = user.self_declaration_data || {};
+        if (fields.length > 0) {
+          for (const field of fields) {
+            const value = selfDeclData[field.name];
+            if (value === undefined || value === null || value === "") {
+              row[field.label] = "";
+            } else if (Array.isArray(value)) {
+              if (field.options) {
+                row[field.label] = value
+                  .map(
+                    (v) =>
+                      field.options?.find((o) => o.value === v)?.label || v,
+                  )
+                  .join(", ");
+              } else {
+                row[field.label] = value.join(", ");
+              }
+            } else if (typeof value === "object") {
+              row[field.label] = Object.entries(
+                value as Record<string, unknown>,
+              )
+                .map(([k, v]) => `${k}: ${v}`)
+                .join(" | ");
+            } else if (field.options) {
+              const option = field.options.find((o) => o.value === value);
+              row[field.label] = option ? option.label : String(value);
+            } else {
+              row[field.label] = String(value);
+            }
+          }
+        } else {
+          for (const [key, val] of Object.entries(selfDeclData)) {
+            if (
+              typeof val === "string" &&
+              (val.startsWith("/uploads/") || val.startsWith("http"))
+            )
+              continue;
+            if (typeof val === "object" && val !== null) {
+              row[key] = JSON.stringify(val);
+            } else if (Array.isArray(val)) {
+              row[key] = val.join(", ");
+            } else {
+              row[key] = String(val ?? "");
+            }
+          }
+        }
+
+        return row;
+      });
+
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Users");
+
+      const colWidths = Object.keys(rows[0] || {}).map((key) => {
+        const maxLen = Math.max(
+          key.length,
+          ...rows.map((r) => String(r[key] || "").length),
+        );
+        return { wch: Math.min(maxLen + 2, 50) };
+      });
+      ws["!cols"] = colWidths;
+
+      XLSX.writeFile(
+        wb,
+        `users-export-${new Date().toISOString().split("T")[0]}.xlsx`,
+      );
+    } catch {
+      toast.error("خطا در خروجی اکسل");
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  // Filter users based on role, status, search query, and sort by id ascending
+  const filteredUsers = users.filter((user) => {
+    const matchesRole = roleFilter === "all" || user.role === roleFilter;
+    const matchesStatus =
+      statusFilter === "all" || user.interview_status === statusFilter;
+    const fullName = `${user.first_name} ${user.last_name}`.toLowerCase();
+    const matchesSearch =
+      !searchQuery ||
+      fullName.includes(searchQuery.toLowerCase()) ||
+      user.phone.includes(searchQuery);
+    return matchesRole && matchesStatus && matchesSearch;
+  });
+  const sortedUsers = [...filteredUsers].sort((a, b) => a.id - b.id);
 
   const handleAddUser = async (data: AddUserFormData) => {
     const toastId = toast.loading("در حال ایجاد کاربر...");
@@ -212,10 +351,26 @@ export function UsersPage() {
     setIsInterviewDialogOpen(true);
   };
 
+  const openShowInfoDialog = async (user: User) => {
+    setShowInfoUser(user);
+    setIsShowInfoDialogOpen(true);
+    setLoadingSchema(true);
+    try {
+      const schema = await formsApi.getSchemaBySlug("self-declaration");
+      if (schema?.fields) {
+        setSchemaFields(schema.fields);
+      }
+    } catch {
+      setSchemaFields([]);
+    } finally {
+      setLoadingSchema(false);
+    }
+  };
+
   const handleInterviewUpdate = async () => {
     if (!selectedUser) return;
 
-    const toastId = toast.loading("در حال بروزرسانی وضعیت مصاحبه...");
+    const toastId = toast.loading("در حال بروزرسانی وضعیت...");
     setIsSubmitting(true);
 
     try {
@@ -226,7 +381,7 @@ export function UsersPage() {
         data.notes = interviewNotes;
       }
       await usersApi.updateInterview(selectedUser.id, data);
-      toast.success("وضعیت مصاحبه با موفقیت بروز شد!", { id: toastId });
+      toast.success("وضعیت با موفقیت بروز شد!", { id: toastId });
       setIsInterviewDialogOpen(false);
       setSelectedUser(null);
       fetchAllUsers();
@@ -276,6 +431,64 @@ export function UsersPage() {
     }
   };
 
+  const renderValue = (field: { name: string; label: string; type: string; options?: { label: string; value: string }[] }, value: unknown) => {
+    const isFileUrl =
+      typeof value === "string" &&
+      (value.startsWith("/uploads/") || value.startsWith("http"));
+    if (isFileUrl) {
+      const fileUrl =
+        typeof value === "string" && value.startsWith("/uploads/")
+          ? `https://api.rohanian-ysr.ir${value}`
+          : value;
+      const isImage =
+        typeof value === "string" && /\.(png|jpe?g|gif|webp|svg)$/i.test(value);
+      if (isImage) {
+        return (
+          <a href={fileUrl} target="_blank" rel="noopener noreferrer">
+            <img
+              src={fileUrl}
+              alt=""
+              className="max-w-xs max-h-48 rounded border object-cover cursor-pointer hover:opacity-90 transition-opacity"
+            />
+          </a>
+        );
+      }
+      return (
+        <a
+          href={fileUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 text-primary hover:underline"
+        >
+          <File className="h-3 w-3" />
+          مشاهده فایل
+          <ExternalLink className="h-3 w-3" />
+        </a>
+      );
+    }
+    if (Array.isArray(value)) {
+      if (field?.options) {
+        return value
+          .map(
+            (v) =>
+              field.options?.find((o) => o.value === v)?.label || v,
+          )
+          .join(", ");
+      }
+      return value.join(", ");
+    }
+    if (typeof value === "object" && value !== null) {
+      return Object.entries(value as Record<string, unknown>)
+        .map(([k, v]) => `${k}: ${v}`)
+        .join(" | ");
+    }
+    if (field?.options) {
+      const option = field.options.find((o) => o.value === value);
+      if (option) return option.label;
+    }
+    return String(value ?? "");
+  };
+
   // Check if user has admin or super_admin role
   const hasAccess =
     currentUser?.role === "admin" || currentUser?.role === "super_admin";
@@ -318,22 +531,40 @@ export function UsersPage() {
               <CardDescription>مدیریت تمام کاربران</CardDescription>
             </div>
             {isSuperAdmin && (
-              <Button onClick={() => setIsAddDialogOpen(true)}>
-                <Plus className="h-4 w-4 ml-2" />
-                اضافه کردن کاربر
-              </Button>
+              <div className="flex gap-2">
+                <Button onClick={handleExportExcel} disabled={exporting}>
+                  <Download className="h-4 w-4 ml-2" />
+                  {exporting ? "در حال خروجی..." : "خروجی اکسل"}
+                </Button>
+                <Button onClick={() => setIsAddDialogOpen(true)}>
+                  <Plus className="h-4 w-4 ml-2" />
+                  اضافه کردن کاربر
+                </Button>
+              </div>
             )}
           </div>
-          <div className="mt-4">
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2">
+              <Label htmlFor="search" className="whitespace-nowrap">
+                جستجو:
+              </Label>
+              <Input
+                id="search"
+                placeholder="نام یا شماره همراه..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-[200px]"
+              />
+            </div>
             <div className="flex items-center gap-2">
               <Label htmlFor="role-filter" className="whitespace-nowrap">
-                فیلتر بر اساس نقش:
+                نقش:
               </Label>
               <Select
                 value={roleFilter}
                 onValueChange={setRoleFilter}
               >
-                <SelectTrigger id="role-filter" className="w-[200px]">
+                <SelectTrigger id="role-filter" className="w-[150px]">
                   <SelectValue placeholder="All Roles" />
                 </SelectTrigger>
                 <SelectContent>
@@ -343,10 +574,29 @@ export function UsersPage() {
                   <SelectItem value="user">USER</SelectItem>
                 </SelectContent>
               </Select>
-              <span className="text-sm text-muted-foreground">
-                {toPersianDigits(filteredUsers.length)} {"کاربر"}
-              </span>
             </div>
+            <div className="flex items-center gap-2">
+              <Label htmlFor="status-filter" className="whitespace-nowrap">
+                وضعیت:
+              </Label>
+              <Select
+                value={statusFilter}
+                onValueChange={setStatusFilter}
+              >
+                <SelectTrigger id="status-filter" className="w-[150px]">
+                  <SelectValue placeholder="All Statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">ALL STATUSES</SelectItem>
+                  <SelectItem value="awaiting_interview">در انتظار مصاحبه</SelectItem>
+                  <SelectItem value="accepted">پذیرفته شده</SelectItem>
+                  <SelectItem value="not_meeting_requirements">عدم احراز شرایط</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <span className="text-sm text-muted-foreground mr-auto">
+              {toPersianDigits(filteredUsers.length)} {"کاربر"}
+            </span>
           </div>
         </CardHeader>
         <CardContent>
@@ -363,21 +613,21 @@ export function UsersPage() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b-2 border-border bg-muted/50">
-                    <th className="text-right p-3 font-semibold">ID</th>
+                    <th className="text-right p-3 font-semibold">ردیف</th>
                     <th className="text-right p-3 font-semibold"> کاربرنام</th>
                     <th className="text-right p-3 font-semibold">شماره همراه</th>
                     <th className="text-right p-3 font-semibold">نقش</th>
-                    <th className="text-right p-3 font-semibold">وضعیت مصاحبه</th>
+                    <th className="text-right p-3 font-semibold">وضعیت</th>
                     <th className="text-right p-3 font-semibold">عملیات</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredUsers.map((user) => (
+                  {sortedUsers.map((user, index) => (
                     <tr
                       key={user.id}
                       className="border-b border-border hover:bg-muted/30 transition-colors"
                     >
-                      <td className="p-3 font-medium">{toPersianDigits(user.id)}</td>
+                      <td className="p-3 font-medium">{toPersianDigits(index + 1)}</td>
                       <td className="p-3">
                         {user.first_name} {user.last_name}
                       </td>
@@ -404,6 +654,14 @@ export function UsersPage() {
                       </td>
                       <td className="p-3">
                         <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => openShowInfoDialog(user)}
+                          >
+                            <Eye className="h-3 w-3 ml-1" />
+                            اطلاعات
+                          </Button>
                           <Button
                             size="sm"
                             variant="outline"
@@ -442,6 +700,109 @@ export function UsersPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Show Information Dialog */}
+      <Dialog open={isShowInfoDialogOpen} onOpenChange={(o) => { if (!o) { setIsShowInfoDialogOpen(false); setShowInfoUser(null); } }}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>نمایش اطلاعات کاربر</DialogTitle>
+            {showInfoUser && (
+              <DialogDescription>
+                {showInfoUser.first_name} {showInfoUser.last_name} -{" "}
+                <span dir="ltr">{toPersianDigits(showInfoUser.phone)}</span>
+              </DialogDescription>
+            )}
+          </DialogHeader>
+
+          {showInfoUser && (
+            <div className="space-y-6">
+              {/* Personal Information */}
+              <div>
+                <h3 className="font-semibold text-lg mb-3 pb-2 border-b">اطلاعات شخصی</h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">نام:</span>
+                    <p className="font-medium">{showInfoUser.first_name}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">نام خانوادگی:</span>
+                    <p className="font-medium">{showInfoUser.last_name}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">شماره همراه:</span>
+                    <p className="font-medium" dir="ltr">{toPersianDigits(showInfoUser.phone)}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">نقش:</span>
+                    <p className="font-medium">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getRoleBadgeColor(showInfoUser.role)}`}>
+                        {showInfoUser.role.replace("_", " ").toUpperCase()}
+                      </span>
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">جنسیت:</span>
+                    <p className="font-medium">{showInfoUser.gender === "male" ? "مرد" : showInfoUser.gender === "female" ? "زن" : showInfoUser.gender || "—"}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Interview Status */}
+              <div>
+                <h3 className="font-semibold text-lg mb-3 pb-2 border-b">وضعیت مصاحبه</h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">وضعیت:</span>
+                    <p className="font-medium mt-1">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getInterviewBadgeColor(showInfoUser.interview_status)}`}>
+                        {getInterviewLabel(showInfoUser.interview_status)}
+                      </span>
+                    </p>
+                  </div>
+                  {showInfoUser.interview_notes && (
+                    <div className="col-span-2">
+                      <span className="text-muted-foreground">یادداشت‌ها:</span>
+                      <p className="font-medium mt-1 p-2 bg-muted rounded text-sm">{showInfoUser.interview_notes}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Self-Declaration Data */}
+              <div>
+                <h3 className="font-semibold text-lg mb-3 pb-2 border-b">اطلاعات اظهارنامه</h3>
+                {loadingSchema ? (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground py-4">
+                    <LoadingSpinner size={16} />
+                    در حال بارگذاری...
+                  </div>
+                ) : Object.keys(showInfoUser.self_declaration_data || {}).length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-4">اظهارنامه‌ای ثبت نشده است</p>
+                ) : (
+                  <div className="space-y-2">
+                    {(schemaFields.length > 0 ? schemaFields : Object.keys(showInfoUser.self_declaration_data).map((key) => ({ name: key, label: key, type: "text" }))).map((field) => {
+                      const value = showInfoUser.self_declaration_data?.[field.name];
+                      if (value === undefined || value === null || value === "") return null;
+                      return (
+                        <div key={field.name} className="grid grid-cols-3 gap-2 text-sm">
+                          <span className="font-medium text-muted-foreground col-span-1">{field.label}</span>
+                          <span className="col-span-2">{renderValue(field, value)}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setIsShowInfoDialogOpen(false); setShowInfoUser(null); }}>
+              بستن
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Add User Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
