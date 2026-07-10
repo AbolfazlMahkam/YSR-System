@@ -1,0 +1,89 @@
+name: ysr
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER:     ${DB_USERNAME:-ysr}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      POSTGRES_DB:       ${DB_DATABASE:-ysr_prod}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    # No host port published in prod; backend reaches it over the compose network.
+
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV:         production
+      PORT:             "3000"
+      FRONTEND_URL:     ${FRONTEND_URL:-http://localhost:8080}
+      DB_TYPE:          postgres
+      DB_HOST:          postgres
+      DB_PORT:          "5432"
+      DB_USERNAME:      ${DB_USERNAME:-ysr}
+      DB_PASSWORD:      ${DB_PASSWORD:?DB_PASSWORD is required}
+      DB_DATABASE:      ${DB_DATABASE:-ysr_prod}
+      DB_SYNCHRONIZE:   "false"
+      JWT_SECRET:       ${JWT_SECRET:?JWT_SECRET is required}
+      JWT_EXPIRES_IN:   ${JWT_EXPIRES_IN:-1d}
+      SESSION_SECRET:   ${SESSION_SECRET:?SESSION_SECRET is required}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+    volumes:
+      # Mount onto the SAME path the backend writes to: cwd(/app/apps/backend)+/uploads
+      - uploads:/app/apps/backend/uploads
+    healthcheck:
+      # node:alpine has no curl/wget. Any HTTP response (even 401 from the global
+      # JwtAuthGuard) proves the server is up. fetch() is global in Node 18+/22.
+      test:
+        - "CMD"
+        - "node"
+        - "-e"
+        - "fetch('http://127.0.0.1:3000/').then(()=>process.exit(0)).catch(()=>process.exit(1))"
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s   # absorb first-boot migration time (migrationsRun:true)
+    ports:
+      # SPA calls the backend cross-origin via baked VITE_API_BASE_URL, so the
+      # backend is published publicly. Set FRONTEND_URL/VITE_API_BASE_URL to the
+      # real public hostnames in production.
+      - "${BACKEND_PORT:-3000}:3000"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+      args:
+        VITE_NODE_ENV:         production
+        VITE_API_BASE_URL:     ${VITE_API_BASE_URL:-http://localhost:3000}
+        VITE_GOOGLE_CLIENT_ID: ${VITE_GOOGLE_CLIENT_ID:-}
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      # nginx:alpine ships busybox wget.
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1/healthz || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+
+volumes:
+  pgdata:
+  uploads:
