@@ -20,34 +20,33 @@ import { toast } from "sonner";
 import { translateServerError } from "../lib/error-translations";
 import logo from "../assets/logo-nt.png";
 
-const registerSchema = z
-  .object({
-    firstName: z.string().min(2, "نام کوچک باید حداقل ۲ کاراکتر باشد"),
-    lastName: z.string().min(2, "نام خانوادگی باید حداقل ۲ کاراکتر باشد"),
-    phone: z
-      .string()
-      .regex(
-        /^\+98\d{10,14}$/,
-        "شماره تلفن باید با 98+ شروع شود (مانند: 989123456789+)",
-      ),
-    // # password validation disabled — any password accepted
-    // password: z
-    //   .string()
-    //   .min(8, "رمز عبور باید حداقل ۸ کاراکتر باشد")
-    //   .regex(/[A-Z]/, "رمز عبور باید شامل حداقل یک حرف بزرگ باشد")
-    //   .regex(/[a-z]/, "رمز عبور باید شامل حداقل یک حرف کوچک باشد")
-    //   .regex(/[0-9]/, "رمز عبور باید شامل حداقل یک عدد باشد")
-    //   .regex(
-    //     /[^A-Za-z0-9]/,
-    //     "رمز عبور باید شامل حداقل یک کاراکتر خاص (@، $، ! و...) باشد",
-    //   ),
-    password: z.string(),
-    confirmPassword: z.string(),
-  })
-  // .refine((data) => data.password === data.confirmPassword, {
-  //   message: "رمز عبور و تکرار آن مطابقت ندارند",
-  //   path: ["confirmPassword"],
-  // });
+const registerSchema = z.object({
+  firstName: z.string().min(2, "نام کوچک باید حداقل ۲ کاراکتر باشد"),
+  lastName: z.string().min(2, "نام خانوادگی باید حداقل ۲ کاراکتر باشد"),
+  phone: z
+    .string()
+    .regex(
+      /^\+98\d{10,14}$/,
+      "شماره تلفن باید با 98+ شروع شود (مانند: 989123456789+)",
+    ),
+  // # password validation disabled — any password accepted
+  // password: z
+  //   .string()
+  //   .min(8, "رمز عبور باید حداقل ۸ کاراکتر باشد")
+  //   .regex(/[A-Z]/, "رمز عبور باید شامل حداقل یک حرف بزرگ باشد")
+  //   .regex(/[a-z]/, "رمز عبور باید شامل حداقل یک حرف کوچک باشد")
+  //   .regex(/[0-9]/, "رمز عبور باید شامل حداقل یک عدد باشد")
+  //   .regex(
+  //     /[^A-Za-z0-9]/,
+  //     "رمز عبور باید شامل حداقل یک کاراکتر خاص (@، $، ! و...) باشد",
+  //   ),
+  password: z.string(),
+  confirmPassword: z.string(),
+});
+// .refine((data) => data.password === data.confirmPassword, {
+//   message: "رمز عبور و تکرار آن مطابقت ندارند",
+//   path: ["confirmPassword"],
+// });
 
 type RegisterForm = z.infer<typeof registerSchema>;
 
@@ -104,25 +103,52 @@ export function RegisterPage() {
 
       toast.success("حساب کاربری با موفقیت ایجاد شد!", { id: toastId });
     } catch (err: unknown) {
-      toast.error(translateServerError(err) || "ثبت نام ناموفق. لطفاً دوباره تلاش کنید.", {
-        id: toastId,
-      });
+      toast.error(
+        translateServerError(err) || "ثبت نام ناموفق. لطفاً دوباره تلاش کنید.",
+        {
+          id: toastId,
+        },
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4"
+    <div
+      className="min-h-screen flex items-center justify-center p-4"
       style={{
         background: `
           radial-gradient(ellipse at 30% 20%, hsl(var(--primary) / 0.1) 0%, transparent 60%),
           radial-gradient(ellipse at 70% 80%, hsl(var(--accent) / 0.08) 0%, transparent 60%),
           hsl(var(--muted) / 0.4)
-        `
-      }}
-    >
+        `,
+      }}>
       <Card className="w-full max-w-lg">
+        <CardHeader className="space-y-4">
+          <div className="flex justify-center">
+            <img src={logo} alt="Logo" className="h-40 w-auto" />
+          </div>
+          <CardTitle className="text-2xl font-bold text-center">
+            پایان مهلت ثبت نام
+          </CardTitle>
+          <CardDescription className="text-center">
+            متاسفانه مهلت ثبت نام به پایان رسیده و تا اطلاع ثانوی امکان ثبت نام
+            وجود ندارد.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-center text-sm text-muted-foreground">
+            بازگشت به صفحه{" "}
+            <Link
+              to="/login"
+              className="text-primary hover:underline font-medium">
+              ورود
+            </Link>
+          </p>
+        </CardContent>
+      </Card>
+      {/* <Card className="w-full max-w-lg">
         <CardHeader className="space-y-4">
           <div className="flex justify-center">
             <img src={logo} alt="Logo" className="h-40 w-auto" />
@@ -199,8 +225,7 @@ export function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
@@ -247,8 +272,7 @@ export function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                   {showConfirmPassword ? (
                     <EyeOff size={18} />
                   ) : (
@@ -266,8 +290,7 @@ export function RegisterPage() {
             <Button
               type="submit"
               className="w-full"
-              disabled={!isValid || isSubmitting}
-            >
+              disabled={!isValid || isSubmitting}>
               {isSubmitting ? (
                 <>
                   <LoadingSpinner size={16} className="mr-2" />
@@ -282,14 +305,13 @@ export function RegisterPage() {
               قبلاً حساب کاربری دارید؟{" "}
               <Link
                 to="/login"
-                className="text-primary hover:underline font-medium"
-              >
+                className="text-primary hover:underline font-medium">
                 ورود
               </Link>
             </p>
           </form>
         </CardContent>
-      </Card>
+      </Card> */}
     </div>
   );
 }
