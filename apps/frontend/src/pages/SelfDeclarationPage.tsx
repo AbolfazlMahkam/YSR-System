@@ -23,10 +23,7 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { Checkbox } from "../components/ui/checkbox";
-import {
-  RadioGroup,
-  RadioGroupItem,
-} from "../components/ui/radio";
+import { RadioGroup, RadioGroupItem } from "../components/ui/radio";
 import { Textarea } from "../components/ui/textarea";
 import { Slider } from "../components/ui/slider";
 import { MultiSelect } from "../components/ui/multi-select";
@@ -84,7 +81,9 @@ function buildSchema(schema: FormSchema) {
 
   const requiredMsg = "این فیلد الزامی است";
 
-  for (const field of schema.fields.filter((f) => !REMOVED_FIELDS.has(f.name))) {
+  for (const field of schema.fields.filter(
+    (f) => !REMOVED_FIELDS.has(f.name),
+  )) {
     let fieldSchema: z.ZodTypeAny;
 
     switch (field.type) {
@@ -133,12 +132,8 @@ function buildSchema(schema: FormSchema) {
         break;
       case "province_city":
         fieldSchema = z.object({
-          province: z
-            .string("استان الزامی است")
-            .min(1, "استان الزامی است"),
-          city: z
-            .string("شهر الزامی است")
-            .min(1, "شهر الزامی است"),
+          province: z.string("استان الزامی است").min(1, "استان الزامی است"),
+          city: z.string("شهر الزامی است").min(1, "شهر الزامی است"),
         });
         if (!field.required) fieldSchema = fieldSchema.optional();
         break;
@@ -186,9 +181,9 @@ export function SelfDeclarationPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  const [uploadingFiles, setUploadingFiles] = useState<
-    Record<string, boolean>
-  >({});
+  const [uploadingFiles, setUploadingFiles] = useState<Record<string, boolean>>(
+    {},
+  );
 
   const {
     register,
@@ -330,8 +325,14 @@ export function SelfDeclarationPage() {
           >
             {field.options?.map((opt) => (
               <div key={opt.value} className="flex items-center gap-2">
-                <RadioGroupItem value={opt.value} id={`${field.name}-${opt.value}`} />
-                <Label htmlFor={`${field.name}-${opt.value}`} className="cursor-pointer">
+                <RadioGroupItem
+                  value={opt.value}
+                  id={`${field.name}-${opt.value}`}
+                />
+                <Label
+                  htmlFor={`${field.name}-${opt.value}`}
+                  className="cursor-pointer"
+                >
                   {opt.label}
                 </Label>
               </div>
@@ -506,7 +507,10 @@ export function SelfDeclarationPage() {
             locale={persian_fa}
             value={(value as string) || null}
             onChange={(date) => {
-              setValue(field.name, date ? toWesternDigits(date.format("YYYY/MM/DD")) : "");
+              setValue(
+                field.name,
+                date ? toWesternDigits(date.format("YYYY/MM/DD")) : "",
+              );
             }}
             placeholder={field.placeholder || "تاریخ را انتخاب کنید"}
             inputClass="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
@@ -600,17 +604,19 @@ export function SelfDeclarationPage() {
                 <AlertTriangle className="h-4 w-4" />
                 <span>اصلاحات مورد نیاز</span>
               </div>
-              {submission.correction_fields && submission.correction_fields.length > 0 && (
-                <div className="mb-2 text-sm text-yellow-600 dark:text-yellow-500">
-                  <span className="font-medium">فیلدهای نیازمند اصلاح: </span>
-                  {submission.correction_fields
-                    .map(
-                      (name) =>
-                        schema?.fields.find((f) => f.name === name)?.label || name,
-                    )
-                    .join("، ")}
-                </div>
-              )}
+              {submission.correction_fields &&
+                submission.correction_fields.length > 0 && (
+                  <div className="mb-2 text-sm text-yellow-600 dark:text-yellow-500">
+                    <span className="font-medium">فیلدهای نیازمند اصلاح: </span>
+                    {submission.correction_fields
+                      .map(
+                        (name) =>
+                          schema?.fields.find((f) => f.name === name)?.label ||
+                          name,
+                      )
+                      .join("، ")}
+                  </div>
+                )}
               <p className="text-sm text-yellow-600 dark:text-yellow-500">
                 {submission.admin_notes}
               </p>
@@ -618,33 +624,35 @@ export function SelfDeclarationPage() {
           )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {schema.fields.filter((f) => !REMOVED_FIELDS.has(f.name)).map((field) => {
-              const isEditable =
-                submission?.status !== "returned" ||
-                !submission.correction_fields ||
-                submission.correction_fields.length === 0 ||
-                submission.correction_fields.includes(field.name);
+            {schema.fields
+              .filter((f) => !REMOVED_FIELDS.has(f.name))
+              .map((field) => {
+                const isEditable =
+                  submission?.status !== "returned" ||
+                  !submission.correction_fields ||
+                  submission.correction_fields.length === 0 ||
+                  submission.correction_fields.includes(field.name);
 
-              return (
-                <div
-                  key={field.name}
-                  className={`space-y-2 ${!isEditable ? "pointer-events-none opacity-60" : ""}`}
-                >
-                  <Label>
-                    {field.label}
-                    {field.required && (
-                      <span className="text-destructive mr-1">*</span>
+                return (
+                  <div
+                    key={field.name}
+                    className={`space-y-2 ${!isEditable ? "pointer-events-none opacity-60" : ""}`}
+                  >
+                    <Label>
+                      {field.label}
+                      {field.required && (
+                        <span className="text-destructive mr-1">*</span>
+                      )}
+                    </Label>
+                    {renderField(field)}
+                    {errors[field.name] && (
+                      <p className="text-sm text-destructive">
+                        {errors[field.name]?.message as string}
+                      </p>
                     )}
-                  </Label>
-                  {renderField(field)}
-                  {errors[field.name] && (
-                    <p className="text-sm text-destructive">
-                      {errors[field.name]?.message as string}
-                    </p>
-                  )}
-                </div>
-              );
-            })}
+                  </div>
+                );
+              })}
 
             <div className="flex gap-3">
               <Button type="submit" disabled={submitting}>

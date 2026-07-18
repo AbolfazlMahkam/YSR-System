@@ -1,8 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddInterviewFieldsToUsers1940000000004
-  implements MigrationInterface
-{
+export class AddInterviewFieldsToUsers1940000000004 implements MigrationInterface {
   name = 'AddInterviewFieldsToUsers1940000000004';
 
   public async up(queryRunner: QueryRunner): Promise<void> {

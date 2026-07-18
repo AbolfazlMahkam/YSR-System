@@ -34,7 +34,7 @@ export function ScrollToTop({ containerRef }: ScrollToTopProps) {
         "fixed bottom-6 left-6 z-50 rounded-md shadow-lg transition-all duration-300",
         visible
           ? "opacity-100 translate-y-0"
-          : "opacity-0 translate-y-4 pointer-events-none"
+          : "opacity-0 translate-y-4 pointer-events-none",
       )}
       onClick={scrollToTop}
       aria-label="بازگشت به بالا"

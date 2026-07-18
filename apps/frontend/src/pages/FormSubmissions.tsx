@@ -14,7 +14,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { ClipboardList, Eye, ChevronDown, ChevronUp, ExternalLink, File, Search } from "lucide-react";
+import {
+  ClipboardList,
+  Eye,
+  ChevronDown,
+  ChevronUp,
+  ExternalLink,
+  File,
+  Search,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import adminFormsApi from "../api/admin-forms";
 import { LoadingSpinner } from "../components/LoadingSpinner";
@@ -73,7 +81,9 @@ export function FormSubmissions() {
     try {
       setLoadingForms(true);
       const data = await adminFormsApi.getAll();
-      setForms((data || []).filter((f: FormSchema) => f.slug !== "self-declaration"));
+      setForms(
+        (data || []).filter((f: FormSchema) => f.slug !== "self-declaration"),
+      );
     } catch (err: unknown) {
       toast.error(translateServerError(err) || "خطا در دریافت فرم‌ها");
     } finally {
@@ -110,7 +120,8 @@ export function FormSubmissions() {
   const filteredSubmissions = submissions.filter((sub) => {
     if (!searchQuery.trim()) return true;
     const q = searchQuery.trim().toLowerCase();
-    const fullName = `${sub.user?.first_name ?? ""} ${sub.user?.last_name ?? ""}`.toLowerCase();
+    const fullName =
+      `${sub.user?.first_name ?? ""} ${sub.user?.last_name ?? ""}`.toLowerCase();
     const phone = sub.user?.phone ?? "";
     return fullName.includes(q) || phone.includes(q);
   });
@@ -171,143 +182,160 @@ export function FormSubmissions() {
             </p>
           ) : (
             <div className="space-y-3">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                  <p className="text-sm text-muted-foreground">
-                    {toPersianDigits(submissions.length)} ارسال برای "{formTitle}"
-                  </p>
-                  <div className="relative w-full sm:w-64">
-                    <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="جستجو بر اساس نام یا شماره تماس..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pr-9"
-                    />
-                  </div>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <p className="text-sm text-muted-foreground">
+                  {toPersianDigits(submissions.length)} ارسال برای "{formTitle}"
+                </p>
+                <div className="relative w-full sm:w-64">
+                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="جستجو بر اساس نام یا شماره تماس..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pr-9"
+                  />
                 </div>
-                {filteredSubmissions.length === 0 ? (
-                  <p className="text-muted-foreground text-center py-8">
-                    نتیجه‌ای یافت نشد
-                  </p>
-                ) : (
-                  filteredSubmissions.map((sub) => (
-                <Card key={sub.id} className="overflow-hidden">
-                  <button
-                    onClick={() => toggleExpand(sub.id)}
-                    className="w-full flex items-center justify-between p-4 hover:bg-muted/30 transition-colors text-right"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Eye className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <p className="font-medium">
-                          {sub.user?.first_name} {sub.user?.last_name}
-                        </p>
-                        <p className="text-xs text-muted-foreground" dir="ltr">
-                          {sub.user?.phone}
-                        </p>
+              </div>
+              {filteredSubmissions.length === 0 ? (
+                <p className="text-muted-foreground text-center py-8">
+                  نتیجه‌ای یافت نشد
+                </p>
+              ) : (
+                filteredSubmissions.map((sub) => (
+                  <Card key={sub.id} className="overflow-hidden">
+                    <button
+                      onClick={() => toggleExpand(sub.id)}
+                      className="w-full flex items-center justify-between p-4 hover:bg-muted/30 transition-colors text-right"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Eye className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <p className="font-medium">
+                            {sub.user?.first_name} {sub.user?.last_name}
+                          </p>
+                          <p
+                            className="text-xs text-muted-foreground"
+                            dir="ltr"
+                          >
+                            {sub.user?.phone}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs text-muted-foreground">
-                        {toPersianDigits(new Date(sub.created_at).toLocaleDateString("fa-IR"))}
-                      </span>
-                      {expandedId === sub.id ? (
-                        <ChevronUp className="h-4 w-4" />
-                      ) : (
-                        <ChevronDown className="h-4 w-4" />
-                      )}
-                    </div>
-                  </button>
-                  {expandedId === sub.id && (
-                    <div className="border-t px-4 py-3 space-y-2 bg-muted/20">
-                      {formFields.map((field) => {
-                        const value = sub.answers[field.name];
-                        if (value === undefined || value === null || value === "") return null;
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs text-muted-foreground">
+                          {toPersianDigits(
+                            new Date(sub.created_at).toLocaleDateString(
+                              "fa-IR",
+                            ),
+                          )}
+                        </span>
+                        {expandedId === sub.id ? (
+                          <ChevronUp className="h-4 w-4" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4" />
+                        )}
+                      </div>
+                    </button>
+                    {expandedId === sub.id && (
+                      <div className="border-t px-4 py-3 space-y-2 bg-muted/20">
+                        {formFields.map((field) => {
+                          const value = sub.answers[field.name];
+                          if (
+                            value === undefined ||
+                            value === null ||
+                            value === ""
+                          )
+                            return null;
 
-                        const formatValue = (val: unknown) => {
-                          const isFileUrl =
-                            typeof val === "string" &&
-                            (val.startsWith("/uploads/") ||
-                              val.startsWith("http"));
-                          if (isFileUrl) {
-                            const fileUrl =
-                              typeof val === "string" && val.startsWith("/uploads/")
-                                ? `https://api.rohanian-ysr.ir${val}`
-                                : val;
-                            const isImage =
-                              typeof val === "string" && /\.(png|jpe?g|gif|webp|svg)$/i.test(val);
-                            if (isImage) {
+                          const formatValue = (val: unknown) => {
+                            const isFileUrl =
+                              typeof val === "string" &&
+                              (val.startsWith("/uploads/") ||
+                                val.startsWith("http"));
+                            if (isFileUrl) {
+                              const fileUrl =
+                                typeof val === "string" &&
+                                val.startsWith("/uploads/")
+                                  ? `https://api.rohanian-ysr.ir${val}`
+                                  : val;
+                              const isImage =
+                                typeof val === "string" &&
+                                /\.(png|jpe?g|gif|webp|svg)$/i.test(val);
+                              if (isImage) {
+                                return (
+                                  <a
+                                    href={fileUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    <img
+                                      src={fileUrl}
+                                      alt=""
+                                      className="max-w-xs max-h-48 rounded border object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                    />
+                                  </a>
+                                );
+                              }
                               return (
-                                <a href={fileUrl} target="_blank" rel="noopener noreferrer">
-                                  <img
-                                    src={fileUrl}
-                                    alt=""
-                                    className="max-w-xs max-h-48 rounded border object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                                  />
+                                <a
+                                  href={fileUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 text-primary hover:underline"
+                                >
+                                  <File className="h-3 w-3" />
+                                  مشاهده فایل
+                                  <ExternalLink className="h-3 w-3" />
                                 </a>
                               );
                             }
-                            return (
-                              <a
-                                href={fileUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-primary hover:underline"
-                              >
-                                <File className="h-3 w-3" />
-                                مشاهده فایل
-                                <ExternalLink className="h-3 w-3" />
-                              </a>
-                            );
-                          }
-                          if (Array.isArray(val)) {
-                            if (field?.options) {
-                              return val
-                                .map(
-                                  (v) =>
-                                    field.options?.find((o) => o.value === v)
-                                      ?.label || v,
-                                )
-                                .join(", ");
+                            if (Array.isArray(val)) {
+                              if (field?.options) {
+                                return val
+                                  .map(
+                                    (v) =>
+                                      field.options?.find((o) => o.value === v)
+                                        ?.label || v,
+                                  )
+                                  .join(", ");
+                              }
+                              return val.join(", ");
                             }
-                            return val.join(", ");
-                          }
-                          if (
-                            typeof val === "object" &&
-                            val !== null
-                          ) {
-                            return field?.type === "province_city"
-                              ? formatProvinceCity(val)
-                              : Object.entries(val)
-                                  .map(([k, v]) => `${k}: ${v}`)
-                                  .join(" | ");
-                          }
-                          if (field?.options) {
-                            const option = field.options.find(
-                              (o) => o.value === val,
-                            );
-                            if (option) return option.label;
-                          }
-                          return String(val ?? "");
-                        };
+                            if (typeof val === "object" && val !== null) {
+                              return field?.type === "province_city"
+                                ? formatProvinceCity(val)
+                                : Object.entries(val)
+                                    .map(([k, v]) => `${k}: ${v}`)
+                                    .join(" | ");
+                            }
+                            if (field?.options) {
+                              const option = field.options.find(
+                                (o) => o.value === val,
+                              );
+                              if (option) return option.label;
+                            }
+                            return String(val ?? "");
+                          };
 
-                        return (
-                          <div key={field.name} className="grid grid-cols-3 gap-2 text-sm">
-                            <span className="font-medium text-muted-foreground col-span-1">
-                              {field.label}
-                            </span>
-                            <span className="col-span-2">
-                              {formatValue(value)}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </Card>
-                  ))
-                )}
-
+                          return (
+                            <div
+                              key={field.name}
+                              className="grid grid-cols-3 gap-2 text-sm"
+                            >
+                              <span className="font-medium text-muted-foreground col-span-1">
+                                {field.label}
+                              </span>
+                              <span className="col-span-2">
+                                {formatValue(value)}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </Card>
+                ))
+              )}
             </div>
           )}
         </CardContent>

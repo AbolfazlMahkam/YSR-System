@@ -316,7 +316,9 @@ export function FormBuilder() {
       }
       navigate("/admin/forms");
     } catch (err: unknown) {
-      toast.error(translateServerError(err) || "خطا در ذخیره فرم", { id: toastId });
+      toast.error(translateServerError(err) || "خطا در ذخیره فرم", {
+        id: toastId,
+      });
     } finally {
       setSaving(false);
     }

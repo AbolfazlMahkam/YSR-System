@@ -12,13 +12,17 @@ const errorTranslations: Record<string, string> = {
   "code is not valid": "کد نامعتبر است",
   "Form not found": "فرم یافت نشد",
   "Submission not found": "ارسال یافت نشد",
-  "Self-declaration form has already been submitted": "اظهارنامه قبلاً ارسال شده است",
-  "Self-declaration form schema is not configured": "فرم اظهارنامه پیکربندی نشده است",
+  "Self-declaration form has already been submitted":
+    "اظهارنامه قبلاً ارسال شده است",
+  "Self-declaration form schema is not configured":
+    "فرم اظهارنامه پیکربندی نشده است",
   "Self-declaration form not submitted yet": "اظهارنامه هنوز ارسال نشده است",
   "Self-declaration submission not found": "ارسال اظهارنامه یافت نشد",
   "Submission is already approved": "ارسال قبلاً تأیید شده است",
-  "Admin notes are required when returning for correction": "یادداشت مدیر برای بازگشت برای اصلاح الزامی است",
-  "At least one field must be selected for correction": "حداقل یک فیلد باید برای اصلاح انتخاب شود",
+  "Admin notes are required when returning for correction":
+    "یادداشت مدیر برای بازگشت برای اصلاح الزامی است",
+  "At least one field must be selected for correction":
+    "حداقل یک فیلد باید برای اصلاح انتخاب شود",
   "No file provided": "هیچ فایلی ارائه نشده است",
   "User successfully deleted": "کاربر با موفقیت حذف شد",
 };
@@ -40,7 +44,10 @@ function translateDynamicMessage(message: string): string {
     );
   }
   if (message.endsWith(" must be an array")) {
-    return message.replace(/ "(.+)" must be an array$/, ' "$1" باید آرایه باشد');
+    return message.replace(
+      / "(.+)" must be an array$/,
+      ' "$1" باید آرایه باشد',
+    );
   }
   if (message.includes("contains invalid value")) {
     return message.replace(
@@ -49,10 +56,16 @@ function translateDynamicMessage(message: string): string {
     );
   }
   if (message.endsWith(" must be one of:")) {
-    return message.replace(/ "(.+)" must be one of: (.+)/, ' "$1" باید یکی از: $2 باشد');
+    return message.replace(
+      / "(.+)" must be one of: (.+)/,
+      ' "$1" باید یکی از: $2 باشد',
+    );
   }
   if (message.endsWith(" must be a valid file URL")) {
-    return message.replace(/ "(.+)" must be a valid file URL$/, ' "$1" باید آدرس فایل معتبر باشد');
+    return message.replace(
+      / "(.+)" must be a valid file URL$/,
+      ' "$1" باید آدرس فایل معتبر باشد',
+    );
   }
   if (message.includes("must be at least") && message.includes("characters")) {
     return message.replace(
@@ -73,21 +86,36 @@ function translateDynamicMessage(message: string): string {
     );
   }
   if (message.includes("must be at least") && !message.includes("characters")) {
-    return message.replace(/ "(.+)" must be at least (\d+)/, ' "$1" باید حداقل $2 باشد');
+    return message.replace(
+      / "(.+)" must be at least (\d+)/,
+      ' "$1" باید حداقل $2 باشد',
+    );
   }
   if (message.includes("must be at most") && !message.includes("characters")) {
-    return message.replace(/ "(.+)" must be at most (\d+)/, ' "$1" باید حداکثر $2 باشد');
+    return message.replace(
+      / "(.+)" must be at most (\d+)/,
+      ' "$1" باید حداکثر $2 باشد',
+    );
   }
   if (message.startsWith("File type") && message.includes("is not allowed")) {
-    return message.replace(/File type "(.+)" is not allowed/, 'نوع فایل "$1" مجاز نیست');
+    return message.replace(
+      /File type "(.+)" is not allowed/,
+      'نوع فایل "$1" مجاز نیست',
+    );
   }
-  if (message.includes("MIME type") && message.includes("does not match extension")) {
+  if (
+    message.includes("MIME type") &&
+    message.includes("does not match extension")
+  ) {
     return message.replace(
       /MIME type "(.+)" does not match extension "(.+)"/,
       'نوع MIME "$1" با پسوند "$2" مطابقت ندارد',
     );
   }
-  if (message.includes("File type") && message.includes("not in the accepted types")) {
+  if (
+    message.includes("File type") &&
+    message.includes("not in the accepted types")
+  ) {
     return message.replace(
       /File type "(.+)" is not in the accepted types: (.+)/,
       'نوع فایل "$1" در انواع مجاز نیست: $2',
@@ -96,19 +124,25 @@ function translateDynamicMessage(message: string): string {
   if (message.includes("File size exceeds")) {
     return message.replace(
       /File size exceeds the maximum allowed size of (\d+)MB/,
-      'حجم فایل از حداکثر مجاز $1 مگابایت بیشتر است',
+      "حجم فایل از حداکثر مجاز $1 مگابایت بیشتر است",
     );
   }
   if (message.startsWith("Phone must start with +98")) {
     return "شماره تلفن باید با +98 شروع شود (مثال: +989123456789)";
   }
-  if (message.startsWith("Form with slug") && message.includes("already exists")) {
+  if (
+    message.startsWith("Form with slug") &&
+    message.includes("already exists")
+  ) {
     return message.replace(
       /Form with slug "(.+)" already exists/,
       'فرم با شناسه "$1" از قبل وجود دارد',
     );
   }
-  if (message.startsWith("Form schema with slug") && message.includes("not found")) {
+  if (
+    message.startsWith("Form schema with slug") &&
+    message.includes("not found")
+  ) {
     return message.replace(
       /Form schema with slug "(.+)" not found/,
       'فرم با شناسه "$1" یافت نشد',
@@ -120,10 +154,12 @@ function translateDynamicMessage(message: string): string {
       'فرم با شناسه "$1" یافت نشد',
     );
   }
-  if (message.startsWith("Access denied: Requires one of the following roles:")) {
+  if (
+    message.startsWith("Access denied: Requires one of the following roles:")
+  ) {
     return message.replace(
       /Access denied: Requires one of the following roles: (.+)/,
-      'دسترسی رد شد: نیاز به یکی از نقش‌های: $1',
+      "دسترسی رد شد: نیاز به یکی از نقش‌های: $1",
     );
   }
   return message;
@@ -137,7 +173,9 @@ export function translateServerError(error: unknown): string {
   if (axiosError.response?.data?.message) {
     const serverMsg = axiosError.response.data.message;
     if (Array.isArray(serverMsg)) {
-      return serverMsg.map((m: string) => errorTranslations[m] || translateDynamicMessage(m)).join("\n");
+      return serverMsg
+        .map((m: string) => errorTranslations[m] || translateDynamicMessage(m))
+        .join("\n");
     }
     return errorTranslations[serverMsg] || translateDynamicMessage(serverMsg);
   }

@@ -67,7 +67,9 @@ export function FormDefinitions() {
       setDeleteTarget(null);
       fetchForms();
     } catch (err: unknown) {
-      toast.error(translateServerError(err) || "خطا در حذف فرم", { id: toastId });
+      toast.error(translateServerError(err) || "خطا در حذف فرم", {
+        id: toastId,
+      });
     } finally {
       setDeleting(false);
     }
@@ -111,7 +113,9 @@ export function FormDefinitions() {
                       تعداد ارسال‌ها
                     </th>
                     <th className="text-center p-3 font-semibold">وضعیت</th>
-                    <th className="text-right p-3 font-semibold">تاریخ ایجاد</th>
+                    <th className="text-right p-3 font-semibold">
+                      تاریخ ایجاد
+                    </th>
                     <th className="text-center p-3 font-semibold">عملیات</th>
                   </tr>
                 </thead>
@@ -125,7 +129,9 @@ export function FormDefinitions() {
                       <td className="p-3 text-left font-mono text-sm" dir="ltr">
                         {form.slug}
                       </td>
-                      <td className="p-3 text-center">{toPersianDigits(form.total_submissions)}</td>
+                      <td className="p-3 text-center">
+                        {toPersianDigits(form.total_submissions)}
+                      </td>
                       <td className="p-3 text-center">
                         <span
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -138,7 +144,9 @@ export function FormDefinitions() {
                         </span>
                       </td>
                       <td className="p-3 text-sm text-muted-foreground">
-                        {toPersianDigits(new Date(form.created_at).toLocaleDateString("fa-IR"))}
+                        {toPersianDigits(
+                          new Date(form.created_at).toLocaleDateString("fa-IR"),
+                        )}
                       </td>
                       <td className="p-3">
                         <div className="flex gap-2 justify-center">

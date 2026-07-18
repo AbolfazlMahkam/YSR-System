@@ -62,9 +62,21 @@ interface SelfDeclaration {
 }
 
 const statusConfig = {
-  pending: { icon: Clock, label: "در انتظار بررسی", class: "text-yellow-600 bg-yellow-50 dark:bg-yellow-950" },
-  approved: { icon: CheckCircle2, label: "تأیید شده", class: "text-green-600 bg-green-50 dark:bg-green-950" },
-  returned: { icon: AlertTriangle, label: "بازگشت داده شده", class: "text-red-600 bg-red-50 dark:bg-red-950" },
+  pending: {
+    icon: Clock,
+    label: "در انتظار بررسی",
+    class: "text-yellow-600 bg-yellow-50 dark:bg-yellow-950",
+  },
+  approved: {
+    icon: CheckCircle2,
+    label: "تأیید شده",
+    class: "text-green-600 bg-green-50 dark:bg-green-950",
+  },
+  returned: {
+    icon: AlertTriangle,
+    label: "بازگشت داده شده",
+    class: "text-red-600 bg-red-50 dark:bg-red-950",
+  },
 };
 
 export function SelfDeclarationSubmissions() {
@@ -74,8 +86,11 @@ export function SelfDeclarationSubmissions() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedSubmission, setSelectedSubmission] = useState<SelfDeclaration | null>(null);
-  const [reviewAction, setReviewAction] = useState<"approved" | "returned">("approved");
+  const [selectedSubmission, setSelectedSubmission] =
+    useState<SelfDeclaration | null>(null);
+  const [reviewAction, setReviewAction] = useState<"approved" | "returned">(
+    "approved",
+  );
   const [reviewNotes, setReviewNotes] = useState("");
   const [correctionFields, setCorrectionFields] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
@@ -88,7 +103,9 @@ export function SelfDeclarationSubmissions() {
   const fetchSchema = async () => {
     try {
       const forms = await adminFormsApi.getAll();
-      const selfDeclForm = forms.find((f: { slug: string }) => f.slug === "self-declaration");
+      const selfDeclForm = forms.find(
+        (f: { slug: string }) => f.slug === "self-declaration",
+      );
       if (selfDeclForm?.fields) {
         setSchemaFields(selfDeclForm.fields);
       }
@@ -124,7 +141,8 @@ export function SelfDeclarationSubmissions() {
       await adminFormsApi.reviewSelfDeclaration(selectedSubmission.id, {
         status: reviewAction,
         admin_notes: reviewAction === "returned" ? reviewNotes : undefined,
-        correction_fields: reviewAction === "returned" ? correctionFields : undefined,
+        correction_fields:
+          reviewAction === "returned" ? correctionFields : undefined,
       });
       toast.success(
         reviewAction === "approved"
@@ -147,7 +165,8 @@ export function SelfDeclarationSubmissions() {
   const filteredSubmissions = submissions.filter((sub) => {
     if (!searchQuery.trim()) return true;
     const q = searchQuery.trim().toLowerCase();
-    const fullName = `${sub.user?.first_name ?? ""} ${sub.user?.last_name ?? ""}`.toLowerCase();
+    const fullName =
+      `${sub.user?.first_name ?? ""} ${sub.user?.last_name ?? ""}`.toLowerCase();
     const phone = sub.user?.phone ?? "";
     return fullName.includes(q) || phone.includes(q);
   });
@@ -191,10 +210,7 @@ export function SelfDeclarationSubmissions() {
     if (Array.isArray(value)) {
       if (field?.options) {
         return value
-          .map(
-            (v) =>
-              field.options?.find((o) => o.value === v)?.label || v,
-          )
+          .map((v) => field.options?.find((o) => o.value === v)?.label || v)
           .join(", ");
       }
       return value.join(", ");
@@ -260,9 +276,13 @@ export function SelfDeclarationSubmissions() {
                     <thead>
                       <tr className="border-b-2 border-border bg-muted/50">
                         <th className="text-right p-3 font-semibold">کاربر</th>
-                        <th className="text-right p-3 font-semibold">شماره تماس</th>
+                        <th className="text-right p-3 font-semibold">
+                          شماره تماس
+                        </th>
                         <th className="text-center p-3 font-semibold">وضعیت</th>
-                        <th className="text-center p-3 font-semibold">عملیات</th>
+                        <th className="text-center p-3 font-semibold">
+                          عملیات
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -276,7 +296,10 @@ export function SelfDeclarationSubmissions() {
                             <td className="p-3 font-medium">
                               {sub.user?.first_name} {sub.user?.last_name}
                             </td>
-                            <td className="p-3 text-left font-mono text-sm" dir="ltr">
+                            <td
+                              className="p-3 text-left font-mono text-sm"
+                              dir="ltr"
+                            >
                               {sub.user?.phone}
                             </td>
                             <td className="p-3 text-center">
@@ -314,13 +337,22 @@ export function SelfDeclarationSubmissions() {
         </CardContent>
       </Card>
 
-      <Dialog open={dialogOpen} onOpenChange={(o) => { if (!o) { setDialogOpen(false); setSelectedSubmission(null); } }}>
+      <Dialog
+        open={dialogOpen}
+        onOpenChange={(o) => {
+          if (!o) {
+            setDialogOpen(false);
+            setSelectedSubmission(null);
+          }
+        }}
+      >
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>بررسی اظهارنامه</DialogTitle>
             {selectedSubmission && (
               <DialogDescription>
-                {selectedSubmission.user?.first_name} {selectedSubmission.user?.last_name} -{" "}
+                {selectedSubmission.user?.first_name}{" "}
+                {selectedSubmission.user?.last_name} -{" "}
                 <span dir="ltr">{selectedSubmission.user?.phone}</span>
               </DialogDescription>
             )}
@@ -331,9 +363,13 @@ export function SelfDeclarationSubmissions() {
               <div className="space-y-2">
                 {schemaFields.map((field) => {
                   const value = selectedSubmission.data[field.name];
-                  if (value === undefined || value === null || value === "") return null;
+                  if (value === undefined || value === null || value === "")
+                    return null;
                   return (
-                    <div key={field.name} className="grid grid-cols-3 gap-2 text-sm">
+                    <div
+                      key={field.name}
+                      className="grid grid-cols-3 gap-2 text-sm"
+                    >
                       <span className="font-medium text-muted-foreground col-span-1">
                         {field.label}
                       </span>
@@ -356,32 +392,35 @@ export function SelfDeclarationSubmissions() {
                 </div>
               )}
 
-              {selectedSubmission.correction_fields && selectedSubmission.correction_fields.length > 0 && (
-                <div className="p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg text-sm">
-                  <span className="font-medium text-red-700 dark:text-red-400">
-                    فیلدهای نیازمند اصلاح:
-                  </span>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {selectedSubmission.correction_fields.map((fieldName) => {
-                      const fieldDef = getFieldDef(fieldName);
-                      return (
-                        <span
-                          key={fieldName}
-                          className="inline-flex items-center px-2 py-0.5 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 rounded text-xs"
-                        >
-                          {fieldDef?.label || fieldName}
-                        </span>
-                      );
-                    })}
+              {selectedSubmission.correction_fields &&
+                selectedSubmission.correction_fields.length > 0 && (
+                  <div className="p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg text-sm">
+                    <span className="font-medium text-red-700 dark:text-red-400">
+                      فیلدهای نیازمند اصلاح:
+                    </span>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {selectedSubmission.correction_fields.map((fieldName) => {
+                        const fieldDef = getFieldDef(fieldName);
+                        return (
+                          <span
+                            key={fieldName}
+                            className="inline-flex items-center px-2 py-0.5 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 rounded text-xs"
+                          >
+                            {fieldDef?.label || fieldName}
+                          </span>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
               {selectedSubmission.status !== "approved" && (
                 <div className="space-y-3 border-t pt-4">
                   <div className="flex gap-2">
                     <Button
-                      variant={reviewAction === "approved" ? "default" : "outline"}
+                      variant={
+                        reviewAction === "approved" ? "default" : "outline"
+                      }
                       size="sm"
                       onClick={() => setReviewAction("approved")}
                     >
@@ -389,7 +428,9 @@ export function SelfDeclarationSubmissions() {
                       تأیید
                     </Button>
                     <Button
-                      variant={reviewAction === "returned" ? "default" : "outline"}
+                      variant={
+                        reviewAction === "returned" ? "default" : "outline"
+                      }
                       size="sm"
                       onClick={() => setReviewAction("returned")}
                     >
@@ -414,7 +455,10 @@ export function SelfDeclarationSubmissions() {
                       <div className="space-y-2">
                         <Label>فیلدهای نیازمند اصلاح (الزامی)</Label>
                         <MultiSelect
-                          options={schemaFields.map((f) => ({ label: f.label, value: f.name }))}
+                          options={schemaFields.map((f) => ({
+                            label: f.label,
+                            value: f.name,
+                          }))}
                           selected={correctionFields}
                           onChange={setCorrectionFields}
                           placeholder="فیلدها را انتخاب کنید"
@@ -430,7 +474,10 @@ export function SelfDeclarationSubmissions() {
           <DialogFooter className="gap-2">
             <Button
               variant="outline"
-              onClick={() => { setDialogOpen(false); setSelectedSubmission(null); }}
+              onClick={() => {
+                setDialogOpen(false);
+                setSelectedSubmission(null);
+              }}
             >
               بستن
             </Button>
@@ -439,7 +486,8 @@ export function SelfDeclarationSubmissions() {
                 onClick={handleReview}
                 disabled={
                   submitting ||
-                  (reviewAction === "returned" && (!reviewNotes.trim() || correctionFields.length === 0))
+                  (reviewAction === "returned" &&
+                    (!reviewNotes.trim() || correctionFields.length === 0))
                 }
               >
                 {submitting ? "در حال ثبت..." : "ثبت بررسی"}

@@ -366,7 +366,8 @@ function RegistrationStatusCard({
               const StatusIcon = status.icon;
               return (
                 <div
-                  className={`flex items-center gap-2 p-3 rounded-lg ${status.color}`}>
+                  className={`flex items-center gap-2 p-3 rounded-lg ${status.color}`}
+                >
                   <StatusIcon className="h-5 w-5 shrink-0" />
                   <span className="font-medium">{status.label}</span>
                 </div>
@@ -397,7 +398,8 @@ function RegistrationStatusCard({
             <Button
               variant="outline"
               className="w-full"
-              onClick={() => navigate("/forms/self-declaration")}>
+              onClick={() => navigate("/forms/self-declaration")}
+            >
               مشاهده اظهارنامه
             </Button>
           </div>
@@ -503,7 +505,8 @@ function QuickAccessCard({
               {remainingForms.map((form) => (
                 <div
                   key={form.slug}
-                  className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors mb-2">
+                  className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors mb-2"
+                >
                   <div className="min-w-0 flex-1 ml-2">
                     <p className="font-medium text-sm truncate">{form.title}</p>
                     {form.description && (
@@ -514,7 +517,8 @@ function QuickAccessCard({
                   </div>
                   <Button
                     size="sm"
-                    onClick={() => navigate(`/forms/${form.slug}`)}>
+                    onClick={() => navigate(`/forms/${form.slug}`)}
+                  >
                     <ChevronLeft className="h-4 w-4 ml-1" />
                     پر کردن
                   </Button>
@@ -532,7 +536,8 @@ function QuickAccessCard({
                   </div>
                   <Button
                     size="sm"
-                    onClick={() => navigate(`/forms/${selfDeclForm.slug}`)}>
+                    onClick={() => navigate(`/forms/${selfDeclForm.slug}`)}
+                  >
                     <ChevronLeft className="h-4 w-4 ml-1" />
                     پر کردن
                   </Button>
@@ -548,7 +553,8 @@ function QuickAccessCard({
               {completedForms.map((form) => (
                 <div
                   key={form.slug}
-                  className="flex items-center justify-between p-3 rounded-lg bg-green-50 dark:bg-green-950/50 mb-2">
+                  className="flex items-center justify-between p-3 rounded-lg bg-green-50 dark:bg-green-950/50 mb-2"
+                >
                   <div className="flex items-center gap-2 min-w-0 flex-1 ml-2">
                     <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
                     <p className="font-medium text-sm truncate">{form.title}</p>
@@ -556,7 +562,8 @@ function QuickAccessCard({
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => navigate(`/forms/${form.slug}`)}>
+                    onClick={() => navigate(`/forms/${form.slug}`)}
+                  >
                     <ListChecks className="h-4 w-4 ml-1" />
                     مشاهده
                   </Button>
@@ -573,7 +580,8 @@ function QuickAccessCard({
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => navigate(`/forms/${selfDeclForm.slug}`)}>
+                    onClick={() => navigate(`/forms/${selfDeclForm.slug}`)}
+                  >
                     <ListChecks className="h-4 w-4 ml-1" />
                     مشاهده
                   </Button>
@@ -686,10 +694,16 @@ function UsersStatsCard({ stats }: { stats: AdminDashboardStats["users"] }) {
           {statusItems.map((item) => (
             <div key={item.key}>
               <div className="flex items-center justify-between mb-1">
-                <div className={`flex items-center gap-2 px-2 py-1 rounded-md ${item.bgColor}`}>
-                  <span className={`text-xs font-medium ${item.textColor}`}>{item.label}</span>
+                <div
+                  className={`flex items-center gap-2 px-2 py-1 rounded-md ${item.bgColor}`}
+                >
+                  <span className={`text-xs font-medium ${item.textColor}`}>
+                    {item.label}
+                  </span>
                 </div>
-                <span className="text-sm font-bold">{toPersianDigits(item.value)}</span>
+                <span className="text-sm font-bold">
+                  {toPersianDigits(item.value)}
+                </span>
               </div>
               <div className="h-2 bg-muted rounded-full overflow-hidden">
                 <div
@@ -767,11 +781,17 @@ function SelfDeclarationStatsCard({
             return (
               <div key={item.key}>
                 <div className="flex items-center justify-between mb-1">
-                  <div className={`flex items-center gap-1.5 px-2 py-1 rounded-md ${item.bgColor}`}>
+                  <div
+                    className={`flex items-center gap-1.5 px-2 py-1 rounded-md ${item.bgColor}`}
+                  >
                     <Icon className={`h-3.5 w-3.5 ${item.textColor}`} />
-                    <span className={`text-xs font-medium ${item.textColor}`}>{item.label}</span>
+                    <span className={`text-xs font-medium ${item.textColor}`}>
+                      {item.label}
+                    </span>
                   </div>
-                  <span className="text-sm font-bold">{toPersianDigits(item.value)}</span>
+                  <span className="text-sm font-bold">
+                    {toPersianDigits(item.value)}
+                  </span>
                 </div>
                 <div className="h-2 bg-muted rounded-full overflow-hidden">
                   <div
@@ -819,7 +839,8 @@ function NotificationsCard({
               return (
                 <div
                   key={n.id}
-                  className="flex items-start gap-3 p-4 rounded-lg border">
+                  className="flex items-start gap-3 p-4 rounded-lg border"
+                >
                   <div className={`p-2 rounded-full shrink-0 ${n.color}`}>
                     <Icon className="h-5 w-5" />
                   </div>
@@ -834,7 +855,8 @@ function NotificationsCard({
                       size="sm"
                       variant="outline"
                       className="shrink-0"
-                      onClick={() => navigate(n.action!.to)}>
+                      onClick={() => navigate(n.action!.to)}
+                    >
                       {n.action.label}
                     </Button>
                   )}

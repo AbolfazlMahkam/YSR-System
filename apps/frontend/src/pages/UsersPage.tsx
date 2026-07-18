@@ -14,7 +14,20 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Shield, Lock, Plus, Pencil, Trash2, UserCheck, UserX, Eye, File, ExternalLink, Download, LogIn } from "lucide-react";
+import {
+  Shield,
+  Lock,
+  Plus,
+  Pencil,
+  Trash2,
+  UserCheck,
+  UserX,
+  Eye,
+  File,
+  ExternalLink,
+  Download,
+  LogIn,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -50,16 +63,17 @@ const userBaseSchema = z.object({
 });
 
 const addUserSchema = userBaseSchema.extend({
-  password: z
-    .string()
-    .min(8, "رمز عبور باید حداقل ۸ کاراکتر باشد"),
+  password: z.string().min(8, "رمز عبور باید حداقل ۸ کاراکتر باشد"),
 });
 
 const editUserSchema = userBaseSchema.extend({
   password: z
     .string()
     .optional()
-    .refine((val) => !val || val.length >= 8, "رمز عبور در صورت ارائه باید حداقل ۸ کاراکتر باشد"),
+    .refine(
+      (val) => !val || val.length >= 8,
+      "رمز عبور در صورت ارائه باید حداقل ۸ کاراکتر باشد",
+    ),
 });
 
 type AddUserFormData = z.infer<typeof addUserSchema>;
@@ -166,21 +180,21 @@ export function UsersPage() {
 
       const rows = users.map((user, idx) => {
         const row: Record<string, string> = {
-          "ردیف": String(idx + 1),
-          "نام": user.first_name || "",
+          ردیف: String(idx + 1),
+          نام: user.first_name || "",
           "نام خانوادگی": user.last_name || "",
           "شماره همراه": user.phone || "",
-          "نقش": user.role || "",
+          نقش: user.role || "",
           "کد ملی": user.national_code || "",
           "تاریخ تولد": user.birth_date || "",
-          "جنسیت":
+          جنسیت:
             user.gender === "male"
               ? "مرد"
               : user.gender === "female"
                 ? "زن"
                 : user.gender || "",
-          "تحصیلات": user.education || "",
-          "آدرس": user.address || "",
+          تحصیلات: user.education || "",
+          آدرس: user.address || "",
           "وضعیت مصاحبه": getInterviewLabel(user.interview_status),
         };
 
@@ -284,7 +298,9 @@ export function UsersPage() {
       addForm.reset();
       fetchAllUsers();
     } catch (err: unknown) {
-      toast.error(translateServerError(err) || "خطا در ایجاد کاربر", { id: toastId });
+      toast.error(translateServerError(err) || "خطا در ایجاد کاربر", {
+        id: toastId,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -308,7 +324,9 @@ export function UsersPage() {
       editForm.reset();
       fetchAllUsers();
     } catch (err: unknown) {
-      toast.error(translateServerError(err) || "خطا در بروزرسانی کاربر", { id: toastId });
+      toast.error(translateServerError(err) || "خطا در بروزرسانی کاربر", {
+        id: toastId,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -326,7 +344,9 @@ export function UsersPage() {
       setSelectedUser(null);
       fetchAllUsers();
     } catch (err: unknown) {
-      toast.error(translateServerError(err) || "خطا در حذف کاربر", { id: toastId });
+      toast.error(translateServerError(err) || "خطا در حذف کاربر", {
+        id: toastId,
+      });
     }
   };
 
@@ -388,7 +408,10 @@ export function UsersPage() {
       setSelectedUser(null);
       fetchAllUsers();
     } catch (err: unknown) {
-      toast.error(translateServerError(err) || "خطا در بروزرسانی وضعیت مصاحبه", { id: toastId });
+      toast.error(
+        translateServerError(err) || "خطا در بروزرسانی وضعیت مصاحبه",
+        { id: toastId },
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -433,7 +456,15 @@ export function UsersPage() {
     }
   };
 
-  const renderValue = (field: { name: string; label: string; type: string; options?: { label: string; value: string }[] }, value: unknown) => {
+  const renderValue = (
+    field: {
+      name: string;
+      label: string;
+      type: string;
+      options?: { label: string; value: string }[];
+    },
+    value: unknown,
+  ) => {
     const isFileUrl =
       typeof value === "string" &&
       (value.startsWith("/uploads/") || value.startsWith("http"));
@@ -471,10 +502,7 @@ export function UsersPage() {
     if (Array.isArray(value)) {
       if (field?.options) {
         return value
-          .map(
-            (v) =>
-              field.options?.find((o) => o.value === v)?.label || v,
-          )
+          .map((v) => field.options?.find((o) => o.value === v)?.label || v)
           .join(", ");
       }
       return value.join(", ");
@@ -564,10 +592,7 @@ export function UsersPage() {
               <Label htmlFor="role-filter" className="whitespace-nowrap">
                 نقش:
               </Label>
-              <Select
-                value={roleFilter}
-                onValueChange={setRoleFilter}
-              >
+              <Select value={roleFilter} onValueChange={setRoleFilter}>
                 <SelectTrigger id="role-filter" className="w-[150px]">
                   <SelectValue placeholder="All Roles" />
                 </SelectTrigger>
@@ -583,18 +608,19 @@ export function UsersPage() {
               <Label htmlFor="status-filter" className="whitespace-nowrap">
                 وضعیت:
               </Label>
-              <Select
-                value={statusFilter}
-                onValueChange={setStatusFilter}
-              >
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger id="status-filter" className="w-[150px]">
                   <SelectValue placeholder="All Statuses" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">ALL STATUSES</SelectItem>
-                  <SelectItem value="awaiting_interview">در انتظار مصاحبه</SelectItem>
+                  <SelectItem value="awaiting_interview">
+                    در انتظار مصاحبه
+                  </SelectItem>
                   <SelectItem value="accepted">پذیرفته شده</SelectItem>
-                  <SelectItem value="not_meeting_requirements">عدم احراز شرایط</SelectItem>
+                  <SelectItem value="not_meeting_requirements">
+                    عدم احراز شرایط
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -619,7 +645,9 @@ export function UsersPage() {
                   <tr className="border-b-2 border-border bg-muted/50">
                     <th className="text-right p-3 font-semibold">ردیف</th>
                     <th className="text-right p-3 font-semibold"> کاربرنام</th>
-                    <th className="text-right p-3 font-semibold">شماره همراه</th>
+                    <th className="text-right p-3 font-semibold">
+                      شماره همراه
+                    </th>
                     <th className="text-right p-3 font-semibold">نقش</th>
                     <th className="text-right p-3 font-semibold">وضعیت</th>
                     <th className="text-right p-3 font-semibold">عملیات</th>
@@ -631,7 +659,9 @@ export function UsersPage() {
                       key={user.id}
                       className="border-b border-border hover:bg-muted/30 transition-colors"
                     >
-                      <td className="p-3 font-medium">{toPersianDigits(index + 1)}</td>
+                      <td className="p-3 font-medium">
+                        {toPersianDigits(index + 1)}
+                      </td>
                       <td className="p-3">
                         {user.first_name} {user.last_name}
                       </td>
@@ -668,14 +698,14 @@ export function UsersPage() {
                           </Button>
                           {isSuperAdmin && (
                             <>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => openInterviewDialog(user)}
-                          >
-                            <UserCheck className="h-3 w-3 ml-1" />
-                            مصاحبه
-                          </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => openInterviewDialog(user)}
+                              >
+                                <UserCheck className="h-3 w-3 ml-1" />
+                                مصاحبه
+                              </Button>
                               <Button
                                 size="sm"
                                 variant="outline"
@@ -714,7 +744,15 @@ export function UsersPage() {
       </Card>
 
       {/* Show Information Dialog */}
-      <Dialog open={isShowInfoDialogOpen} onOpenChange={(o) => { if (!o) { setIsShowInfoDialogOpen(false); setShowInfoUser(null); } }}>
+      <Dialog
+        open={isShowInfoDialogOpen}
+        onOpenChange={(o) => {
+          if (!o) {
+            setIsShowInfoDialogOpen(false);
+            setShowInfoUser(null);
+          }
+        }}
+      >
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>نمایش اطلاعات کاربر</DialogTitle>
@@ -730,7 +768,9 @@ export function UsersPage() {
             <div className="space-y-6">
               {/* Personal Information */}
               <div>
-                <h3 className="font-semibold text-lg mb-3 pb-2 border-b">اطلاعات شخصی</h3>
+                <h3 className="font-semibold text-lg mb-3 pb-2 border-b">
+                  اطلاعات شخصی
+                </h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="text-muted-foreground">نام:</span>
@@ -742,31 +782,45 @@ export function UsersPage() {
                   </div>
                   <div>
                     <span className="text-muted-foreground">شماره همراه:</span>
-                    <p className="font-medium" dir="ltr">{toPersianDigits(showInfoUser.phone)}</p>
+                    <p className="font-medium" dir="ltr">
+                      {toPersianDigits(showInfoUser.phone)}
+                    </p>
                   </div>
                   <div>
                     <span className="text-muted-foreground">نقش:</span>
                     <p className="font-medium">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getRoleBadgeColor(showInfoUser.role)}`}>
+                      <span
+                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getRoleBadgeColor(showInfoUser.role)}`}
+                      >
                         {showInfoUser.role.replace("_", " ").toUpperCase()}
                       </span>
                     </p>
                   </div>
                   <div>
                     <span className="text-muted-foreground">جنسیت:</span>
-                    <p className="font-medium">{showInfoUser.gender === "male" ? "مرد" : showInfoUser.gender === "female" ? "زن" : showInfoUser.gender || "—"}</p>
+                    <p className="font-medium">
+                      {showInfoUser.gender === "male"
+                        ? "مرد"
+                        : showInfoUser.gender === "female"
+                          ? "زن"
+                          : showInfoUser.gender || "—"}
+                    </p>
                   </div>
                 </div>
               </div>
 
               {/* Interview Status */}
               <div>
-                <h3 className="font-semibold text-lg mb-3 pb-2 border-b">وضعیت مصاحبه</h3>
+                <h3 className="font-semibold text-lg mb-3 pb-2 border-b">
+                  وضعیت مصاحبه
+                </h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="text-muted-foreground">وضعیت:</span>
                     <p className="font-medium mt-1">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getInterviewBadgeColor(showInfoUser.interview_status)}`}>
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getInterviewBadgeColor(showInfoUser.interview_status)}`}
+                      >
                         {getInterviewLabel(showInfoUser.interview_status)}
                       </span>
                     </p>
@@ -774,7 +828,9 @@ export function UsersPage() {
                   {showInfoUser.interview_notes && (
                     <div className="col-span-2">
                       <span className="text-muted-foreground">یادداشت‌ها:</span>
-                      <p className="font-medium mt-1 p-2 bg-muted rounded text-sm">{showInfoUser.interview_notes}</p>
+                      <p className="font-medium mt-1 p-2 bg-muted rounded text-sm">
+                        {showInfoUser.interview_notes}
+                      </p>
                     </div>
                   )}
                 </div>
@@ -782,23 +838,42 @@ export function UsersPage() {
 
               {/* Self-Declaration Data */}
               <div>
-                <h3 className="font-semibold text-lg mb-3 pb-2 border-b">اطلاعات اظهارنامه</h3>
+                <h3 className="font-semibold text-lg mb-3 pb-2 border-b">
+                  اطلاعات اظهارنامه
+                </h3>
                 {loadingSchema ? (
                   <div className="flex items-center gap-2 text-sm text-muted-foreground py-4">
                     <LoadingSpinner size={16} />
                     در حال بارگذاری...
                   </div>
-                ) : Object.keys(showInfoUser.self_declaration_data || {}).length === 0 ? (
-                  <p className="text-sm text-muted-foreground py-4">اظهارنامه‌ای ثبت نشده است</p>
+                ) : Object.keys(showInfoUser.self_declaration_data || {})
+                    .length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-4">
+                    اظهارنامه‌ای ثبت نشده است
+                  </p>
                 ) : (
                   <div className="space-y-2">
-                    {(schemaFields.length > 0 ? schemaFields : Object.keys(showInfoUser.self_declaration_data).map((key) => ({ name: key, label: key, type: "text" }))).map((field) => {
-                      const value = showInfoUser.self_declaration_data?.[field.name];
-                      if (value === undefined || value === null || value === "") return null;
+                    {(schemaFields.length > 0
+                      ? schemaFields
+                      : Object.keys(showInfoUser.self_declaration_data).map(
+                          (key) => ({ name: key, label: key, type: "text" }),
+                        )
+                    ).map((field) => {
+                      const value =
+                        showInfoUser.self_declaration_data?.[field.name];
+                      if (value === undefined || value === null || value === "")
+                        return null;
                       return (
-                        <div key={field.name} className="grid grid-cols-3 gap-2 text-sm">
-                          <span className="font-medium text-muted-foreground col-span-1">{field.label}</span>
-                          <span className="col-span-2">{renderValue(field, value)}</span>
+                        <div
+                          key={field.name}
+                          className="grid grid-cols-3 gap-2 text-sm"
+                        >
+                          <span className="font-medium text-muted-foreground col-span-1">
+                            {field.label}
+                          </span>
+                          <span className="col-span-2">
+                            {renderValue(field, value)}
+                          </span>
                         </div>
                       );
                     })}
@@ -809,7 +884,13 @@ export function UsersPage() {
           )}
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setIsShowInfoDialogOpen(false); setShowInfoUser(null); }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsShowInfoDialogOpen(false);
+                setShowInfoUser(null);
+              }}
+            >
               بستن
             </Button>
           </DialogFooter>
@@ -834,7 +915,11 @@ export function UsersPage() {
                   id="add-first-name"
                   {...addForm.register("first_name")}
                   placeholder="جان"
-                  className={addForm.formState.errors.first_name ? "border-destructive" : ""}
+                  className={
+                    addForm.formState.errors.first_name
+                      ? "border-destructive"
+                      : ""
+                  }
                 />
                 {addForm.formState.errors.first_name && (
                   <p className="text-sm text-destructive">
@@ -848,7 +933,11 @@ export function UsersPage() {
                   id="add-last-name"
                   {...addForm.register("last_name")}
                   placeholder="دو"
-                  className={addForm.formState.errors.last_name ? "border-destructive" : ""}
+                  className={
+                    addForm.formState.errors.last_name
+                      ? "border-destructive"
+                      : ""
+                  }
                 />
                 {addForm.formState.errors.last_name && (
                   <p className="text-sm text-destructive">
@@ -864,7 +953,9 @@ export function UsersPage() {
                 dir="ltr"
                 {...addForm.register("phone")}
                 placeholder="+989123456789"
-                className={addForm.formState.errors.phone ? "border-destructive" : ""}
+                className={
+                  addForm.formState.errors.phone ? "border-destructive" : ""
+                }
               />
               {addForm.formState.errors.phone && (
                 <p className="text-sm text-destructive">
@@ -879,7 +970,9 @@ export function UsersPage() {
                 type="password"
                 {...addForm.register("password")}
                 placeholder="حداقل 8 کاراکتر"
-                className={addForm.formState.errors.password ? "border-destructive" : ""}
+                className={
+                  addForm.formState.errors.password ? "border-destructive" : ""
+                }
               />
               {addForm.formState.errors.password && (
                 <p className="text-sm text-destructive">
@@ -890,10 +983,17 @@ export function UsersPage() {
             <div className="space-y-2">
               <Label htmlFor="add-role">نقش</Label>
               <Select
-                onValueChange={(value) => addForm.setValue("role", value, { shouldValidate: true })}
+                onValueChange={(value) =>
+                  addForm.setValue("role", value, { shouldValidate: true })
+                }
                 defaultValue="user"
               >
-                <SelectTrigger id="add-role" className={addForm.formState.errors.role ? "border-destructive" : ""}>
+                <SelectTrigger
+                  id="add-role"
+                  className={
+                    addForm.formState.errors.role ? "border-destructive" : ""
+                  }
+                >
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
                 <SelectContent>
@@ -951,7 +1051,11 @@ export function UsersPage() {
                   id="edit-first-name"
                   {...editForm.register("first_name")}
                   placeholder="John"
-                  className={editForm.formState.errors.first_name ? "border-destructive" : ""}
+                  className={
+                    editForm.formState.errors.first_name
+                      ? "border-destructive"
+                      : ""
+                  }
                 />
                 {editForm.formState.errors.first_name && (
                   <p className="text-sm text-destructive">
@@ -965,7 +1069,11 @@ export function UsersPage() {
                   id="edit-last-name"
                   {...editForm.register("last_name")}
                   placeholder="Doe"
-                  className={editForm.formState.errors.last_name ? "border-destructive" : ""}
+                  className={
+                    editForm.formState.errors.last_name
+                      ? "border-destructive"
+                      : ""
+                  }
                 />
                 {editForm.formState.errors.last_name && (
                   <p className="text-sm text-destructive">
@@ -981,7 +1089,9 @@ export function UsersPage() {
                 dir="ltr"
                 {...editForm.register("phone")}
                 placeholder="+1234567890"
-                className={editForm.formState.errors.phone ? "border-destructive" : ""}
+                className={
+                  editForm.formState.errors.phone ? "border-destructive" : ""
+                }
               />
               {editForm.formState.errors.phone && (
                 <p className="text-sm text-destructive">
@@ -998,7 +1108,9 @@ export function UsersPage() {
                 type="password"
                 {...editForm.register("password")}
                 placeholder="رمز عبور جدید"
-                className={editForm.formState.errors.password ? "border-destructive" : ""}
+                className={
+                  editForm.formState.errors.password ? "border-destructive" : ""
+                }
               />
               {editForm.formState.errors.password && (
                 <p className="text-sm text-destructive">
@@ -1009,10 +1121,17 @@ export function UsersPage() {
             <div className="space-y-2">
               <Label htmlFor="edit-role">نقش</Label>
               <Select
-                onValueChange={(value) => editForm.setValue("role", value, { shouldValidate: true })}
+                onValueChange={(value) =>
+                  editForm.setValue("role", value, { shouldValidate: true })
+                }
                 value={editForm.watch("role")}
               >
-                <SelectTrigger id="edit-role" className={editForm.formState.errors.role ? "border-destructive" : ""}>
+                <SelectTrigger
+                  id="edit-role"
+                  className={
+                    editForm.formState.errors.role ? "border-destructive" : ""
+                  }
+                >
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1100,7 +1219,10 @@ export function UsersPage() {
       </Dialog>
 
       {/* Interview Dialog */}
-      <Dialog open={isInterviewDialogOpen} onOpenChange={setIsInterviewDialogOpen}>
+      <Dialog
+        open={isInterviewDialogOpen}
+        onOpenChange={setIsInterviewDialogOpen}
+      >
         <DialogContent className="max-w-md">
           <DialogHeader style={{ textAlign: "center" }}>
             <DialogTitle>نتیجه مصاحبه</DialogTitle>
@@ -1129,7 +1251,9 @@ export function UsersPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <Button
                     type="button"
-                    variant={interviewStatus === "accepted" ? "default" : "outline"}
+                    variant={
+                      interviewStatus === "accepted" ? "default" : "outline"
+                    }
                     className="w-full"
                     onClick={() => setInterviewStatus("accepted")}
                   >
@@ -1144,7 +1268,9 @@ export function UsersPage() {
                         : "outline"
                     }
                     className="w-full"
-                    onClick={() => setInterviewStatus("not_meeting_requirements")}
+                    onClick={() =>
+                      setInterviewStatus("not_meeting_requirements")
+                    }
                   >
                     <UserX className="h-4 w-4 ml-2" />
                     عدم احراز شرایط

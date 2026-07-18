@@ -1,8 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddSelfDeclarationDataToUsers1940000000003
-  implements MigrationInterface
-{
+export class AddSelfDeclarationDataToUsers1940000000003 implements MigrationInterface {
   name = 'AddSelfDeclarationDataToUsers1940000000003';
 
   public async up(queryRunner: QueryRunner): Promise<void> {

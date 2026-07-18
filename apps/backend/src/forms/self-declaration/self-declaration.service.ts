@@ -52,7 +52,9 @@ export class SelfDeclarationService {
 
     const user = await this.usersService.findOne(userId);
     if (user) {
-      await this.usersService.update(user, { self_declaration_data: validatedData });
+      await this.usersService.update(user, {
+        self_declaration_data: validatedData,
+      });
     }
 
     if (existing) {

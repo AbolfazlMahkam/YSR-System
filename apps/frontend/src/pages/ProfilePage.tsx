@@ -92,7 +92,9 @@ export function ProfilePage() {
         password: "",
       });
     } catch (err: unknown) {
-      toast.error(translateServerError(err) || "خطا در بروزرسانی حساب کاربری", { id: toastId });
+      toast.error(translateServerError(err) || "خطا در بروزرسانی حساب کاربری", {
+        id: toastId,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -165,7 +167,9 @@ export function ProfilePage() {
                 <h3 className="text-lg font-semibold">
                   {user.first_name} {user.last_name}
                 </h3>
-                <p className="text-sm text-muted-foreground" dir="ltr">{toPersianDigits(user.phone)}</p>
+                <p className="text-sm text-muted-foreground" dir="ltr">
+                  {toPersianDigits(user.phone)}
+                </p>
                 <span
                   className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-1 ${getRoleBadgeColor(
                     user.role,

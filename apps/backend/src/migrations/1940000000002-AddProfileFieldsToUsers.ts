@@ -4,7 +4,10 @@ export class AddProfileFieldsToUsers1940000000002 implements MigrationInterface 
   name = 'AddProfileFieldsToUsers1940000000002';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    const hasNationalCode = await queryRunner.hasColumn('users', 'national_code');
+    const hasNationalCode = await queryRunner.hasColumn(
+      'users',
+      'national_code',
+    );
     if (!hasNationalCode) {
       await queryRunner.query(`
         ALTER TABLE "users"

@@ -17,7 +17,9 @@ export class AdminStatisticsController {
   ) {}
 
   @Get(':formId/statistics')
-  getStatistics(@Param('formId', ParseIntPipe) formId: number): Promise<StatisticsResponse> {
+  getStatistics(
+    @Param('formId', ParseIntPipe) formId: number,
+  ): Promise<StatisticsResponse> {
     return this.adminStatisticsService.getStatistics(formId);
   }
 }

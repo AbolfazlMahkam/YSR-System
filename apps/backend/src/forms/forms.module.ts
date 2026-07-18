@@ -21,7 +21,12 @@ import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([SelfDeclaration, FormSchema, FormSubmission, Users]),
+    TypeOrmModule.forFeature([
+      SelfDeclaration,
+      FormSchema,
+      FormSubmission,
+      Users,
+    ]),
     UsersModule,
   ],
   controllers: [

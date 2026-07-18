@@ -69,7 +69,8 @@ export class AdminStatisticsService {
       submissions.forEach((sub) => {
         const answer = sub.answers[field.name];
         if (answer === undefined || answer === null || answer === '') return;
-        if (answer === '' || (Array.isArray(answer) && answer.length === 0)) return;
+        if (answer === '' || (Array.isArray(answer) && answer.length === 0))
+          return;
 
         if (Array.isArray(answer)) {
           answer.forEach((val: string) => {

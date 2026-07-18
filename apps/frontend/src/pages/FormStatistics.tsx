@@ -14,7 +14,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { BarChart3, PieChart, ChartColumnDecreasing, Send, Table2 } from "lucide-react";
+import {
+  BarChart3,
+  PieChart,
+  ChartColumnDecreasing,
+  Send,
+  Table2,
+} from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -61,9 +67,21 @@ interface StatisticsData {
 }
 
 const COLORS = [
-  "#6366f1", "#f59e0b", "#10b981", "#ef4444", "#ec4899",
-  "#8b5cf6", "#06b6d4", "#f97316", "#14b8a6", "#64748b",
-  "#84cc16", "#3b82f6", "#d946ef", "#0ea5e9", "#a855f7",
+  "#6366f1",
+  "#f59e0b",
+  "#10b981",
+  "#ef4444",
+  "#ec4899",
+  "#8b5cf6",
+  "#06b6d4",
+  "#f97316",
+  "#14b8a6",
+  "#64748b",
+  "#84cc16",
+  "#3b82f6",
+  "#d946ef",
+  "#0ea5e9",
+  "#a855f7",
 ];
 
 type ChartMode = "bar" | "pie";
@@ -84,7 +102,9 @@ export function FormStatistics() {
     try {
       setLoadingForms(true);
       const data = await adminFormsApi.getAll();
-      setForms((data || []).filter((f: FormSchema) => f.slug !== "self-declaration"));
+      setForms(
+        (data || []).filter((f: FormSchema) => f.slug !== "self-declaration"),
+      );
     } catch (err: unknown) {
       toast.error(translateServerError(err) || "خطا در دریافت فرم‌ها");
     } finally {
@@ -126,7 +146,9 @@ export function FormStatistics() {
     }));
   };
 
-  const selectedFormTitle = forms.find((f) => String(f.id) === selectedFormId)?.title;
+  const selectedFormTitle = forms.find(
+    (f) => String(f.id) === selectedFormId,
+  )?.title;
 
   return (
     <div className="p-6 space-y-6">
@@ -173,7 +195,9 @@ export function FormStatistics() {
         <div className="flex justify-center items-center py-24">
           <div className="flex flex-col items-center gap-3">
             <LoadingSpinner size={40} />
-            <p className="text-sm text-muted-foreground">در حال محاسبه آمار...</p>
+            <p className="text-sm text-muted-foreground">
+              در حال محاسبه آمار...
+            </p>
           </div>
         </div>
       )}
@@ -188,7 +212,9 @@ export function FormStatistics() {
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">فرم</p>
-                  <p className="font-semibold truncate max-w-[160px]">{selectedFormTitle}</p>
+                  <p className="font-semibold truncate max-w-[160px]">
+                    {selectedFormTitle}
+                  </p>
                 </div>
               </div>
             </div>
@@ -199,7 +225,9 @@ export function FormStatistics() {
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">کل ارسال‌ها</p>
-                  <p className="text-2xl font-bold">{toPersianDigits(stats.totalSubmissions)}</p>
+                  <p className="text-2xl font-bold">
+                    {toPersianDigits(stats.totalSubmissions)}
+                  </p>
                 </div>
               </div>
             </div>
@@ -210,7 +238,9 @@ export function FormStatistics() {
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">فیلدهای آماری</p>
-                  <p className="text-2xl font-bold">{toPersianDigits(stats.fields.length)}</p>
+                  <p className="text-2xl font-bold">
+                    {toPersianDigits(stats.fields.length)}
+                  </p>
                 </div>
               </div>
             </div>
@@ -221,7 +251,9 @@ export function FormStatistics() {
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">نمودارها</p>
-                  <p className="text-2xl font-bold">{toPersianDigits(stats.fields.length)}</p>
+                  <p className="text-2xl font-bold">
+                    {toPersianDigits(stats.fields.length)}
+                  </p>
                 </div>
               </div>
             </div>
@@ -247,14 +279,24 @@ export function FormStatistics() {
                 }));
 
                 const hasData = chartData.some((d) => d.value > 0);
-                const typeLabel = field.type === "checkbox" ? "چندگزینشی" : field.type === "radio" ? "تک‌گزینی" : "منوی انتخابی";
+                const typeLabel =
+                  field.type === "checkbox"
+                    ? "چندگزینشی"
+                    : field.type === "radio"
+                      ? "تک‌گزینی"
+                      : "منوی انتخابی";
 
                 return (
-                  <Card key={field.name} className="overflow-hidden group border-t-2 border-t-indigo-500/20 hover:border-t-indigo-500/40 transition-all duration-300">
+                  <Card
+                    key={field.name}
+                    className="overflow-hidden group border-t-2 border-t-indigo-500/20 hover:border-t-indigo-500/40 transition-all duration-300"
+                  >
                     <CardHeader className="pb-3">
                       <div className="flex items-start justify-between gap-3">
                         <div className="space-y-1">
-                          <CardTitle className="text-base">{field.label}</CardTitle>
+                          <CardTitle className="text-base">
+                            {field.label}
+                          </CardTitle>
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-indigo-500/10 text-indigo-500">
                               {typeLabel}
@@ -295,8 +337,19 @@ export function FormStatistics() {
                       ) : mode === "bar" ? (
                         <div className="w-full" dir="ltr">
                           <ResponsiveContainer width="100%" height={280}>
-                            <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
-                              <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
+                            <BarChart
+                              data={chartData}
+                              margin={{
+                                top: 10,
+                                right: 10,
+                                left: 0,
+                                bottom: 20,
+                              }}
+                            >
+                              <CartesianGrid
+                                strokeDasharray="3 3"
+                                opacity={0.15}
+                              />
                               <XAxis
                                 dataKey="name"
                                 tick={{ fontSize: 11 }}
@@ -305,7 +358,10 @@ export function FormStatistics() {
                                 height={50}
                                 tickMargin={8}
                               />
-                              <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                              <YAxis
+                                allowDecimals={false}
+                                tick={{ fontSize: 11 }}
+                              />
                               <Tooltip
                                 contentStyle={{
                                   borderRadius: "10px",
@@ -315,7 +371,11 @@ export function FormStatistics() {
                                 }}
                                 cursor={{ fill: "rgba(99,102,241,0.05)" }}
                               />
-                              <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={48}>
+                              <Bar
+                                dataKey="value"
+                                radius={[6, 6, 0, 0]}
+                                maxBarSize={48}
+                              >
                                 {chartData.map((_, index) => (
                                   <Cell
                                     key={index}
@@ -373,16 +433,28 @@ export function FormStatistics() {
                       {hasData && (
                         <div className="mt-4 pt-3 border-t border-muted/50">
                           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                            {chartData.filter((d) => d.value > 0).map((d, i) => (
-                              <div key={d.name} className="flex items-center gap-2 text-xs">
-                                <span
-                                  className="w-2.5 h-2.5 rounded-full shrink-0"
-                                  style={{ backgroundColor: COLORS[i % COLORS.length] }}
-                                />
-                                <span className="truncate text-muted-foreground">{d.name}</span>
-                                <span className="font-medium mr-auto">{toPersianDigits(d.value)}</span>
-                              </div>
-                            ))}
+                            {chartData
+                              .filter((d) => d.value > 0)
+                              .map((d, i) => (
+                                <div
+                                  key={d.name}
+                                  className="flex items-center gap-2 text-xs"
+                                >
+                                  <span
+                                    className="w-2.5 h-2.5 rounded-full shrink-0"
+                                    style={{
+                                      backgroundColor:
+                                        COLORS[i % COLORS.length],
+                                    }}
+                                  />
+                                  <span className="truncate text-muted-foreground">
+                                    {d.name}
+                                  </span>
+                                  <span className="font-medium mr-auto">
+                                    {toPersianDigits(d.value)}
+                                  </span>
+                                </div>
+                              ))}
                           </div>
                         </div>
                       )}

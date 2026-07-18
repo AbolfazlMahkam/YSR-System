@@ -272,7 +272,7 @@ export function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
 
   return (
     <>
-      <aside className="w-64 border-l glass flex-col h-full hidden md:flex">
+      <aside className="w-64 liquid-glass-sidebar relative flex-col h-full hidden md:flex">
         {sidebarContent}
       </aside>
 
@@ -286,9 +286,9 @@ export function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
 
       <aside
         className={cn(
-          "fixed top-0 right-0 h-full w-64 border-l glass z-50 md:hidden flex flex-col",
+          "fixed top-3 right-3 bottom-3 w-64 liquid-glass-sidebar z-50 md:hidden flex flex-col",
           "transition-transform duration-300 ease-in-out",
-          isMobileOpen ? "translate-x-0" : "translate-x-full",
+          isMobileOpen ? "translate-x-0" : "translate-x-[calc(100%+0.75rem)]",
         )}
       >
         {sidebarContent}

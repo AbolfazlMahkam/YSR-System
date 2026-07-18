@@ -54,8 +54,19 @@ export default {
       },
       borderRadius: {
         lg: "var(--radius)",
+        xl: "calc(var(--radius) + 0.25rem)",
+        "2xl": "calc(var(--radius) + 0.75rem)",
+        "3xl": "calc(var(--radius) + 1.25rem)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      boxShadow: {
+        "liquid-sm": "0 4px 24px hsl(0 0% 0% / 0.06), 0 1px 4px hsl(0 0% 0% / 0.03)",
+        "liquid": "0 8px 32px hsl(0 0% 0% / 0.08), 0 2px 8px hsl(0 0% 0% / 0.04)",
+        "liquid-lg": "0 8px 40px hsl(0 0% 0% / 0.1), 0 2px 8px hsl(0 0% 0% / 0.05)",
+        "liquid-dark-sm": "0 4px 24px hsl(0 0% 0% / 0.2), 0 1px 4px hsl(0 0% 0% / 0.12)",
+        "liquid-dark": "0 8px 32px hsl(0 0% 0% / 0.25), 0 2px 8px hsl(0 0% 0% / 0.15)",
+        "liquid-dark-lg": "0 8px 40px hsl(0 0% 0% / 0.3), 0 2px 8px hsl(0 0% 0% / 0.18)",
       },
       keyframes: {
         "accordion-down": {

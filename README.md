@@ -560,12 +560,14 @@ The application implements a **pipe-based validation architecture** that separat
 ### Why Pipes for Validation?
 
 Traditional validation in services leads to:
+
 - ❌ Repeated validation code across services
 - ❌ Mixed concerns (validation + business logic)
 - ❌ Harder to test and maintain
 - ❌ Late failure (validation happens inside service methods)
 
 Our pipe-based approach provides:
+
 - ✅ **Separation of Concerns** - Validation separated from business logic
 - ✅ **Fail-Fast** - Validation happens before entering service layer
 - ✅ **Reusability** - Write once, use anywhere
@@ -587,11 +589,13 @@ findOne(@Param('id', UserExistsPipe) user: Users) {
 ```
 
 **Applied to:**
+
 - `GET /users/:id` - Get user by ID
 - `PATCH /users/:id` - Update user profile
 - `DELETE /users/:id` - Delete user
 
 **Benefits:**
+
 - No need to check `if (!user)` in controllers/services
 - User entity pre-loaded for use
 - Consistent 404 error responses
@@ -612,6 +616,7 @@ register(@Body() registerDto: RegisterDto) {
 ```
 
 **Applied to:**
+
 - `POST /auth/register` - User registration
 - `POST /users` - Admin user creation
 
@@ -624,6 +629,7 @@ register(@Body() registerDto: RegisterDto) {
 Validates that a phone number doesn't already exist in the database.
 
 **Applied to:**
+
 - `POST /auth/register` - User registration
 - `POST /users` - Admin user creation
 
@@ -652,6 +658,7 @@ async login(loginDto: LoginDto) {
 **Applied to:** `POST /auth/login`
 
 **Benefits:**
+
 - Single database query (pipe loads user once)
 - User attached to DTO as `_user` property
 - Service focuses on JWT generation, not validation
@@ -665,6 +672,7 @@ Validates user exists by phone number and pre-loads the user entity for OTP auth
 **Applied to:** `POST /auth/login_otp`
 
 **DTO Enhancement:**
+
 ```typescript
 export class LoginByOtpDto {
   phone: string;
@@ -693,6 +701,7 @@ login(@Body() loginDto: LoginDto) { ... }
 **Throws:** `400 Bad Request` - "Wrong Password"
 
 **How it works:**
+
 1. `UserExistsByEmailPipe` loads user with password
 2. `PasswordValidationPipe` verifies password using bcrypt
 3. Service receives pre-validated credentials
@@ -714,6 +723,7 @@ loginByOtp(@Body() loginByOtpDto: LoginByOtpDto) { ... }
 **Throws:** `400 Bad Request` - "code is not valid"
 
 **Validation checks:**
+
 - Code exists in database
 - Code matches phone number
 - Code has not been used (`is_used: false`)
@@ -784,6 +794,7 @@ async login(loginDto: LoginDto) {
 ```
 
 **Problems:**
+
 - 🔴 Validation mixed with business logic
 - 🔴 Repeated `if (!user)` checks everywhere
 - 🔴 Hard to test validation separately
@@ -809,6 +820,7 @@ async login(loginDto: LoginDto) {
 ```
 
 **Benefits:**
+
 - 🟢 Validation separated from business logic
 - 🟢 No repetitive checks in services
 - 🟢 Easy to test pipes independently
@@ -872,6 +884,7 @@ const user = loginDto._user!;
 #### 3. **Keep Pipes Focused**
 
 Each pipe validates **one thing**:
+
 - ✅ `UserExistsPipe` - User exists by ID
 - ✅ `UniqueEmailPipe` - Email is unique
 - ❌ Don't create: `UserValidationPipe` that does everything
@@ -930,20 +943,21 @@ All validation pipes throw standard NestJS exceptions:
 Pipes can be tested independently:
 
 ```typescript
-describe('UserExistsPipe', () => {
+describe("UserExistsPipe", () => {
   let pipe: UserExistsPipe;
   let repository: Repository<Users>;
 
-  it('should throw NotFoundException if user does not exist', async () => {
-    jest.spyOn(repository, 'findOne').mockResolvedValue(null);
+  it("should throw NotFoundException if user does not exist", async () => {
+    jest.spyOn(repository, "findOne").mockResolvedValue(null);
 
-    await expect(pipe.transform(999, {} as ArgumentMetadata))
-      .rejects.toThrow(NotFoundException);
+    await expect(pipe.transform(999, {} as ArgumentMetadata)).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
-  it('should return user if exists', async () => {
-    const user = { id: 1, email: 'test@example.com' };
-    jest.spyOn(repository, 'findOne').mockResolvedValue(user);
+  it("should return user if exists", async () => {
+    const user = { id: 1, email: "test@example.com" };
+    jest.spyOn(repository, "findOne").mockResolvedValue(user);
 
     const result = await pipe.transform(1, {} as ArgumentMetadata);
     expect(result).toEqual(user);
@@ -955,15 +969,15 @@ describe('UserExistsPipe', () => {
 
 ### Summary
 
-| Feature | Before (Services) | After (Pipes) |
-|---------|------------------|---------------|
-| **Validation Location** | Inside services | At controller level |
-| **Code Repetition** | High (repeated checks) | None (reusable pipes) |
-| **Separation of Concerns** | Mixed | Clean separation |
-| **Failure Timing** | Late (in service) | Early (before service) |
-| **Testability** | Coupled with business logic | Pipes tested independently |
-| **Service Complexity** | High (validation + logic) | Low (pure logic) |
-| **Type Safety** | Manual null checks | DTOs enriched with entities |
+| Feature                    | Before (Services)           | After (Pipes)               |
+| -------------------------- | --------------------------- | --------------------------- |
+| **Validation Location**    | Inside services             | At controller level         |
+| **Code Repetition**        | High (repeated checks)      | None (reusable pipes)       |
+| **Separation of Concerns** | Mixed                       | Clean separation            |
+| **Failure Timing**         | Late (in service)           | Early (before service)      |
+| **Testability**            | Coupled with business logic | Pipes tested independently  |
+| **Service Complexity**     | High (validation + logic)   | Low (pure logic)            |
+| **Type Safety**            | Manual null checks          | DTOs enriched with entities |
 
 **Result:** Clean, maintainable, testable code with zero validation repetition! 🎉
 

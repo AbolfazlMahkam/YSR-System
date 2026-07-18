@@ -1,11 +1,4 @@
-import {
-  Monitor,
-  Moon,
-  Sun,
-  LogOut,
-  User,
-  Menu,
-} from "lucide-react";
+import { Monitor, Moon, Sun, LogOut, User, Menu } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useTheme } from "@/components/theme-provider";
 import { useAuth } from "@/hooks/useAuth";
@@ -47,7 +40,7 @@ export function Header({ onMenuToggle }: HeaderProps) {
   }[theme];
 
   return (
-    <header className="h-[75px] border-b glass flex items-center justify-between px-4 md:px-6">
+    <header className="h-[75px] liquid-glass-header flex items-center justify-between px-4 md:px-6 my-2">
       <div className="flex items-center gap-4">
         <Button
           variant="outline"

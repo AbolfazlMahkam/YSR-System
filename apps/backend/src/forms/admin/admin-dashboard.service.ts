@@ -28,9 +28,7 @@ export class AdminDashboardService {
         }),
       ]);
 
-    const userHasSelfDecl = new Set(
-      selfDeclarations.map((sd) => sd.user_id),
-    );
+    const userHasSelfDecl = new Set(selfDeclarations.map((sd) => sd.user_id));
 
     const usersWithSelfDecl = userHasSelfDecl.size;
     const interviewCounts: Record<string, number> = {

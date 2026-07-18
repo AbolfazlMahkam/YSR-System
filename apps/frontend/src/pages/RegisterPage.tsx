@@ -123,7 +123,8 @@ export function RegisterPage() {
           radial-gradient(ellipse at 70% 80%, hsl(var(--accent) / 0.08) 0%, transparent 60%),
           hsl(var(--muted) / 0.4)
         `,
-      }}>
+      }}
+    >
       <Card className="w-full max-w-lg">
         <CardHeader className="space-y-4">
           <div className="flex justify-center">
@@ -142,7 +143,8 @@ export function RegisterPage() {
             بازگشت به صفحه{" "}
             <Link
               to="/login"
-              className="text-primary hover:underline font-medium">
+              className="text-primary hover:underline font-medium"
+            >
               ورود
             </Link>
           </p>

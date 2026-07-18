@@ -91,8 +91,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       navigate("/");
     } catch (error: unknown) {
       throw new Error(
-        (error as { response?: { data?: { message?: string } } }).response
-          ?.data?.message || "ورود ناموفق",
+        (error as { response?: { data?: { message?: string } } }).response?.data
+          ?.message || "ورود ناموفق",
       );
     }
   }
@@ -125,8 +125,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return {};
     } catch (error: unknown) {
       throw new Error(
-        (error as { response?: { data?: { message?: string } } }).response
-          ?.data?.message || "ورود با رمز یکبار مصرف ناموفق",
+        (error as { response?: { data?: { message?: string } } }).response?.data
+          ?.message || "ورود با رمز یکبار مصرف ناموفق",
       );
     }
   }
@@ -148,8 +148,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       navigate("/");
     } catch (error: unknown) {
       throw new Error(
-        (error as { response?: { data?: { message?: string } } }).response
-          ?.data?.message || "ورود با گوگل ناموفق",
+        (error as { response?: { data?: { message?: string } } }).response?.data
+          ?.message || "ورود با گوگل ناموفق",
       );
     }
   }
@@ -166,8 +166,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       navigate("/forms/self-declaration");
     } catch (error: unknown) {
       throw new Error(
-        (error as { response?: { data?: { message?: string } } }).response
-          ?.data?.message || "ثبت نام ناموفق",
+        (error as { response?: { data?: { message?: string } } }).response?.data
+          ?.message || "ثبت نام ناموفق",
       );
     }
   }
@@ -188,8 +188,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       navigate("/");
     } catch (error: unknown) {
       toast.error(
-        (error as { response?: { data?: { message?: string } } }).response
-          ?.data?.message || "خطا در ورود به حساب کاربر",
+        (error as { response?: { data?: { message?: string } } }).response?.data
+          ?.message || "خطا در ورود به حساب کاربر",
       );
     }
   }

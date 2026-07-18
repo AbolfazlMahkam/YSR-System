@@ -23,10 +23,7 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { Checkbox } from "../components/ui/checkbox";
-import {
-  RadioGroup,
-  RadioGroupItem,
-} from "../components/ui/radio";
+import { RadioGroup, RadioGroupItem } from "../components/ui/radio";
 import { Textarea } from "../components/ui/textarea";
 import { Slider } from "../components/ui/slider";
 import { MultiSelect } from "../components/ui/multi-select";
@@ -112,7 +109,8 @@ function buildSchema(schema: FormSchema) {
         break;
       case "range":
         if (field.required) {
-          fieldSchema = z.coerce.number(requiredMsg)
+          fieldSchema = z.coerce
+            .number(requiredMsg)
             .min(
               field.validations?.min ?? 0,
               `حداقل مقدار ${field.validations?.min ?? 0} است`,
@@ -142,12 +140,8 @@ function buildSchema(schema: FormSchema) {
         break;
       case "province_city":
         fieldSchema = z.object({
-          province: z
-            .string("استان الزامی است")
-            .min(1, "استان الزامی است"),
-          city: z
-            .string("شهر الزامی است")
-            .min(1, "شهر الزامی است"),
+          province: z.string("استان الزامی است").min(1, "استان الزامی است"),
+          city: z.string("شهر الزامی است").min(1, "شهر الزامی است"),
         });
         if (!field.required) fieldSchema = fieldSchema.optional();
         break;
@@ -183,9 +177,9 @@ export function FormPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  const [uploadingFiles, setUploadingFiles] = useState<
-    Record<string, boolean>
-  >({});
+  const [uploadingFiles, setUploadingFiles] = useState<Record<string, boolean>>(
+    {},
+  );
 
   const {
     register,
@@ -312,8 +306,14 @@ export function FormPage() {
           >
             {field.options?.map((opt) => (
               <div key={opt.value} className="flex items-center gap-2">
-                <RadioGroupItem value={opt.value} id={`${field.name}-${opt.value}`} />
-                <Label htmlFor={`${field.name}-${opt.value}`} className="cursor-pointer">
+                <RadioGroupItem
+                  value={opt.value}
+                  id={`${field.name}-${opt.value}`}
+                />
+                <Label
+                  htmlFor={`${field.name}-${opt.value}`}
+                  className="cursor-pointer"
+                >
                   {opt.label}
                 </Label>
               </div>
@@ -488,7 +488,10 @@ export function FormPage() {
             locale={persian_fa}
             value={(value as string) || null}
             onChange={(date) => {
-              setValue(field.name, date ? toWesternDigits(date.format("YYYY/MM/DD")) : "");
+              setValue(
+                field.name,
+                date ? toWesternDigits(date.format("YYYY/MM/DD")) : "",
+              );
             }}
             placeholder={field.placeholder || "تاریخ را انتخاب کنید"}
             inputClass="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
@@ -522,16 +525,18 @@ export function FormPage() {
       <div className="flex items-center justify-center h-full p-6">
         <Card className="w-full max-w-lg">
           <CardContent className="pt-6 text-center">
-            <p className="text-muted-foreground">
-              فرم مورد نظر یافت نشد
-            </p>
+            <p className="text-muted-foreground">فرم مورد نظر یافت نشد</p>
           </CardContent>
         </Card>
       </div>
     );
   }
 
-  if (submitted && schema.show_notification && (schema.notification_title || schema.notification_text)) {
+  if (
+    submitted &&
+    schema.show_notification &&
+    (schema.notification_title || schema.notification_text)
+  ) {
     return (
       <div className="flex items-center justify-center h-full p-6">
         <Card className="w-full max-w-lg">
