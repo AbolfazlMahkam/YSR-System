@@ -15,6 +15,8 @@ import { AdminSubmissionsController } from './admin/admin-submissions.controller
 import { AdminSubmissionsService } from './admin/admin-submissions.service';
 import { AdminDashboardController } from './admin/admin-dashboard.controller';
 import { AdminDashboardService } from './admin/admin-dashboard.service';
+import { AdminStatisticsController } from './admin/admin-statistics.controller';
+import { AdminStatisticsService } from './admin/admin-statistics.service';
 import { UsersModule } from '../users/users.module';
 
 @Module({
@@ -28,6 +30,7 @@ import { UsersModule } from '../users/users.module';
     AdminFormsController,
     AdminSubmissionsController,
     AdminDashboardController,
+    AdminStatisticsController,
   ],
   providers: [
     SelfDeclarationService,
@@ -36,6 +39,7 @@ import { UsersModule } from '../users/users.module';
     AdminFormsService,
     AdminSubmissionsService,
     AdminDashboardService,
+    AdminStatisticsService,
   ],
 })
 export class FormsModule {}

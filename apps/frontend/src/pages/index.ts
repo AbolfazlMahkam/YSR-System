@@ -6,3 +6,4 @@ export { FormDefinitions } from "./FormDefinitions";
 export { FormBuilder } from "./FormBuilder";
 export { FormSubmissions } from "./FormSubmissions";
 export { SelfDeclarationSubmissions } from "./SelfDeclarationSubmissions";
+export { FormStatistics } from "./FormStatistics";

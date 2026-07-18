@@ -13,4 +13,6 @@ export default {
   reviewSelfDeclaration: (id, data) =>
     HttpClient.patch(`/forms/self-declaration/admin/${id}/review`, data),
   getDashboardStats: () => HttpClient.get("/admin/dashboard/stats"),
+  getStatistics: (formId) =>
+    HttpClient.get(`/admin/forms/${formId}/statistics`),
 };
