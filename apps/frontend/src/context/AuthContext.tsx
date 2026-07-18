@@ -2,6 +2,7 @@ import { createContext, useEffect, useState, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import authAPI from "../api/auth";
 import localStorageService from "../utiles/localStorageService";
+import { toast } from "sonner";
 
 interface User {
   id: number;
@@ -31,6 +32,7 @@ interface AuthContextType {
   register: (userData: RegisterData) => Promise<void>;
   logout: () => void;
   checkAuth: () => void;
+  loginAsUser: (userId: number) => Promise<void>;
 }
 
 interface RegisterData {
@@ -170,6 +172,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  async function loginAsUser(userId: number) {
+    try {
+      const response = await authAPI.loginAsUser(userId);
+      const { access_token } = response;
+
+      localStorageService.setToken(access_token);
+      setTokenState(access_token);
+
+      const userData = await authAPI.getProfile();
+
+      localStorageService.setUserInfo(userData);
+      setUser(userData);
+
+      navigate("/");
+    } catch (error: unknown) {
+      toast.error(
+        (error as { response?: { data?: { message?: string } } }).response
+          ?.data?.message || "خطا در ورود به حساب کاربر",
+      );
+    }
+  }
+
   function logout() {
     localStorageService.removeToken();
     localStorageService.removeUserInfo();
@@ -189,6 +213,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     register,
     logout,
     checkAuth,
+    loginAsUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

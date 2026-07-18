@@ -14,7 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Shield, Lock, Plus, Pencil, Trash2, UserCheck, UserX, Eye, File, ExternalLink, Download } from "lucide-react";
+import { Shield, Lock, Plus, Pencil, Trash2, UserCheck, UserX, Eye, File, ExternalLink, Download, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -89,7 +89,7 @@ interface User {
 }
 
 export function UsersPage() {
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, loginAsUser } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -492,6 +492,8 @@ export function UsersPage() {
   };
 
   // Check if user has admin or super_admin role
+  const isSuperAdminFn = (role: string) => role === "super_admin";
+
   const hasAccess =
     currentUser?.role === "admin" || currentUser?.role === "super_admin";
 
@@ -664,6 +666,8 @@ export function UsersPage() {
                             <Eye className="h-3 w-3 ml-1" />
                             اطلاعات
                           </Button>
+                          {isSuperAdmin && (
+                            <>
                           <Button
                             size="sm"
                             variant="outline"
@@ -672,8 +676,6 @@ export function UsersPage() {
                             <UserCheck className="h-3 w-3 ml-1" />
                             مصاحبه
                           </Button>
-                          {isSuperAdmin && (
-                            <>
                               <Button
                                 size="sm"
                                 variant="outline"
@@ -681,6 +683,14 @@ export function UsersPage() {
                               >
                                 ویرایش
                                 <Pencil className="h-3 w-3 mr-1" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                onClick={() => loginAsUser(user.id)}
+                                className="bg-green-800 text-green-100 hover:bg-green-900"
+                              >
+                                <LogIn className="h-3 w-3 ml-1" />
+                                ورود
                               </Button>
                               <Button
                                 size="sm"

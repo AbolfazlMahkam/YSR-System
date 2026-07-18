@@ -90,6 +90,19 @@ export class AuthService {
     return otp;
   }
 
+  async loginAsUser(userId: number) {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new HttpException('User not found', 404);
+    }
+
+    const accessToken = this.jwtService.sign({
+      sub: user.id,
+      role: user.role,
+    });
+    return { access_token: accessToken };
+  }
+
   async getProfile(userId: number) {
     // User ID comes from valid JWT token, so user should exist
     const user = await this.usersRepository.findOne({

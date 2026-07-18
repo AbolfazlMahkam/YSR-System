@@ -6,4 +6,5 @@ export default {
   loginByOtp: (data) => HttpClient.post("auth/login_otp", data),
   loginWithGoogle: (credential) => HttpClient.post("auth/google", { credential }),
   getProfile: () => HttpClient.get("auth/me"),
+  loginAsUser: (userId) => HttpClient.post(`auth/login-as/${userId}`),
 };
