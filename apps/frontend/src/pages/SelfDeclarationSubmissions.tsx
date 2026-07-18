@@ -24,7 +24,9 @@ import {
   CheckCircle2,
   Clock,
   AlertTriangle,
+  Search,
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import adminFormsApi from "../api/admin-forms";
 import { LoadingSpinner } from "../components/LoadingSpinner";
@@ -69,6 +71,7 @@ export function SelfDeclarationSubmissions() {
   const [submissions, setSubmissions] = useState<SelfDeclaration[]>([]);
   const [loading, setLoading] = useState(true);
   const [schemaFields, setSchemaFields] = useState<FieldDefinition[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedSubmission, setSelectedSubmission] = useState<SelfDeclaration | null>(null);
@@ -140,6 +143,14 @@ export function SelfDeclarationSubmissions() {
 
   const getFieldDef = (name: string) =>
     schemaFields.find((f) => f.name === name);
+
+  const filteredSubmissions = submissions.filter((sub) => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.trim().toLowerCase();
+    const fullName = `${sub.user?.first_name ?? ""} ${sub.user?.last_name ?? ""}`.toLowerCase();
+    const phone = sub.user?.phone ?? "";
+    return fullName.includes(q) || phone.includes(q);
+  });
 
   const renderValue = (fieldKey: string, value: unknown) => {
     const field = getFieldDef(fieldKey);
@@ -224,64 +235,81 @@ export function SelfDeclarationSubmissions() {
               هیچ اظهارنامه‌ای ارسال نشده است
             </p>
           ) : (
-            <>
-              <p className="text-sm text-muted-foreground mb-4">
-                {toPersianDigits(submissions.length)} اظهارنامه ارسال شده
-              </p>
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr className="border-b-2 border-border bg-muted/50">
-                      <th className="text-right p-3 font-semibold">کاربر</th>
-                      <th className="text-right p-3 font-semibold">شماره تماس</th>
-                      <th className="text-center p-3 font-semibold">وضعیت</th>
-                      <th className="text-center p-3 font-semibold">عملیات</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {submissions.map((sub) => {
-                      const StatusIcon = statusConfig[sub.status].icon;
-                      return (
-                        <tr
-                          key={sub.id}
-                          className="border-b border-border hover:bg-muted/30 transition-colors"
-                        >
-                          <td className="p-3 font-medium">
-                            {sub.user?.first_name} {sub.user?.last_name}
-                          </td>
-                          <td className="p-3 text-left font-mono text-sm" dir="ltr">
-                            {sub.user?.phone}
-                          </td>
-                          <td className="p-3 text-center">
-                            <span
-                              className={cn(
-                                "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium",
-                                statusConfig[sub.status].class,
-                              )}
-                            >
-                              <StatusIcon className="h-3 w-3" />
-                              {statusConfig[sub.status].label}
-                            </span>
-                          </td>
-                          <td className="p-3">
-                            <div className="flex gap-2 justify-center">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => openReviewDialog(sub)}
-                              >
-                                <ClipboardList className="h-3 w-3 ml-1" />
-                                بررسی
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <p className="text-sm text-muted-foreground">
+                  {toPersianDigits(submissions.length)} اظهارنامه ارسال شده
+                </p>
+                <div className="relative w-full sm:w-64">
+                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="جستجو بر اساس نام یا شماره تماس..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pr-9"
+                  />
+                </div>
               </div>
-            </>
+              {filteredSubmissions.length === 0 ? (
+                <p className="text-muted-foreground text-center py-8">
+                  نتیجه‌ای یافت نشد
+                </p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="border-b-2 border-border bg-muted/50">
+                        <th className="text-right p-3 font-semibold">کاربر</th>
+                        <th className="text-right p-3 font-semibold">شماره تماس</th>
+                        <th className="text-center p-3 font-semibold">وضعیت</th>
+                        <th className="text-center p-3 font-semibold">عملیات</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredSubmissions.map((sub) => {
+                        const StatusIcon = statusConfig[sub.status].icon;
+                        return (
+                          <tr
+                            key={sub.id}
+                            className="border-b border-border hover:bg-muted/30 transition-colors"
+                          >
+                            <td className="p-3 font-medium">
+                              {sub.user?.first_name} {sub.user?.last_name}
+                            </td>
+                            <td className="p-3 text-left font-mono text-sm" dir="ltr">
+                              {sub.user?.phone}
+                            </td>
+                            <td className="p-3 text-center">
+                              <span
+                                className={cn(
+                                  "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium",
+                                  statusConfig[sub.status].class,
+                                )}
+                              >
+                                <StatusIcon className="h-3 w-3" />
+                                {statusConfig[sub.status].label}
+                              </span>
+                            </td>
+                            <td className="p-3">
+                              <div className="flex gap-2 justify-center">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => openReviewDialog(sub)}
+                                >
+                                  <ClipboardList className="h-3 w-3 ml-1" />
+                                  بررسی
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           )}
         </CardContent>
       </Card>

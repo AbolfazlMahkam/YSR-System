@@ -14,7 +14,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { ClipboardList, Eye, ChevronDown, ChevronUp, ExternalLink, File } from "lucide-react";
+import { ClipboardList, Eye, ChevronDown, ChevronUp, ExternalLink, File, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import adminFormsApi from "../api/admin-forms";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { toast } from "sonner";
@@ -62,6 +63,7 @@ export function FormSubmissions() {
   const [loadingSubs, setLoadingSubs] = useState(false);
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [formFields, setFormFields] = useState<FieldDefinition[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     fetchForms();
@@ -104,6 +106,14 @@ export function FormSubmissions() {
       setFormTitle("");
     }
   };
+
+  const filteredSubmissions = submissions.filter((sub) => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.trim().toLowerCase();
+    const fullName = `${sub.user?.first_name ?? ""} ${sub.user?.last_name ?? ""}`.toLowerCase();
+    const phone = sub.user?.phone ?? "";
+    return fullName.includes(q) || phone.includes(q);
+  });
 
   const toggleExpand = (id: number) => {
     setExpandedId(expandedId === id ? null : id);
@@ -161,10 +171,26 @@ export function FormSubmissions() {
             </p>
           ) : (
             <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">
-                {toPersianDigits(submissions.length)} ارسال برای "{formTitle}"
-              </p>
-              {submissions.map((sub) => (
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <p className="text-sm text-muted-foreground">
+                    {toPersianDigits(submissions.length)} ارسال برای "{formTitle}"
+                  </p>
+                  <div className="relative w-full sm:w-64">
+                    <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="جستجو بر اساس نام یا شماره تماس..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pr-9"
+                    />
+                  </div>
+                </div>
+                {filteredSubmissions.length === 0 ? (
+                  <p className="text-muted-foreground text-center py-8">
+                    نتیجه‌ای یافت نشد
+                  </p>
+                ) : (
+                  filteredSubmissions.map((sub) => (
                 <Card key={sub.id} className="overflow-hidden">
                   <button
                     onClick={() => toggleExpand(sub.id)}
@@ -279,7 +305,9 @@ export function FormSubmissions() {
                     </div>
                   )}
                 </Card>
-              ))}
+                  ))
+                )}
+
             </div>
           )}
         </CardContent>
