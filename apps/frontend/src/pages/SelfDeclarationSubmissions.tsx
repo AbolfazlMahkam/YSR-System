@@ -274,66 +274,110 @@ export function SelfDeclarationSubmissions() {
                   نتیجه‌ای یافت نشد
                 </p>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr className="border-b-2 border-border bg-muted/50">
-                        <th className="text-right p-3 font-semibold">کاربر</th>
-                        <th className="text-right p-3 font-semibold">
-                          شماره تماس
-                        </th>
-                        <th className="text-center p-3 font-semibold">وضعیت</th>
-                        <th className="text-center p-3 font-semibold">
-                          عملیات
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredSubmissions.map((sub) => {
-                        const StatusIcon = statusConfig[sub.status].icon;
-                        return (
-                          <tr
-                            key={sub.id}
-                            className="border-b border-border hover:bg-muted/30 transition-colors"
-                          >
-                            <td className="p-3 font-medium">
-                              {sub.user?.first_name} {sub.user?.last_name}
-                            </td>
-                            <td
-                              className="p-3 text-left font-mono text-sm"
-                              dir="ltr"
+                <>
+                  <div className="hidden md:block overflow-x-auto">
+                    <table className="w-full border-collapse">
+                      <thead>
+                        <tr className="border-b-2 border-border bg-muted/50">
+                          <th className="text-right p-3 font-semibold">کاربر</th>
+                          <th className="text-right p-3 font-semibold">
+                            شماره تماس
+                          </th>
+                          <th className="text-center p-3 font-semibold">وضعیت</th>
+                          <th className="text-center p-3 font-semibold">
+                            عملیات
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredSubmissions.map((sub) => {
+                          const StatusIcon = statusConfig[sub.status].icon;
+                          return (
+                            <tr
+                              key={sub.id}
+                              className="border-b border-border hover:bg-muted/30 transition-colors"
                             >
-                              {sub.user?.phone}
-                            </td>
-                            <td className="p-3 text-center">
-                              <span
-                                className={cn(
-                                  "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium",
-                                  statusConfig[sub.status].class,
-                                )}
+                              <td className="p-3 font-medium">
+                                {sub.user?.first_name} {sub.user?.last_name}
+                              </td>
+                              <td
+                                className="p-3 text-left font-mono text-sm"
+                                dir="ltr"
                               >
-                                <StatusIcon className="h-3 w-3" />
-                                {statusConfig[sub.status].label}
-                              </span>
-                            </td>
-                            <td className="p-3">
-                              <div className="flex gap-2 justify-center">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => openReviewDialog(sub)}
+                                {sub.user?.phone}
+                              </td>
+                              <td className="p-3 text-center">
+                                <span
+                                  className={cn(
+                                    "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium",
+                                    statusConfig[sub.status].class,
+                                  )}
                                 >
-                                  <ClipboardList className="h-3 w-3 ml-1" />
-                                  بررسی
-                                </Button>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
+                                  <StatusIcon className="h-3 w-3" />
+                                  {statusConfig[sub.status].label}
+                                </span>
+                              </td>
+                              <td className="p-3">
+                                <div className="flex gap-2 justify-center">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => openReviewDialog(sub)}
+                                  >
+                                    <ClipboardList className="h-3 w-3 ml-1" />
+                                    بررسی
+                                  </Button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="md:hidden space-y-3">
+                    {filteredSubmissions.map((sub) => {
+                      const StatusIcon = statusConfig[sub.status].icon;
+                      return (
+                        <div
+                          key={sub.id}
+                          className="border border-border rounded-lg p-4 space-y-3"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="space-y-1 min-w-0">
+                              <p className="font-medium truncate">
+                                {sub.user?.first_name} {sub.user?.last_name}
+                              </p>
+                              <p className="text-xs text-muted-foreground font-mono" dir="ltr">
+                                {sub.user?.phone}
+                              </p>
+                            </div>
+                            <span
+                              className={cn(
+                                "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium shrink-0",
+                                statusConfig[sub.status].class,
+                              )}
+                            >
+                              <StatusIcon className="h-3 w-3" />
+                              {statusConfig[sub.status].label}
+                            </span>
+                          </div>
+                          <div className="pt-2 border-t border-border">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="w-full"
+                              onClick={() => openReviewDialog(sub)}
+                            >
+                              <ClipboardList className="h-3 w-3 ml-1" />
+                              بررسی
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
               )}
             </div>
           )}

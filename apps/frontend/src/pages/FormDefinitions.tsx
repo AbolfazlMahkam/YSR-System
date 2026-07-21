@@ -103,78 +103,138 @@ export function FormDefinitions() {
               هیچ فرمی یافت نشد
             </p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="border-b-2 border-border bg-muted/50">
-                    <th className="text-right p-3 font-semibold">عنوان</th>
-                    <th className="text-right p-3 font-semibold">Slug</th>
-                    <th className="text-center p-3 font-semibold">
-                      تعداد ارسال‌ها
-                    </th>
-                    <th className="text-center p-3 font-semibold">وضعیت</th>
-                    <th className="text-right p-3 font-semibold">
-                      تاریخ ایجاد
-                    </th>
-                    <th className="text-center p-3 font-semibold">عملیات</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {forms.map((form) => (
-                    <tr
-                      key={form.id}
-                      className="border-b border-border hover:bg-muted/30 transition-colors"
-                    >
-                      <td className="p-3 font-medium">{form.title}</td>
-                      <td className="p-3 text-left font-mono text-sm" dir="ltr">
-                        {form.slug}
-                      </td>
-                      <td className="p-3 text-center">
-                        {toPersianDigits(form.total_submissions)}
-                      </td>
-                      <td className="p-3 text-center">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            form.is_active
-                              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                              : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                          }`}
-                        >
-                          {form.is_active ? "فعال" : "غیرفعال"}
-                        </span>
-                      </td>
-                      <td className="p-3 text-sm text-muted-foreground">
+            <>
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="border-b-2 border-border bg-muted/50">
+                      <th className="text-right p-3 font-semibold">عنوان</th>
+                      <th className="text-right p-3 font-semibold">Slug</th>
+                      <th className="text-center p-3 font-semibold">
+                        تعداد ارسال‌ها
+                      </th>
+                      <th className="text-center p-3 font-semibold">وضعیت</th>
+                      <th className="text-right p-3 font-semibold">
+                        تاریخ ایجاد
+                      </th>
+                      <th className="text-center p-3 font-semibold">عملیات</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {forms.map((form) => (
+                      <tr
+                        key={form.id}
+                        className="border-b border-border hover:bg-muted/30 transition-colors"
+                      >
+                        <td className="p-3 font-medium">{form.title}</td>
+                        <td className="p-3 text-left font-mono text-sm" dir="ltr">
+                          {form.slug}
+                        </td>
+                        <td className="p-3 text-center">
+                          {toPersianDigits(form.total_submissions)}
+                        </td>
+                        <td className="p-3 text-center">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              form.is_active
+                                ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                            }`}
+                          >
+                            {form.is_active ? "فعال" : "غیرفعال"}
+                          </span>
+                        </td>
+                        <td className="p-3 text-sm text-muted-foreground">
+                          {toPersianDigits(
+                            new Date(form.created_at).toLocaleDateString("fa-IR"),
+                          )}
+                        </td>
+                        <td className="p-3">
+                          <div className="flex gap-2 justify-center">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() =>
+                                navigate(`/admin/forms/${form.id}/edit`)
+                              }
+                            >
+                              <Pencil className="h-3 w-3 ml-1" />
+                              ویرایش
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => setDeleteTarget(form)}
+                            >
+                              <Trash2 className="h-3 w-3 ml-1" />
+                              حذف
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="md:hidden space-y-3">
+                {forms.map((form) => (
+                  <div
+                    key={form.id}
+                    className="border border-border rounded-lg p-4 space-y-3"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="space-y-1 min-w-0">
+                        <p className="font-medium truncate">{form.title}</p>
+                        <p className="text-xs text-muted-foreground font-mono" dir="ltr">
+                          {form.slug}
+                        </p>
+                      </div>
+                      <span
+                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium shrink-0 ${
+                          form.is_active
+                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                            : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                        }`}
+                      >
+                        {form.is_active ? "فعال" : "غیرفعال"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <span>
+                        ارسال‌ها: {toPersianDigits(form.total_submissions)}
+                      </span>
+                      <span>
                         {toPersianDigits(
                           new Date(form.created_at).toLocaleDateString("fa-IR"),
                         )}
-                      </td>
-                      <td className="p-3">
-                        <div className="flex gap-2 justify-center">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() =>
-                              navigate(`/admin/forms/${form.id}/edit`)
-                            }
-                          >
-                            <Pencil className="h-3 w-3 ml-1" />
-                            ویرایش
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => setDeleteTarget(form)}
-                          >
-                            <Trash2 className="h-3 w-3 ml-1" />
-                            حذف
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                      </span>
+                    </div>
+                    <div className="flex gap-2 pt-1 border-t border-border">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() =>
+                          navigate(`/admin/forms/${form.id}/edit`)
+                        }
+                      >
+                        <Pencil className="h-3 w-3 ml-1" />
+                        ویرایش
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        className="flex-1"
+                        onClick={() => setDeleteTarget(form)}
+                      >
+                        <Trash2 className="h-3 w-3 ml-1" />
+                        حذف
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

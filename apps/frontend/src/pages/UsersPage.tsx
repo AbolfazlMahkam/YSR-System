@@ -557,29 +557,29 @@ export function UsersPage() {
     <div className="p-6">
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between max-sm:flex-col max-sm:items-start">
             <div>
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2 mb-2 ">
                 <Shield className="h-6 w-6" />
                 <CardTitle>داشبورد کاربران</CardTitle>
               </div>
-              <CardDescription>مدیریت تمام کاربران</CardDescription>
+              <CardDescription className="max-sm:mb-2">مدیریت تمام کاربران</CardDescription>
             </div>
             {isSuperAdmin && (
-              <div className="flex gap-2">
-                <Button onClick={handleExportExcel} disabled={exporting}>
+              <div className="flex gap-2 max-sm:flex-col max-sm:items-start max-sm:min-w-full">
+                <Button onClick={handleExportExcel} disabled={exporting} className="max-sm:min-w-full">
                   <Download className="h-4 w-4 ml-2" />
                   {exporting ? "در حال خروجی..." : "خروجی اکسل"}
                 </Button>
-                <Button onClick={() => setIsAddDialogOpen(true)}>
+                <Button onClick={() => setIsAddDialogOpen(true)} className="max-sm:min-w-full">
                   <Plus className="h-4 w-4 ml-2" />
                   اضافه کردن کاربر
                 </Button>
               </div>
             )}
           </div>
-          <div className="mt-4 flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2">
+          <div className="mt-4 flex flex-wrap items-center gap-3 max-sm:flex-col max-sm:items-start max-sm:w-full">
+            <div className="flex items-center gap-2 max-sm:w-full">
               <Label htmlFor="search" className="whitespace-nowrap">
                 جستجو:
               </Label>
@@ -588,15 +588,15 @@ export function UsersPage() {
                 placeholder="نام یا شماره همراه..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-[200px]"
+                className="w-[200px] max-sm:w-full"
               />
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 max-sm:w-full">
               <Label htmlFor="role-filter" className="whitespace-nowrap">
                 نقش:
               </Label>
               <Select value={roleFilter} onValueChange={setRoleFilter}>
-                <SelectTrigger id="role-filter" className="w-[150px]">
+                <SelectTrigger id="role-filter" className="w-[150px] max-sm:w-full">
                   <SelectValue placeholder="All Roles" />
                 </SelectTrigger>
                 <SelectContent>
@@ -607,12 +607,12 @@ export function UsersPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 max-sm:w-full">
               <Label htmlFor="status-filter" className="whitespace-nowrap">
                 وضعیت:
               </Label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger id="status-filter" className="w-[150px]">
+                <SelectTrigger id="status-filter" className="w-[150px] max-sm:w-full">
                   <SelectValue placeholder="All Statuses" />
                 </SelectTrigger>
                 <SelectContent>
@@ -642,106 +642,193 @@ export function UsersPage() {
               کاربری یافت نشد
             </p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="border-b-2 border-border bg-muted/50">
-                    <th className="text-right p-3 font-semibold">ردیف</th>
-                    <th className="text-right p-3 font-semibold"> کاربرنام</th>
-                    <th className="text-right p-3 font-semibold">
-                      شماره همراه
-                    </th>
-                    <th className="text-right p-3 font-semibold">نقش</th>
-                    <th className="text-right p-3 font-semibold">وضعیت</th>
-                    <th className="text-right p-3 font-semibold">عملیات</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sortedUsers.map((user, index) => (
-                    <tr
-                      key={user.id}
-                      className="border-b border-border hover:bg-muted/30 transition-colors"
-                    >
-                      <td className="p-3 font-medium">
-                        {toPersianDigits(index + 1)}
-                      </td>
-                      <td className="p-3">
-                        {user.first_name} {user.last_name}
-                      </td>
-                      <td className="p-3 text-right" dir="ltr">
-                        {toPersianDigits(user.phone)}
-                      </td>
-                      <td className="p-3">
+            <>
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="border-b-2 border-border bg-muted/50">
+                      <th className="text-right p-3 font-semibold">ردیف</th>
+                      <th className="text-right p-3 font-semibold"> کاربرنام</th>
+                      <th className="text-right p-3 font-semibold">
+                        شماره همراه
+                      </th>
+                      <th className="text-right p-3 font-semibold">نقش</th>
+                      <th className="text-right p-3 font-semibold">وضعیت</th>
+                      <th className="text-right p-3 font-semibold">عملیات</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sortedUsers.map((user, index) => (
+                      <tr
+                        key={user.id}
+                        className="border-b border-border hover:bg-muted/30 transition-colors"
+                      >
+                        <td className="p-3 font-medium">
+                          {toPersianDigits(index + 1)}
+                        </td>
+                        <td className="p-3">
+                          {user.first_name} {user.last_name}
+                        </td>
+                        <td className="p-3 text-right" dir="ltr">
+                          {toPersianDigits(user.phone)}
+                        </td>
+                        <td className="p-3">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleBadgeColor(
+                              user.role,
+                            )}`}
+                          >
+                            {user.role.replace("_", " ").toUpperCase()}
+                          </span>
+                        </td>
+                        <td className="p-3">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${getInterviewBadgeColor(
+                              user.interview_status,
+                            )}`}
+                          >
+                            {getInterviewLabel(user.interview_status)}
+                          </span>
+                        </td>
+                        <td className="p-3">
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => openShowInfoDialog(user)}
+                            >
+                              <Eye className="h-3 w-3 ml-1" />
+                              اطلاعات
+                            </Button>
+                            {isSuperAdmin && (
+                              <>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => openInterviewDialog(user)}
+                                >
+                                  <UserCheck className="h-3 w-3 ml-1" />
+                                  مصاحبه
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => openEditDialog(user)}
+                                >
+                                  ویرایش
+                                  <Pencil className="h-3 w-3 mr-1" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  onClick={() => loginAsUser(user.id)}
+                                  className="bg-green-800 text-green-100 hover:bg-green-900"
+                                >
+                                  <LogIn className="h-3 w-3 ml-1" />
+                                  ورود
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => openDeleteDialog(user)}
+                                >
+                                  حذف
+                                  <Trash2 className="h-3 w-3 mr-1" />
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="md:hidden space-y-3">
+                {sortedUsers.map((user, index) => (
+                  <div
+                    key={user.id}
+                    className="border border-border rounded-lg p-4 space-y-3"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="space-y-1 min-w-0">
+                        <p className="font-medium truncate">
+                          {toPersianDigits(index + 1)}. {user.first_name} {user.last_name}
+                        </p>
+                        <p className="text-xs text-muted-foreground" dir="ltr">
+                          {toPersianDigits(user.phone)}
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-end gap-1 shrink-0">
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleBadgeColor(
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getRoleBadgeColor(
                             user.role,
                           )}`}
                         >
                           {user.role.replace("_", " ").toUpperCase()}
                         </span>
-                      </td>
-                      <td className="p-3">
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${getInterviewBadgeColor(
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${getInterviewBadgeColor(
                             user.interview_status,
                           )}`}
                         >
                           {getInterviewLabel(user.interview_status)}
                         </span>
-                      </td>
-                      <td className="p-3">
-                        <div className="flex gap-2">
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-2 pt-2 border-t border-border">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => openShowInfoDialog(user)}
+                      >
+                        <Eye className="h-3 w-3 ml-1" />
+                        اطلاعات
+                      </Button>
+                      {isSuperAdmin && (
+                        <>
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => openShowInfoDialog(user)}
+                            className="w-full"
+                            onClick={() => openInterviewDialog(user)}
                           >
-                            <Eye className="h-3 w-3 ml-1" />
-                            اطلاعات
+                            <UserCheck className="h-3 w-3 ml-1" />
+                            مصاحبه
                           </Button>
-                          {isSuperAdmin && (
-                            <>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => openInterviewDialog(user)}
-                              >
-                                <UserCheck className="h-3 w-3 ml-1" />
-                                مصاحبه
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => openEditDialog(user)}
-                              >
-                                ویرایش
-                                <Pencil className="h-3 w-3 mr-1" />
-                              </Button>
-                              <Button
-                                size="sm"
-                                onClick={() => loginAsUser(user.id)}
-                                className="bg-green-800 text-green-100 hover:bg-green-900"
-                              >
-                                <LogIn className="h-3 w-3 ml-1" />
-                                ورود
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                onClick={() => openDeleteDialog(user)}
-                              >
-                                حذف
-                                <Trash2 className="h-3 w-3 mr-1" />
-                              </Button>
-                            </>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="w-full"
+                            onClick={() => openEditDialog(user)}
+                          >
+                            <Pencil className="h-3 w-3 ml-1" />
+                            ویرایش
+                          </Button>
+                          <Button
+                            size="sm"
+                            className="w-full bg-green-800 text-green-100 hover:bg-green-900"
+                            onClick={() => loginAsUser(user.id)}
+                          >
+                            <LogIn className="h-3 w-3 ml-1" />
+                            ورود
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            className="w-full"
+                            onClick={() => openDeleteDialog(user)}
+                          >
+                            <Trash2 className="h-3 w-3 ml-1" />
+                            حذف
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
