@@ -40,7 +40,7 @@ export function Header({ onMenuToggle }: HeaderProps) {
   }[theme];
 
   return (
-    <header className="h-[75px] liquid-glass-header flex items-center justify-between px-4 md:px-6 my-2">
+    <header className="h-[75px] liquid-glass-header flex items-center justify-between px-4 md:px-6">
       <div className="flex items-center gap-4">
         <Button
           variant="outline"

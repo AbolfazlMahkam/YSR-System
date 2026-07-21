@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useParams, useNavigate } from "react-router-dom";
-import { Loader2, CheckCircle2, ArrowRight } from "lucide-react";
+import { Loader2, CheckCircle2, ArrowRight, RefreshCw } from "lucide-react";
 import formsApi from "../api/forms";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -252,6 +252,12 @@ export function FormPage() {
     } finally {
       setSubmitting(false);
     }
+  }
+
+  function handleRefillForm() {
+    setSubmitted(false);
+    reset();
+    toast.info("فرم جدید آماده تکمیل است", { title: "پر کردن مجدد فرم" });
   }
 
   function renderField(field: FieldDefinition) {
@@ -550,10 +556,16 @@ export function FormPage() {
                 {schema.notification_text}
               </p>
             )}
-            <Button onClick={() => navigate("/")}>
-              <ArrowRight className="h-4 w-4 ml-1" />
-              بازگشت به داشبورد
-            </Button>
+            <div className="flex gap-3 justify-center">
+              <Button onClick={handleRefillForm}>
+                <RefreshCw className="h-4 w-4 ml-1" />
+                پر کردن مجدد فرم
+              </Button>
+              <Button variant="outline" onClick={() => navigate("/")}>
+                <ArrowRight className="h-4 w-4 ml-1" />
+                بازگشت به داشبورد
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -570,10 +582,16 @@ export function FormPage() {
             <p className="text-muted-foreground">
               پاسخ‌های شما با موفقیت ثبت شد
             </p>
-            <Button onClick={() => navigate("/")}>
-              <ArrowRight className="h-4 w-4 ml-1" />
-              بازگشت به داشبورد
-            </Button>
+            <div className="flex gap-3 justify-center">
+              <Button onClick={handleRefillForm}>
+                <RefreshCw className="h-4 w-4 ml-1" />
+                پر کردن مجدد فرم
+              </Button>
+              <Button variant="outline" onClick={() => navigate("/")}>
+                <ArrowRight className="h-4 w-4 ml-1" />
+                بازگشت به داشبورد
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
