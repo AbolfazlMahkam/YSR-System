@@ -3,6 +3,12 @@ export interface FileConfig {
   maxSize?: number;
 }
 
+export interface FieldCondition {
+  field: string;
+  operator: 'equals' | 'not_equals' | 'not_empty';
+  value: string;
+}
+
 export interface FieldDefinition {
   name: string;
   label: string;
@@ -31,4 +37,5 @@ export interface FieldDefinition {
   fileConfig?: FileConfig;
   defaultValue?: any;
   multiple?: boolean;
+  condition?: FieldCondition;
 }

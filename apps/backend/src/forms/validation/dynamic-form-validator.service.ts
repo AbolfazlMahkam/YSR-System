@@ -17,6 +17,10 @@ export class DynamicFormValidatorService {
     }
 
     for (const field of fields) {
+      if (!this.isFieldVisible(field, data, fieldMap)) {
+        continue;
+      }
+
       const value = data[field.name];
 
       if (
@@ -189,5 +193,26 @@ export class DynamicFormValidatorService {
       return isNaN(parsed) ? value : parsed;
     }
     return value;
+  }
+
+  private isFieldVisible(
+    field: FieldDefinition,
+    data: Record<string, unknown>,
+    fieldMap: Map<string, FieldDefinition>,
+  ): boolean {
+    if (!field.condition) return true;
+    const depField = fieldMap.get(field.condition.field);
+    if (!depField) return true;
+    const depValue = data[field.condition.field];
+    switch (field.condition.operator) {
+      case 'equals':
+        return depValue === field.condition.value;
+      case 'not_equals':
+        return depValue !== field.condition.value;
+      case 'not_empty':
+        return depValue !== undefined && depValue !== null && depValue !== '';
+      default:
+        return true;
+    }
   }
 }

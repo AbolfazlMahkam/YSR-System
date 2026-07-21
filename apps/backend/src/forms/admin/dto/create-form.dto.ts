@@ -50,6 +50,20 @@ class FileConfigDto {
   maxSize?: number;
 }
 
+class ConditionDto {
+  @IsString()
+  @IsNotEmpty()
+  field: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsIn(['equals', 'not_equals', 'not_empty'])
+  operator: string;
+
+  @IsString()
+  value: string;
+}
+
 class FieldDefinitionDto {
   @IsString()
   @IsNotEmpty()
@@ -106,6 +120,11 @@ class FieldDefinitionDto {
   @IsOptional()
   @IsBoolean()
   multiple?: boolean;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => ConditionDto)
+  condition?: ConditionDto;
 }
 
 export class CreateFormDto {

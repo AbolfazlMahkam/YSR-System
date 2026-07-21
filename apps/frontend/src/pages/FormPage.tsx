@@ -41,6 +41,12 @@ interface FileConfig {
   maxSize?: number;
 }
 
+interface FieldCondition {
+  field: string;
+  operator: "equals" | "not_equals" | "not_empty";
+  value: string;
+}
+
 interface FieldDefinition {
   name: string;
   label: string;
@@ -64,6 +70,7 @@ interface FieldDefinition {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   defaultValue?: any;
   multiple?: boolean;
+  condition?: FieldCondition;
 }
 
 interface FormSchema {
@@ -84,31 +91,33 @@ function buildSchema(schema: FormSchema) {
 
   for (const field of schema.fields) {
     let fieldSchema: z.ZodTypeAny;
+    const isConditional = !!field.condition;
+    const isRequired = field.required && !isConditional;
 
     switch (field.type) {
       case "number":
-        if (field.required) {
+        if (isRequired) {
           fieldSchema = z.coerce.number(requiredMsg);
         } else {
           fieldSchema = z.coerce.number().optional();
         }
         break;
       case "checkbox":
-        if (field.required) {
+        if (isRequired) {
           fieldSchema = z.array(z.string()).min(1, requiredMsg);
         } else {
           fieldSchema = z.array(z.string()).optional();
         }
         break;
       case "date":
-        if (field.required) {
+        if (isRequired) {
           fieldSchema = z.string(requiredMsg).min(1, requiredMsg);
         } else {
           fieldSchema = z.string().optional();
         }
         break;
       case "range":
-        if (field.required) {
+        if (isRequired) {
           fieldSchema = z.coerce
             .number(requiredMsg)
             .min(
@@ -125,13 +134,13 @@ function buildSchema(schema: FormSchema) {
         break;
       case "select":
         if (field.multiple) {
-          if (field.required) {
+          if (isRequired) {
             fieldSchema = z.array(z.string()).min(1, requiredMsg);
           } else {
             fieldSchema = z.array(z.string()).optional();
           }
         } else {
-          if (field.required) {
+          if (isRequired) {
             fieldSchema = z.string(requiredMsg).min(1, requiredMsg);
           } else {
             fieldSchema = z.string().optional();
@@ -143,17 +152,17 @@ function buildSchema(schema: FormSchema) {
           province: z.string("استان الزامی است").min(1, "استان الزامی است"),
           city: z.string("شهر الزامی است").min(1, "شهر الزامی است"),
         });
-        if (!field.required) fieldSchema = fieldSchema.optional();
+        if (!isRequired) fieldSchema = fieldSchema.optional();
         break;
       case "file":
-        if (field.required) {
+        if (isRequired) {
           fieldSchema = z.string(requiredMsg).min(1, requiredMsg);
         } else {
           fieldSchema = z.string().optional();
         }
         break;
       default:
-        if (field.required) {
+        if (isRequired) {
           fieldSchema = z.string(requiredMsg).min(1, requiredMsg);
         } else {
           fieldSchema = z.string().optional();
@@ -258,6 +267,21 @@ export function FormPage() {
     setSubmitted(false);
     reset();
     toast.info("فرم جدید آماده تکمیل است", { title: "پر کردن مجدد فرم" });
+  }
+
+  function isFieldVisible(field: FieldDefinition): boolean {
+    if (!field.condition) return true;
+    const depValue = formValues[field.condition.field];
+    switch (field.condition.operator) {
+      case "equals":
+        return depValue === field.condition.value;
+      case "not_equals":
+        return depValue !== field.condition.value;
+      case "not_empty":
+        return depValue !== undefined && depValue !== null && depValue !== "";
+      default:
+        return true;
+    }
   }
 
   function renderField(field: FieldDefinition) {
@@ -609,7 +633,8 @@ export function FormPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {schema.fields.map((field) => (
+            {schema.fields.map((field) =>
+              isFieldVisible(field) ? (
               <div key={field.name} className="space-y-2">
                 <Label>
                   {field.label}
@@ -624,7 +649,8 @@ export function FormPage() {
                   </p>
                 )}
               </div>
-            ))}
+              ) : null
+            )}
 
             <div className="flex gap-3">
               <Button type="submit" disabled={submitting}>

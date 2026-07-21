@@ -46,6 +46,12 @@ interface FileConfig {
   maxSize?: number;
 }
 
+interface FieldCondition {
+  field: string;
+  operator: "equals" | "not_equals" | "not_empty";
+  value: string;
+}
+
 interface FieldDefinition {
   name: string;
   label: string;
@@ -59,6 +65,7 @@ interface FieldDefinition {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   defaultValue?: any;
   multiple?: boolean;
+  condition?: FieldCondition;
 }
 
 const FIELD_TYPES = [
@@ -762,6 +769,148 @@ export function FormBuilder() {
                     ))}
                   </div>
                 )}
+
+                {/* Conditional field config */}
+                <div className="space-y-2 pt-2 border-t">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium">شرط نمایش</Label>
+                    <div className="flex items-center gap-2">
+                      {field.condition && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-destructive hover:text-destructive h-7 text-xs"
+                          onClick={() => updateField(index, "condition", undefined)}
+                        >
+                          حذف شرط
+                        </Button>
+                      )}
+                      <Checkbox
+                        id={`has-condition-${index}`}
+                        checked={!!field.condition}
+                        onCheckedChange={(v) => {
+                          if (v === true) {
+                            const otherFields = fields.filter((_, i) => i !== index);
+                            const firstOther = otherFields[0];
+                            updateField(index, "condition", {
+                              field: firstOther?.name || "",
+                              operator: "equals",
+                              value: "",
+                            });
+                          } else {
+                            updateField(index, "condition", undefined);
+                          }
+                        }}
+                      />
+                      <Label htmlFor={`has-condition-${index}`} className="text-sm">
+                        وابسته به فیلد دیگر
+                      </Label>
+                    </div>
+                  </div>
+                  {field.condition && (
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 bg-muted/50 p-3 rounded-md">
+                      <div className="space-y-1">
+                        <Label className="text-xs">فیلد وابسته</Label>
+                        <Select
+                          value={field.condition.field}
+                          onValueChange={(v) =>
+                            updateField(index, "condition", {
+                              ...field.condition!,
+                              field: v,
+                              value: "",
+                            })
+                          }
+                        >
+                          <SelectTrigger className="h-8">
+                            <SelectValue placeholder="انتخاب فیلد" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {fields
+                              .filter((_, i) => i !== index)
+                              .map((f) => (
+                                <SelectItem key={f.name} value={f.name}>
+                                  {f.label || f.name}
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">شرط</Label>
+                        <Select
+                          value={field.condition.operator}
+                          onValueChange={(v) =>
+                            updateField(index, "condition", {
+                              ...field.condition!,
+                              operator: v,
+                              value: "",
+                            })
+                          }
+                        >
+                          <SelectTrigger className="h-8">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="equals">برابر باشد</SelectItem>
+                            <SelectItem value="not_equals">برابر نباشد</SelectItem>
+                            <SelectItem value="not_empty">خالی نباشد</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {field.condition.operator !== "not_empty" && (
+                        <div className="space-y-1">
+                          <Label className="text-xs">مقدار</Label>
+                          {(() => {
+                            const depField = fields.find(
+                              (f) => f.name === field.condition!.field,
+                            );
+                            if (
+                              depField &&
+                              ["select", "radio"].includes(depField.type) &&
+                              depField.options?.length
+                            ) {
+                              return (
+                                <Select
+                                  value={field.condition!.value}
+                                  onValueChange={(v) =>
+                                    updateField(index, "condition", {
+                                      ...field.condition!,
+                                      value: v,
+                                    })
+                                  }
+                                >
+                                  <SelectTrigger className="h-8">
+                                    <SelectValue placeholder="انتخاب مقدار" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {depField.options.map((opt) => (
+                                      <SelectItem key={opt.value} value={opt.value}>
+                                        {opt.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              );
+                            }
+                            return (
+                              <Input
+                                className="h-8"
+                                value={field.condition!.value}
+                                onChange={(e) =>
+                                  updateField(index, "condition", {
+                                    ...field.condition!,
+                                    value: e.target.value,
+                                  })
+                                }
+                                placeholder="مقدار"
+                              />
+                            );
+                          })()}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
             {fields.length > 0 && (
