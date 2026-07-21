@@ -17,12 +17,18 @@ export interface OptionCount {
   count: number;
 }
 
+export interface ProvinceCityData {
+  provinceCounts: OptionCount[];
+  cityCounts: Record<string, OptionCount[]>;
+}
+
 export interface FieldStat {
   name: string;
   label: string;
   type: string;
   total: number;
   options: OptionCount[];
+  provinceCity?: ProvinceCityData;
 }
 
 @Injectable()
@@ -56,10 +62,14 @@ export class AdminStatisticsService {
     }
 
     const statFields = (form.fields as FieldDefinition[]).filter((f) =>
-      ['select', 'radio', 'checkbox'].includes(f.type),
+      ['select', 'radio', 'checkbox', 'province_city'].includes(f.type),
     );
 
     const fields: FieldStat[] = statFields.map((field) => {
+      if (field.type === 'province_city') {
+        return this.buildProvinceCityStat(field, submissions);
+      }
+
       const optionMap = new Map<string, number>();
 
       (field.options || []).forEach((opt) => {
@@ -100,6 +110,68 @@ export class AdminStatisticsService {
       form,
       fields,
       totalSubmissions: submissions.length,
+    };
+  }
+
+  private buildProvinceCityStat(
+    field: FieldDefinition,
+    submissions: FormSubmission[],
+  ): FieldStat {
+    const provinceMap = new Map<string, number>();
+    const cityMap = new Map<string, Map<string, number>>();
+
+    submissions.forEach((sub) => {
+      const answer = sub.answers[field.name];
+      if (
+        !answer ||
+        typeof answer !== 'object' ||
+        Array.isArray(answer)
+      )
+        return;
+
+      const { province, city } = answer as { province?: string; city?: string };
+      if (!province) return;
+
+      provinceMap.set(province, (provinceMap.get(province) || 0) + 1);
+
+      if (city) {
+        if (!cityMap.has(province)) {
+          cityMap.set(province, new Map());
+        }
+        const cities = cityMap.get(province)!;
+        cities.set(city, (cities.get(city) || 0) + 1);
+      }
+    });
+
+    const provinceCounts: OptionCount[] = Array.from(provinceMap.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([value, count]) => ({
+        label: value,
+        value,
+        count,
+      }));
+
+    const cityCounts: Record<string, OptionCount[]> = {};
+    cityMap.forEach((cities, province) => {
+      cityCounts[province] = Array.from(cities.entries())
+        .sort((a, b) => b[1] - a[1])
+        .map(([value, count]) => ({
+          label: value,
+          value,
+          count,
+        }));
+    });
+
+    return {
+      name: field.name,
+      label: field.label,
+      type: field.type,
+      total: submissions.length,
+      options: [],
+      provinceCity: {
+        provinceCounts,
+        cityCounts,
+      },
     };
   }
 }
