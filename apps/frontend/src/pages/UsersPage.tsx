@@ -47,6 +47,7 @@ import { toast } from "sonner";
 import { translateServerError } from "../lib/error-translations";
 import { toPersianDigits } from "@/lib/utils";
 import { formatProvinceCity } from "../data/iranian-provinces-cities";
+import { formatContinentCountry } from "../data/continents-countries";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -216,10 +217,12 @@ export function UsersPage() {
                 row[field.label] = value.join(", ");
               }
             } else if (typeof value === "object") {
-              row[field.label] =
-                field.type === "province_city"
-                  ? formatProvinceCity(value)
-                  : Object.entries(value as Record<string, unknown>)
+              if (field.type === "province_city")
+                row[field.label] = formatProvinceCity(value);
+              else if (field.type === "continent_country")
+                row[field.label] = formatContinentCountry(value);
+              else
+                row[field.label] = Object.entries(value as Record<string, unknown>)
                       .map(([k, v]) => `${k}: ${v}`)
                       .join(" | ");
             } else if (field.options) {

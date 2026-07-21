@@ -30,6 +30,7 @@ import { toast } from "sonner";
 import { translateServerError } from "../lib/error-translations";
 import { toPersianDigits } from "@/lib/utils";
 import { formatProvinceCity } from "../data/iranian-provinces-cities";
+import { formatContinentCountry } from "../data/continents-countries";
 
 interface FieldDefinition {
   name: string;
@@ -302,9 +303,11 @@ export function FormSubmissions() {
                               return val.join(", ");
                             }
                             if (typeof val === "object" && val !== null) {
-                              return field?.type === "province_city"
-                                ? formatProvinceCity(val)
-                                : Object.entries(val)
+                              if (field?.type === "province_city")
+                                return formatProvinceCity(val);
+                              if (field?.type === "continent_country")
+                                return formatContinentCountry(val);
+                              return Object.entries(val)
                                     .map(([k, v]) => `${k}: ${v}`)
                                     .join(" | ");
                             }

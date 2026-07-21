@@ -31,6 +31,7 @@ import { toPersianDigits, toWesternDigits } from "../lib/utils";
 import { toast } from "sonner";
 import { translateServerError } from "../lib/error-translations";
 import { IRANIAN_PROVINCES_CITIES } from "../data/iranian-provinces-cities";
+import { CONTINENTS_COUNTRIES } from "../data/continents-countries";
 import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
@@ -56,6 +57,7 @@ interface FieldDefinition {
     | "checkbox"
     | "file"
     | "province_city"
+    | "continent_country"
     | "range";
   required: boolean;
   placeholder?: string;
@@ -134,6 +136,13 @@ function buildSchema(schema: FormSchema) {
         fieldSchema = z.object({
           province: z.string("استان الزامی است").min(1, "استان الزامی است"),
           city: z.string("شهر الزامی است").min(1, "شهر الزامی است"),
+        });
+        if (!field.required) fieldSchema = fieldSchema.optional();
+        break;
+      case "continent_country":
+        fieldSchema = z.object({
+          continent: z.string("قاره الزامی است").min(1, "قاره الزامی است"),
+          country: z.string("کشور الزامی است").min(1, "کشور الزامی است"),
         });
         if (!field.required) fieldSchema = fieldSchema.optional();
         break;
@@ -463,6 +472,69 @@ export function SelfDeclarationPage() {
                   {cities.map((city) => (
                     <SelectItem key={city.value} value={city.value}>
                       {city.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        );
+      }
+
+      case "continent_country": {
+        const continentVal = value?.continent || "";
+        const countryVal = value?.country || "";
+        const selectedContinent = CONTINENTS_COUNTRIES.find(
+          (c) => c.value === continentVal,
+        );
+        const countries = selectedContinent?.countries || [];
+
+        return (
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <Label>قاره</Label>
+              <Select
+                dir="rtl"
+                value={continentVal}
+                onValueChange={(v) =>
+                  setValue(field.name, { continent: v, country: "" })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="قاره را انتخاب کنید" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CONTINENTS_COUNTRIES.map((continent) => (
+                    <SelectItem key={continent.value} value={continent.value}>
+                      {continent.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>کشور</Label>
+              <Select
+                dir="rtl"
+                value={countryVal}
+                onValueChange={(v) =>
+                  setValue(field.name, { continent: continentVal, country: v })
+                }
+                disabled={!continentVal}
+              >
+                <SelectTrigger>
+                  <SelectValue
+                    placeholder={
+                      continentVal
+                        ? "کشور را انتخاب کنید"
+                        : "ابتدا قاره را انتخاب کنید"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {countries.map((country) => (
+                    <SelectItem key={country.value} value={country.value}>
+                      {country.label}
                     </SelectItem>
                   ))}
                 </SelectContent>

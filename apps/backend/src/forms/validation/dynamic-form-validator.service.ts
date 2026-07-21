@@ -135,6 +135,7 @@ export class DynamicFormValidatorService {
         }
         break;
       case 'province_city':
+      case 'continent_country':
         break;
     }
     return null;

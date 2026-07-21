@@ -23,7 +23,8 @@ export interface FieldDefinition {
     | 'radio'
     | 'checkbox'
     | 'file'
-    | 'province_city';
+    | 'province_city'
+    | 'continent_country';
   required: boolean;
   placeholder?: string;
   options?: { label: string; value: string }[];

@@ -85,6 +85,7 @@ class FieldDefinitionDto {
     'checkbox',
     'file',
     'province_city',
+    'continent_country',
     'range',
   ])
   type: string;

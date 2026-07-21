@@ -34,6 +34,7 @@ import { toast } from "sonner";
 import { translateServerError } from "../lib/error-translations";
 import { cn, toPersianDigits } from "@/lib/utils";
 import { formatProvinceCity } from "../data/iranian-provinces-cities";
+import { formatContinentCountry } from "../data/continents-countries";
 
 interface FieldDefinition {
   name: string;
@@ -216,9 +217,11 @@ export function SelfDeclarationSubmissions() {
       return value.join(", ");
     }
     if (typeof value === "object" && value !== null) {
-      return field?.type === "province_city"
-        ? formatProvinceCity(value)
-        : Object.entries(value as Record<string, unknown>)
+      if (field?.type === "province_city")
+        return formatProvinceCity(value);
+      if (field?.type === "continent_country")
+        return formatContinentCountry(value);
+      return Object.entries(value as Record<string, unknown>)
             .map(([k, v]) => `${k}: ${v}`)
             .join(" | ");
     }

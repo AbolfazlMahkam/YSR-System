@@ -22,6 +22,7 @@ import {
   Table2,
   MapPin,
   ArrowRight,
+  Globe,
 } from "lucide-react";
 import {
   BarChart,
@@ -42,6 +43,7 @@ import { toast } from "sonner";
 import { translateServerError } from "../lib/error-translations";
 import { toPersianDigits } from "@/lib/utils";
 import { IRANIAN_PROVINCES_CITIES } from "@/data/iranian-provinces-cities";
+import { CONTINENTS_COUNTRIES } from "@/data/continents-countries";
 
 interface FieldOption {
   label: string;
@@ -58,6 +60,10 @@ interface FieldStat {
   provinceCity?: {
     provinceCounts: FieldOption[];
     cityCounts: Record<string, FieldOption[]>;
+  };
+  continentCountry?: {
+    continentCounts: FieldOption[];
+    countryCounts: Record<string, FieldOption[]>;
   };
 }
 
@@ -103,6 +109,9 @@ export function FormStatistics() {
   const [selectedProvince, setSelectedProvince] = useState<
     Record<string, string>
   >({});
+  const [selectedContinent, setSelectedContinent] = useState<
+    Record<string, string>
+  >({});
 
   const getProvinceLabel = (value: string) =>
     IRANIAN_PROVINCES_CITIES.find((p) => p.value === value)?.label || value;
@@ -111,6 +120,14 @@ export function FormStatistics() {
     IRANIAN_PROVINCES_CITIES.find((p) => p.value === provinceValue)?.cities.find(
       (c) => c.value === cityValue,
     )?.label || cityValue;
+
+  const getContinentLabel = (value: string) =>
+    CONTINENTS_COUNTRIES.find((c) => c.value === value)?.label || value;
+
+  const getCountryLabel = (continentValue: string, countryValue: string) =>
+    CONTINENTS_COUNTRIES.find((c) => c.value === continentValue)?.countries.find(
+      (co) => co.value === countryValue,
+    )?.label || countryValue;
 
   useEffect(() => {
     fetchForms();
@@ -562,6 +579,405 @@ export function FormStatistics() {
     );
   }
 
+  function renderContinentCountryChart(field: FieldStat) {
+    const mode = chartModes[field.name] || "bar";
+    const activeContinent = selectedContinent[field.name];
+
+    if (activeContinent) {
+      const countries =
+        field.continentCountry!.countryCounts[activeContinent] || [];
+      const chartData = countries.map((c) => ({
+        name: getCountryLabel(activeContinent, c.value),
+        value: c.count,
+      }));
+      const hasData = chartData.some((d) => d.value > 0);
+
+      return (
+        <Card
+          key={field.name}
+          className="overflow-hidden group border-t-2 border-t-violet-500/20 hover:border-t-violet-500/40 transition-all duration-300 xl:col-span-2"
+        >
+          <CardHeader className="pb-3">
+            <div className="flex items-start justify-between gap-3">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 w-7 p-0"
+                    onClick={() =>
+                      setSelectedContinent((prev) => ({
+                        ...prev,
+                        [field.name]: "",
+                      }))
+                    }
+                  >
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                  <CardTitle className="text-base">
+                    {field.label} - {getContinentLabel(activeContinent)}
+                  </CardTitle>
+                </div>
+                <div className="flex items-center gap-2 flex-wrap mr-9">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-violet-500/10 text-violet-500">
+                    کشورها
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    از {toPersianDigits(field.total)} پاسخ
+                  </span>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => toggleChartMode(field.name)}
+                className="gap-1.5 shrink-0 opacity-70 group-hover:opacity-100 transition-opacity border-muted-foreground/20 hover:border-violet-500/40"
+              >
+                {mode === "bar" ? (
+                  <>
+                    <PieChart className="h-3.5 w-3.5" />
+                    <span className="text-xs">دایره‌ای</span>
+                  </>
+                ) : (
+                  <>
+                    <BarChart3 className="h-3.5 w-3.5" />
+                    <span className="text-xs">میله‌ای</span>
+                  </>
+                )}
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {!hasData ? (
+              <div className="py-10 text-center">
+                <Globe className="h-10 w-10 mx-auto text-muted-foreground/30 mb-2" />
+                <p className="text-sm text-muted-foreground/60">
+                  داده‌ای برای کشورهای این قاره وجود ندارد
+                </p>
+              </div>
+            ) : mode === "bar" ? (
+              <div className="w-full" dir="ltr">
+                <ResponsiveContainer width="100%" height={280}>
+                  <BarChart
+                    data={chartData}
+                    margin={{ top: 10, right: 10, left: 0, bottom: 20 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
+                    <XAxis
+                      dataKey="name"
+                      tick={{ fontSize: 11 }}
+                      angle={-15}
+                      textAnchor="end"
+                      height={50}
+                      tickMargin={8}
+                    />
+                    <YAxis
+                      allowDecimals={false}
+                      tick={{ fontSize: 11 }}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        borderRadius: "10px",
+                        border: "1px solid rgba(139,92,246,0.2)",
+                        boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+                        backdropFilter: "blur(8px)",
+                      }}
+                      cursor={{ fill: "rgba(139,92,246,0.05)" }}
+                    />
+                    <Bar
+                      dataKey="value"
+                      radius={[6, 6, 0, 0]}
+                      maxBarSize={48}
+                    >
+                      {chartData.map((_, index) => (
+                        <Cell
+                          key={index}
+                          fill={COLORS[index % COLORS.length]}
+                          className="hover:opacity-80 transition-opacity"
+                        />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <div className="w-full" dir="ltr">
+                <ResponsiveContainer width="100%" height={300}>
+                  <RechartsPieChart>
+                    <Pie
+                      data={chartData}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={90}
+                      innerRadius={36}
+                      paddingAngle={3}
+                      cornerRadius={4}
+                    >
+                      {chartData.map((_, index) => (
+                        <Cell
+                          key={index}
+                          fill={COLORS[index % COLORS.length]}
+                          stroke="transparent"
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        borderRadius: "10px",
+                        border: "1px solid rgba(139,92,246,0.2)",
+                        boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+                        backdropFilter: "blur(8px)",
+                      }}
+                    />
+                    <Legend
+                      iconType="circle"
+                      iconSize={8}
+                      formatter={(value) => (
+                        <span className="text-xs">{value}</span>
+                      )}
+                    />
+                  </RechartsPieChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+
+            {hasData && (
+              <div className="mt-4 pt-3 border-t border-muted/50">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {chartData
+                    .filter((d) => d.value > 0)
+                    .map((d, i) => (
+                      <div
+                        key={d.name}
+                        className="flex items-center gap-2 text-xs"
+                      >
+                        <span
+                          className="w-2.5 h-2.5 rounded-full shrink-0"
+                          style={{
+                            backgroundColor: COLORS[i % COLORS.length],
+                          }}
+                        />
+                        <span className="truncate text-muted-foreground">
+                          {d.name}
+                        </span>
+                        <span className="font-medium mr-auto">
+                          {toPersianDigits(d.value)}
+                        </span>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      );
+    }
+
+    const continentData = field.continentCountry!.continentCounts;
+    const chartData = continentData
+      .map((c) => ({
+        name: getContinentLabel(c.value),
+        value: c.count,
+        rawValue: c.value,
+      }))
+      .filter((d) => d.value > 0);
+    const hasData = chartData.length > 0;
+
+    return (
+      <Card
+        key={field.name}
+        className="overflow-hidden group border-t-2 border-t-violet-500/20 hover:border-t-violet-500/40 transition-all duration-300 xl:col-span-2"
+      >
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="space-y-1">
+              <CardTitle className="text-base">{field.label}</CardTitle>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-violet-500/10 text-violet-500">
+                  قاره‌ها
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  از {toPersianDigits(field.total)} پاسخ
+                </span>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => toggleChartMode(field.name)}
+              className="gap-1.5 shrink-0 opacity-70 group-hover:opacity-100 transition-opacity border-muted-foreground/20 hover:border-violet-500/40"
+            >
+              {mode === "bar" ? (
+                <>
+                  <PieChart className="h-3.5 w-3.5" />
+                  <span className="text-xs">دایره‌ای</span>
+                </>
+              ) : (
+                <>
+                  <BarChart3 className="h-3.5 w-3.5" />
+                  <span className="text-xs">میله‌ای</span>
+                </>
+              )}
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {!hasData ? (
+            <div className="py-10 text-center">
+              <Globe className="h-10 w-10 mx-auto text-muted-foreground/30 mb-2" />
+              <p className="text-sm text-muted-foreground/60">
+                داده‌ای برای نمایش وجود ندارد
+              </p>
+            </div>
+          ) : mode === "bar" ? (
+            <div className="w-full" dir="ltr">
+              <ResponsiveContainer width="100%" height={320}>
+                <BarChart
+                  data={chartData}
+                  margin={{ top: 10, right: 10, left: 0, bottom: 40 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fontSize: 10 }}
+                    angle={-35}
+                    textAnchor="end"
+                    height={70}
+                    tickMargin={8}
+                  />
+                  <YAxis
+                    allowDecimals={false}
+                    tick={{ fontSize: 11 }}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: "10px",
+                      border: "1px solid rgba(139,92,246,0.2)",
+                      boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+                      backdropFilter: "blur(8px)",
+                    }}
+                    cursor={{ fill: "rgba(139,92,246,0.05)" }}
+                  />
+                  <Bar
+                    dataKey="value"
+                    radius={[6, 6, 0, 0]}
+                    maxBarSize={40}
+                    onClick={(data) => {
+                      if (data?.rawValue) {
+                        setSelectedContinent((prev) => ({
+                          ...prev,
+                          [field.name]: data.rawValue as string,
+                        }));
+                      }
+                    }}
+                    className="cursor-pointer"
+                  >
+                    {chartData.map((_, index) => (
+                      <Cell
+                        key={index}
+                        fill={COLORS[index % COLORS.length]}
+                        className="hover:opacity-80 transition-opacity cursor-pointer"
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <div className="w-full" dir="ltr">
+              <ResponsiveContainer width="100%" height={340}>
+                <RechartsPieChart>
+                  <Pie
+                    data={chartData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    innerRadius={40}
+                    paddingAngle={2}
+                    cornerRadius={4}
+                    onClick={(_, index) => {
+                      const item = chartData[index];
+                      if (item?.rawValue) {
+                        setSelectedContinent((prev) => ({
+                          ...prev,
+                          [field.name]: item.rawValue as string,
+                        }));
+                      }
+                    }}
+                    className="cursor-pointer"
+                  >
+                    {chartData.map((_, index) => (
+                      <Cell
+                        key={index}
+                        fill={COLORS[index % COLORS.length]}
+                        stroke="transparent"
+                        className="cursor-pointer"
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: "10px",
+                      border: "1px solid rgba(139,92,246,0.2)",
+                      boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+                      backdropFilter: "blur(8px)",
+                    }}
+                  />
+                  <Legend
+                    iconType="circle"
+                    iconSize={8}
+                    formatter={(value) => (
+                      <span className="text-xs">{value}</span>
+                    )}
+                  />
+                </RechartsPieChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+
+          {hasData && (
+            <div className="mt-4 pt-3 border-t border-muted/50">
+              <p className="text-xs text-muted-foreground mb-2">
+                روی هر قاره کلیک کنید تا آمار کشورها نمایش داده شود
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {chartData.map((d, i) => (
+                  <button
+                    key={d.name}
+                    onClick={() =>
+                      setSelectedContinent((prev) => ({
+                        ...prev,
+                        [field.name]: d.rawValue as string,
+                      }))
+                    }
+                    className="flex items-center gap-2 text-xs hover:bg-muted/50 rounded-md p-1 -m-1 transition-colors"
+                  >
+                    <span
+                      className="w-2.5 h-2.5 rounded-full shrink-0"
+                      style={{
+                        backgroundColor: COLORS[i % COLORS.length],
+                      }}
+                    />
+                    <span className="truncate text-muted-foreground">
+                      {d.name}
+                    </span>
+                    <span className="font-medium mr-auto">
+                      {toPersianDigits(d.value)}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
+
   const selectedFormTitle = forms.find(
     (f) => String(f.id) === selectedFormId,
   )?.title;
@@ -679,7 +1095,7 @@ export function FormStatistics() {
             <div className="rounded-xl border border-dashed p-12 text-center glass-smoked">
               <ChartColumnDecreasing className="h-12 w-12 mx-auto text-muted-foreground/40 mb-3" />
               <p className="text-muted-foreground">
-                این فرم فیلدهای آماری (انتخابی، رادیویی، چک‌باکس، استان و شهر) ندارد
+                این فرم فیلدهای آماری (انتخابی، رادیویی، چک‌باکس، استان و شهر، قاره و کشور) ندارد
               </p>
             </div>
           )}
@@ -689,6 +1105,9 @@ export function FormStatistics() {
               {stats.fields.map((field) => {
                 if (field.type === "province_city" && field.provinceCity) {
                   return renderProvinceCityChart(field);
+                }
+                if (field.type === "continent_country" && field.continentCountry) {
+                  return renderContinentCountryChart(field);
                 }
 
                 const mode = chartModes[field.name] || "bar";

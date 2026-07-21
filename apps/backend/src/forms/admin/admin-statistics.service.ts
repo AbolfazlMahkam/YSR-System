@@ -22,6 +22,11 @@ export interface ProvinceCityData {
   cityCounts: Record<string, OptionCount[]>;
 }
 
+export interface ContinentCountryData {
+  continentCounts: OptionCount[];
+  countryCounts: Record<string, OptionCount[]>;
+}
+
 export interface FieldStat {
   name: string;
   label: string;
@@ -29,6 +34,7 @@ export interface FieldStat {
   total: number;
   options: OptionCount[];
   provinceCity?: ProvinceCityData;
+  continentCountry?: ContinentCountryData;
 }
 
 @Injectable()
@@ -62,12 +68,15 @@ export class AdminStatisticsService {
     }
 
     const statFields = (form.fields as FieldDefinition[]).filter((f) =>
-      ['select', 'radio', 'checkbox', 'province_city'].includes(f.type),
+      ['select', 'radio', 'checkbox', 'province_city', 'continent_country'].includes(f.type),
     );
 
     const fields: FieldStat[] = statFields.map((field) => {
       if (field.type === 'province_city') {
         return this.buildProvinceCityStat(field, submissions);
+      }
+      if (field.type === 'continent_country') {
+        return this.buildContinentCountryStat(field, submissions);
       }
 
       const optionMap = new Map<string, number>();
@@ -171,6 +180,68 @@ export class AdminStatisticsService {
       provinceCity: {
         provinceCounts,
         cityCounts,
+      },
+    };
+  }
+
+  private buildContinentCountryStat(
+    field: FieldDefinition,
+    submissions: FormSubmission[],
+  ): FieldStat {
+    const continentMap = new Map<string, number>();
+    const countryMap = new Map<string, Map<string, number>>();
+
+    submissions.forEach((sub) => {
+      const answer = sub.answers[field.name];
+      if (
+        !answer ||
+        typeof answer !== 'object' ||
+        Array.isArray(answer)
+      )
+        return;
+
+      const { continent, country } = answer as { continent?: string; country?: string };
+      if (!continent) return;
+
+      continentMap.set(continent, (continentMap.get(continent) || 0) + 1);
+
+      if (country) {
+        if (!countryMap.has(continent)) {
+          countryMap.set(continent, new Map());
+        }
+        const countries = countryMap.get(continent)!;
+        countries.set(country, (countries.get(country) || 0) + 1);
+      }
+    });
+
+    const continentCounts: OptionCount[] = Array.from(continentMap.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([value, count]) => ({
+        label: value,
+        value,
+        count,
+      }));
+
+    const countryCounts: Record<string, OptionCount[]> = {};
+    countryMap.forEach((countries, continent) => {
+      countryCounts[continent] = Array.from(countries.entries())
+        .sort((a, b) => b[1] - a[1])
+        .map(([value, count]) => ({
+          label: value,
+          value,
+          count,
+        }));
+    });
+
+    return {
+      name: field.name,
+      label: field.label,
+      type: field.type,
+      total: submissions.length,
+      options: [],
+      continentCountry: {
+        continentCounts,
+        countryCounts,
       },
     };
   }

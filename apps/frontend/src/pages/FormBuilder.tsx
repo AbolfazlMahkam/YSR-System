@@ -78,6 +78,7 @@ const FIELD_TYPES = [
   { value: "checkbox", label: "چک‌باکس" },
   { value: "file", label: "آپلود فایل" },
   { value: "province_city", label: "استان و شهر" },
+  { value: "continent_country", label: "قاره و کشور" },
   { value: "range", label: "مقیاس (اسلایدر)" },
 ];
 
@@ -182,12 +183,12 @@ export function FormBuilder() {
       }
       if (
         key === "type" &&
-        !["select", "radio", "checkbox", "province_city"].includes(value)
+        !["select", "radio", "checkbox", "province_city", "continent_country"].includes(value)
       ) {
         next.options = undefined;
       }
       if (
-        ["select", "radio", "checkbox", "province_city"].includes(value) &&
+        ["select", "radio", "checkbox", "province_city", "continent_country"].includes(value) &&
         !next.options
       ) {
         next.options = [];
@@ -582,6 +583,7 @@ export function FormBuilder() {
                     "checkbox",
                     "file",
                     "province_city",
+                    "continent_country",
                     "range",
                   ].includes(field.type) && (
                     <div className="space-y-2">
