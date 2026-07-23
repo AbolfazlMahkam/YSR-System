@@ -68,7 +68,13 @@ export class AdminStatisticsService {
     }
 
     const statFields = (form.fields as FieldDefinition[]).filter((f) =>
-      ['select', 'radio', 'checkbox', 'province_city', 'continent_country'].includes(f.type),
+      [
+        'select',
+        'radio',
+        'checkbox',
+        'province_city',
+        'continent_country',
+      ].includes(f.type),
     );
 
     const fields: FieldStat[] = statFields.map((field) => {
@@ -131,11 +137,7 @@ export class AdminStatisticsService {
 
     submissions.forEach((sub) => {
       const answer = sub.answers[field.name];
-      if (
-        !answer ||
-        typeof answer !== 'object' ||
-        Array.isArray(answer)
-      )
+      if (!answer || typeof answer !== 'object' || Array.isArray(answer))
         return;
 
       const { province, city } = answer as { province?: string; city?: string };
@@ -193,14 +195,13 @@ export class AdminStatisticsService {
 
     submissions.forEach((sub) => {
       const answer = sub.answers[field.name];
-      if (
-        !answer ||
-        typeof answer !== 'object' ||
-        Array.isArray(answer)
-      )
+      if (!answer || typeof answer !== 'object' || Array.isArray(answer))
         return;
 
-      const { continent, country } = answer as { continent?: string; country?: string };
+      const { continent, country } = answer as {
+        continent?: string;
+        country?: string;
+      };
       if (!continent) return;
 
       continentMap.set(continent, (continentMap.get(continent) || 0) + 1);

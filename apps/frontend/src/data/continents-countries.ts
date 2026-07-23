@@ -193,7 +193,10 @@ export const CONTINENTS_COUNTRIES: Continent[] = [
       { value: "panama", label: "پاناما" },
       { value: "saint_kitts_and_nevis", label: "سنت کیتس و نویس" },
       { value: "saint_lucia", label: "سنت لوسیا" },
-      { value: "saint_vincent_and_the_grenadines", label: "سنت وینسنت و گرنادین‌ها" },
+      {
+        value: "saint_vincent_and_the_grenadines",
+        label: "سنت وینسنت و گرنادین‌ها",
+      },
       { value: "trinidad_and_tobago", label: "ترینیداد و توباگو" },
       { value: "united_states", label: "ایالات متحده آمریکا" },
     ],

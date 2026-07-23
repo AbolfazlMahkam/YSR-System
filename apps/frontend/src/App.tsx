@@ -12,6 +12,9 @@ import {
   FormSubmissions,
   SelfDeclarationSubmissions,
   FormStatistics,
+  ArbaeenYearsPage,
+  ArbaeenProcessionsPage,
+  ArbaeenProcessionDetail,
 } from "./pages";
 import { ProfilePage } from "./pages/ProfilePage";
 import { FormBuilder } from "./pages/FormBuilder";
@@ -58,6 +61,15 @@ function App() {
                 <Route
                   path="admin/self-declarations"
                   element={<SelfDeclarationSubmissions />}
+                />
+                <Route path="admin/arbaeen" element={<ArbaeenYearsPage />} />
+                <Route
+                  path="admin/arbaeen/:yearId"
+                  element={<ArbaeenProcessionsPage />}
+                />
+                <Route
+                  path="admin/arbaeen/procession/:id"
+                  element={<ArbaeenProcessionDetail />}
                 />
               </Route>
             </Route>

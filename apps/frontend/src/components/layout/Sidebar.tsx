@@ -10,6 +10,7 @@ import {
   Database,
   X,
   BarChart3,
+  Calendar,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
@@ -188,6 +189,26 @@ export function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
                   </li>
                 </ul>
               )}
+            </li>
+          )}
+          {isAdmin && (
+            <li>
+              <NavLink
+                to="/admin/arbaeen"
+                onClick={handleNavClick}
+                className={({ isActive }) =>
+                  cn(
+                    "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200",
+                    "hover:bg-accent hover:text-accent-foreground hover:translate-x-1",
+                    isActive
+                      ? "bg-accent text-accent-foreground font-medium shadow-sm"
+                      : "text-muted-foreground",
+                  )
+                }
+              >
+                <Calendar className="h-5 w-5" />
+                <span>مواکب اربعین</span>
+              </NavLink>
             </li>
           )}
           <li>

@@ -217,13 +217,12 @@ export function SelfDeclarationSubmissions() {
       return value.join(", ");
     }
     if (typeof value === "object" && value !== null) {
-      if (field?.type === "province_city")
-        return formatProvinceCity(value);
+      if (field?.type === "province_city") return formatProvinceCity(value);
       if (field?.type === "continent_country")
         return formatContinentCountry(value);
       return Object.entries(value as Record<string, unknown>)
-            .map(([k, v]) => `${k}: ${v}`)
-            .join(" | ");
+        .map(([k, v]) => `${k}: ${v}`)
+        .join(" | ");
     }
     if (field?.options) {
       const option = field.options.find((o) => o.value === value);
@@ -279,11 +278,15 @@ export function SelfDeclarationSubmissions() {
                     <table className="w-full border-collapse">
                       <thead>
                         <tr className="border-b-2 border-border bg-muted/50">
-                          <th className="text-right p-3 font-semibold">کاربر</th>
+                          <th className="text-right p-3 font-semibold">
+                            کاربر
+                          </th>
                           <th className="text-right p-3 font-semibold">
                             شماره تماس
                           </th>
-                          <th className="text-center p-3 font-semibold">وضعیت</th>
+                          <th className="text-center p-3 font-semibold">
+                            وضعیت
+                          </th>
                           <th className="text-center p-3 font-semibold">
                             عملیات
                           </th>
@@ -348,7 +351,10 @@ export function SelfDeclarationSubmissions() {
                               <p className="font-medium truncate">
                                 {sub.user?.first_name} {sub.user?.last_name}
                               </p>
-                              <p className="text-xs text-muted-foreground font-mono" dir="ltr">
+                              <p
+                                className="text-xs text-muted-foreground font-mono"
+                                dir="ltr"
+                              >
                                 {sub.user?.phone}
                               </p>
                             </div>

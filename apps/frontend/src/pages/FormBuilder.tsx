@@ -183,12 +183,24 @@ export function FormBuilder() {
       }
       if (
         key === "type" &&
-        !["select", "radio", "checkbox", "province_city", "continent_country"].includes(value)
+        ![
+          "select",
+          "radio",
+          "checkbox",
+          "province_city",
+          "continent_country",
+        ].includes(value)
       ) {
         next.options = undefined;
       }
       if (
-        ["select", "radio", "checkbox", "province_city", "continent_country"].includes(value) &&
+        [
+          "select",
+          "radio",
+          "checkbox",
+          "province_city",
+          "continent_country",
+        ].includes(value) &&
         !next.options
       ) {
         next.options = [];
@@ -782,7 +794,9 @@ export function FormBuilder() {
                           variant="ghost"
                           size="sm"
                           className="text-destructive hover:text-destructive h-7 text-xs"
-                          onClick={() => updateField(index, "condition", undefined)}
+                          onClick={() =>
+                            updateField(index, "condition", undefined)
+                          }
                         >
                           حذف شرط
                         </Button>
@@ -792,7 +806,9 @@ export function FormBuilder() {
                         checked={!!field.condition}
                         onCheckedChange={(v) => {
                           if (v === true) {
-                            const otherFields = fields.filter((_, i) => i !== index);
+                            const otherFields = fields.filter(
+                              (_, i) => i !== index,
+                            );
                             const firstOther = otherFields[0];
                             updateField(index, "condition", {
                               field: firstOther?.name || "",
@@ -804,7 +820,10 @@ export function FormBuilder() {
                           }
                         }}
                       />
-                      <Label htmlFor={`has-condition-${index}`} className="text-sm">
+                      <Label
+                        htmlFor={`has-condition-${index}`}
+                        className="text-sm"
+                      >
                         وابسته به فیلد دیگر
                       </Label>
                     </div>
@@ -854,8 +873,12 @@ export function FormBuilder() {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="equals">برابر باشد</SelectItem>
-                            <SelectItem value="not_equals">برابر نباشد</SelectItem>
-                            <SelectItem value="not_empty">خالی نباشد</SelectItem>
+                            <SelectItem value="not_equals">
+                              برابر نباشد
+                            </SelectItem>
+                            <SelectItem value="not_empty">
+                              خالی نباشد
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -886,7 +909,10 @@ export function FormBuilder() {
                                   </SelectTrigger>
                                   <SelectContent>
                                     {depField.options.map((opt) => (
-                                      <SelectItem key={opt.value} value={opt.value}>
+                                      <SelectItem
+                                        key={opt.value}
+                                        value={opt.value}
+                                      >
                                         {opt.label}
                                       </SelectItem>
                                     ))}

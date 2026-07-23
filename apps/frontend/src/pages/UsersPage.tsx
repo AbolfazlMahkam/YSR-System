@@ -222,9 +222,11 @@ export function UsersPage() {
               else if (field.type === "continent_country")
                 row[field.label] = formatContinentCountry(value);
               else
-                row[field.label] = Object.entries(value as Record<string, unknown>)
-                      .map(([k, v]) => `${k}: ${v}`)
-                      .join(" | ");
+                row[field.label] = Object.entries(
+                  value as Record<string, unknown>,
+                )
+                  .map(([k, v]) => `${k}: ${v}`)
+                  .join(" | ");
             } else if (field.options) {
               const option = field.options.find((o) => o.value === value);
               row[field.label] = option ? option.label : String(value);
@@ -563,15 +565,24 @@ export function UsersPage() {
                 <Shield className="h-6 w-6" />
                 <CardTitle>داشبورد کاربران</CardTitle>
               </div>
-              <CardDescription className="max-sm:mb-2">مدیریت تمام کاربران</CardDescription>
+              <CardDescription className="max-sm:mb-2">
+                مدیریت تمام کاربران
+              </CardDescription>
             </div>
             {isSuperAdmin && (
               <div className="flex gap-2 max-sm:flex-col max-sm:items-start max-sm:min-w-full">
-                <Button onClick={handleExportExcel} disabled={exporting} className="max-sm:min-w-full">
+                <Button
+                  onClick={handleExportExcel}
+                  disabled={exporting}
+                  className="max-sm:min-w-full"
+                >
                   <Download className="h-4 w-4 ml-2" />
                   {exporting ? "در حال خروجی..." : "خروجی اکسل"}
                 </Button>
-                <Button onClick={() => setIsAddDialogOpen(true)} className="max-sm:min-w-full">
+                <Button
+                  onClick={() => setIsAddDialogOpen(true)}
+                  className="max-sm:min-w-full"
+                >
                   <Plus className="h-4 w-4 ml-2" />
                   اضافه کردن کاربر
                 </Button>
@@ -596,7 +607,10 @@ export function UsersPage() {
                 نقش:
               </Label>
               <Select value={roleFilter} onValueChange={setRoleFilter}>
-                <SelectTrigger id="role-filter" className="w-[150px] max-sm:w-full">
+                <SelectTrigger
+                  id="role-filter"
+                  className="w-[150px] max-sm:w-full"
+                >
                   <SelectValue placeholder="All Roles" />
                 </SelectTrigger>
                 <SelectContent>
@@ -612,7 +626,10 @@ export function UsersPage() {
                 وضعیت:
               </Label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger id="status-filter" className="w-[150px] max-sm:w-full">
+                <SelectTrigger
+                  id="status-filter"
+                  className="w-[150px] max-sm:w-full"
+                >
                   <SelectValue placeholder="All Statuses" />
                 </SelectTrigger>
                 <SelectContent>
@@ -648,7 +665,10 @@ export function UsersPage() {
                   <thead>
                     <tr className="border-b-2 border-border bg-muted/50">
                       <th className="text-right p-3 font-semibold">ردیف</th>
-                      <th className="text-right p-3 font-semibold"> کاربرنام</th>
+                      <th className="text-right p-3 font-semibold">
+                        {" "}
+                        کاربرنام
+                      </th>
                       <th className="text-right p-3 font-semibold">
                         شماره همراه
                       </th>
@@ -752,7 +772,8 @@ export function UsersPage() {
                     <div className="flex items-start justify-between gap-2">
                       <div className="space-y-1 min-w-0">
                         <p className="font-medium truncate">
-                          {toPersianDigits(index + 1)}. {user.first_name} {user.last_name}
+                          {toPersianDigits(index + 1)}. {user.first_name}{" "}
+                          {user.last_name}
                         </p>
                         <p className="text-xs text-muted-foreground" dir="ltr">
                           {toPersianDigits(user.phone)}

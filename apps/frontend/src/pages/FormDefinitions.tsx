@@ -127,7 +127,10 @@ export function FormDefinitions() {
                         className="border-b border-border hover:bg-muted/30 transition-colors"
                       >
                         <td className="p-3 font-medium">{form.title}</td>
-                        <td className="p-3 text-left font-mono text-sm" dir="ltr">
+                        <td
+                          className="p-3 text-left font-mono text-sm"
+                          dir="ltr"
+                        >
                           {form.slug}
                         </td>
                         <td className="p-3 text-center">
@@ -146,7 +149,9 @@ export function FormDefinitions() {
                         </td>
                         <td className="p-3 text-sm text-muted-foreground">
                           {toPersianDigits(
-                            new Date(form.created_at).toLocaleDateString("fa-IR"),
+                            new Date(form.created_at).toLocaleDateString(
+                              "fa-IR",
+                            ),
                           )}
                         </td>
                         <td className="p-3">
@@ -185,7 +190,10 @@ export function FormDefinitions() {
                     <div className="flex items-start justify-between gap-2">
                       <div className="space-y-1 min-w-0">
                         <p className="font-medium truncate">{form.title}</p>
-                        <p className="text-xs text-muted-foreground font-mono" dir="ltr">
+                        <p
+                          className="text-xs text-muted-foreground font-mono"
+                          dir="ltr"
+                        >
                           {form.slug}
                         </p>
                       </div>
@@ -214,9 +222,7 @@ export function FormDefinitions() {
                         size="sm"
                         variant="outline"
                         className="flex-1"
-                        onClick={() =>
-                          navigate(`/admin/forms/${form.id}/edit`)
-                        }
+                        onClick={() => navigate(`/admin/forms/${form.id}/edit`)}
                       >
                         <Pencil className="h-3 w-3 ml-1" />
                         ویرایش

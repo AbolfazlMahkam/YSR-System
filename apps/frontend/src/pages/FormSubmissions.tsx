@@ -308,8 +308,8 @@ export function FormSubmissions() {
                               if (field?.type === "continent_country")
                                 return formatContinentCountry(val);
                               return Object.entries(val)
-                                    .map(([k, v]) => `${k}: ${v}`)
-                                    .join(" | ");
+                                .map(([k, v]) => `${k}: ${v}`)
+                                .join(" | ");
                             }
                             if (field?.options) {
                               const option = field.options.find(

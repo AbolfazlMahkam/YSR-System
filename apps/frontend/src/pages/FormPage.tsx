@@ -707,21 +707,21 @@ export function FormPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {schema.fields.map((field) =>
               isFieldVisible(field) ? (
-              <div key={field.name} className="space-y-2">
-                <Label>
-                  {field.label}
-                  {field.required && (
-                    <span className="text-destructive mr-1">*</span>
+                <div key={field.name} className="space-y-2">
+                  <Label>
+                    {field.label}
+                    {field.required && (
+                      <span className="text-destructive mr-1">*</span>
+                    )}
+                  </Label>
+                  {renderField(field)}
+                  {errors[field.name] && (
+                    <p className="text-sm text-destructive">
+                      {errors[field.name]?.message as string}
+                    </p>
                   )}
-                </Label>
-                {renderField(field)}
-                {errors[field.name] && (
-                  <p className="text-sm text-destructive">
-                    {errors[field.name]?.message as string}
-                  </p>
-                )}
-              </div>
-              ) : null
+                </div>
+              ) : null,
             )}
 
             <div className="flex gap-3">

@@ -7,3 +7,6 @@ export { FormBuilder } from "./FormBuilder";
 export { FormSubmissions } from "./FormSubmissions";
 export { SelfDeclarationSubmissions } from "./SelfDeclarationSubmissions";
 export { FormStatistics } from "./FormStatistics";
+export { ArbaeenYearsPage } from "./ArbaeenYearsPage";
+export { ArbaeenProcessionsPage } from "./ArbaeenProcessionsPage";
+export { ArbaeenProcessionDetail } from "./ArbaeenProcessionDetail";

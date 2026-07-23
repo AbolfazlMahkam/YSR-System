@@ -9,6 +9,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { FormsModule } from './forms/forms.module';
 import { UploadsModule } from './uploads/uploads.module';
+import { ArbaeenModule } from './arbaeen/arbaeen.module';
 import Users from './entities/user.entity';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
@@ -42,6 +43,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     AuthModule,
     FormsModule,
     UploadsModule,
+    ArbaeenModule,
   ],
   controllers: [AppController],
   providers: [

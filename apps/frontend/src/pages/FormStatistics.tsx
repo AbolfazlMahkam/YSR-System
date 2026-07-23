@@ -117,17 +117,17 @@ export function FormStatistics() {
     IRANIAN_PROVINCES_CITIES.find((p) => p.value === value)?.label || value;
 
   const getCityLabel = (provinceValue: string, cityValue: string) =>
-    IRANIAN_PROVINCES_CITIES.find((p) => p.value === provinceValue)?.cities.find(
-      (c) => c.value === cityValue,
-    )?.label || cityValue;
+    IRANIAN_PROVINCES_CITIES.find(
+      (p) => p.value === provinceValue,
+    )?.cities.find((c) => c.value === cityValue)?.label || cityValue;
 
   const getContinentLabel = (value: string) =>
     CONTINENTS_COUNTRIES.find((c) => c.value === value)?.label || value;
 
   const getCountryLabel = (continentValue: string, countryValue: string) =>
-    CONTINENTS_COUNTRIES.find((c) => c.value === continentValue)?.countries.find(
-      (co) => co.value === countryValue,
-    )?.label || countryValue;
+    CONTINENTS_COUNTRIES.find(
+      (c) => c.value === continentValue,
+    )?.countries.find((co) => co.value === countryValue)?.label || countryValue;
 
   useEffect(() => {
     fetchForms();
@@ -272,10 +272,7 @@ export function FormStatistics() {
                       height={50}
                       tickMargin={8}
                     />
-                    <YAxis
-                      allowDecimals={false}
-                      tick={{ fontSize: 11 }}
-                    />
+                    <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
                     <Tooltip
                       contentStyle={{
                         borderRadius: "10px",
@@ -285,11 +282,7 @@ export function FormStatistics() {
                       }}
                       cursor={{ fill: "rgba(16,185,129,0.05)" }}
                     />
-                    <Bar
-                      dataKey="value"
-                      radius={[6, 6, 0, 0]}
-                      maxBarSize={48}
-                    >
+                    <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={48}>
                       {chartData.map((_, index) => (
                         <Cell
                           key={index}
@@ -448,10 +441,7 @@ export function FormStatistics() {
                     height={70}
                     tickMargin={8}
                   />
-                  <YAxis
-                    allowDecimals={false}
-                    tick={{ fontSize: 11 }}
-                  />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
                   <Tooltip
                     contentStyle={{
                       borderRadius: "10px",
@@ -671,10 +661,7 @@ export function FormStatistics() {
                       height={50}
                       tickMargin={8}
                     />
-                    <YAxis
-                      allowDecimals={false}
-                      tick={{ fontSize: 11 }}
-                    />
+                    <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
                     <Tooltip
                       contentStyle={{
                         borderRadius: "10px",
@@ -684,11 +671,7 @@ export function FormStatistics() {
                       }}
                       cursor={{ fill: "rgba(139,92,246,0.05)" }}
                     />
-                    <Bar
-                      dataKey="value"
-                      radius={[6, 6, 0, 0]}
-                      maxBarSize={48}
-                    >
+                    <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={48}>
                       {chartData.map((_, index) => (
                         <Cell
                           key={index}
@@ -847,10 +830,7 @@ export function FormStatistics() {
                     height={70}
                     tickMargin={8}
                   />
-                  <YAxis
-                    allowDecimals={false}
-                    tick={{ fontSize: 11 }}
-                  />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
                   <Tooltip
                     contentStyle={{
                       borderRadius: "10px",
@@ -1095,7 +1075,8 @@ export function FormStatistics() {
             <div className="rounded-xl border border-dashed p-12 text-center glass-smoked">
               <ChartColumnDecreasing className="h-12 w-12 mx-auto text-muted-foreground/40 mb-3" />
               <p className="text-muted-foreground">
-                این فرم فیلدهای آماری (انتخابی، رادیویی، چک‌باکس، استان و شهر، قاره و کشور) ندارد
+                این فرم فیلدهای آماری (انتخابی، رادیویی، چک‌باکس، استان و شهر،
+                قاره و کشور) ندارد
               </p>
             </div>
           )}
@@ -1106,7 +1087,10 @@ export function FormStatistics() {
                 if (field.type === "province_city" && field.provinceCity) {
                   return renderProvinceCityChart(field);
                 }
-                if (field.type === "continent_country" && field.continentCountry) {
+                if (
+                  field.type === "continent_country" &&
+                  field.continentCountry
+                ) {
                   return renderContinentCountryChart(field);
                 }
 
