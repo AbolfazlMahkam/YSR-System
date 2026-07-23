@@ -135,7 +135,7 @@ export function ArbaeenYearsPage() {
               </div>
               <CardDescription>مدیریت لیست مواکب اربعین سالانه</CardDescription>
             </div>
-            <Button onClick={() => setIsAddDialogOpen(true)}>
+            <Button className="mt-2" onClick={() => setIsAddDialogOpen(true)}>
               <Plus className="h-4 w-4 ml-2" />
               افزودن سال
             </Button>

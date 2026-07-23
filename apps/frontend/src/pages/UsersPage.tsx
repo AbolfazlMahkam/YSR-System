@@ -1125,7 +1125,7 @@ export function UsersPage() {
                 variant="outline"
                 onClick={() => setIsAddDialogOpen(false)}
                 disabled={isSubmitting}
-                className="ml-2"
+                className="ml-2 max-sm:w-full max-sm:mt-2"
               >
                 لغو
               </Button>
@@ -1263,7 +1263,7 @@ export function UsersPage() {
                 variant="outline"
                 onClick={() => setIsEditDialogOpen(false)}
                 disabled={isSubmitting}
-                className="ml-2"
+                className="ml-2 max-sm:w-full max-sm:mt-2"
               >
                 لغو
               </Button>
@@ -1314,7 +1314,7 @@ export function UsersPage() {
               type="button"
               variant="outline"
               onClick={() => setIsDeleteDialogOpen(false)}
-              className="ml-2"
+              className="ml-2 max-sm:w-full max-sm:mt-2"
             >
               لغو
             </Button>
@@ -1409,7 +1409,7 @@ export function UsersPage() {
               variant="outline"
               onClick={() => setIsInterviewDialogOpen(false)}
               disabled={isSubmitting}
-              className="ml-2"
+              className="ml-2 max-sm:w-full max-sm:mt-2"
             >
               لغو
             </Button>

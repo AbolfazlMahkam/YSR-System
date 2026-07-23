@@ -337,11 +337,11 @@ export function ArbaeenProcessionDetail() {
                             key={c.id}
                             className="flex items-center justify-between p-3 border border-border rounded-lg hover:bg-muted/30 transition-colors"
                           >
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center  gap-3">
                               <span className="text-sm text-muted-foreground font-medium">
                                 {toPersianDigits(index + 1)}.
                               </span>
-                              <div>
+                              <div className="flex flex-col items-start">
                                 <p className="font-medium">
                                   {c.first_name} {c.last_name}
                                 </p>
@@ -388,7 +388,7 @@ export function ArbaeenProcessionDetail() {
                               <span className="text-sm text-muted-foreground font-medium">
                                 {toPersianDigits(index + 1)}.
                               </span>
-                              <div>
+                              <div className="flex flex-col items-start">
                                 <p className="font-medium">
                                   {c.first_name} {c.last_name}
                                 </p>
@@ -432,7 +432,7 @@ export function ArbaeenProcessionDetail() {
                               <span className="text-sm text-muted-foreground font-medium">
                                 {toPersianDigits(index + 1)}.
                               </span>
-                              <div>
+                              <div className="flex flex-col items-start">
                                 <p className="font-medium">
                                   {c.first_name} {c.last_name}
                                 </p>
@@ -472,7 +472,7 @@ export function ArbaeenProcessionDetail() {
                         <span className="text-sm text-muted-foreground font-medium">
                           {toPersianDigits(index + 1)}.
                         </span>
-                        <div>
+                        <div className="flex flex-col items-start">
                           <p className="font-medium">
                             {c.first_name} {c.last_name}
                           </p>

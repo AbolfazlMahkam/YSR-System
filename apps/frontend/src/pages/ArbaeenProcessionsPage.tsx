@@ -424,7 +424,7 @@ export function ArbaeenProcessionsPage() {
                           {getGenderLabel(proc.gender_requirement)}
                         </span>
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-sm">
+                      <div className="flex flex-col gap-y-1 text-sm">
                         <div className="flex items-center gap-2">
                           <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                           <span
@@ -755,7 +755,7 @@ export function ArbaeenProcessionsPage() {
                 variant="outline"
                 onClick={() => setIsAddDialogOpen(false)}
                 disabled={isSubmitting}
-                className="ml-2"
+                className="ml-2 max-sm:w-full max-sm:mt-2"
               >
                 لغو
               </Button>
@@ -919,7 +919,7 @@ export function ArbaeenProcessionsPage() {
                 variant="outline"
                 onClick={() => setIsEditDialogOpen(false)}
                 disabled={isSubmitting}
-                className="ml-2"
+                className="ml-2 max-sm:w-full max-sm:mt-2"
               >
                 لغو
               </Button>
@@ -959,7 +959,7 @@ export function ArbaeenProcessionsPage() {
             <Button
               variant="outline"
               onClick={() => setIsDeleteDialogOpen(false)}
-              className="ml-2"
+              className="ml-2 max-sm:w-full max-sm:mt-2"
             >
               لغو
             </Button>
