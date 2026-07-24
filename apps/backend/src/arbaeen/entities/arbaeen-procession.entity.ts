@@ -39,6 +39,9 @@ export default class ArbaeenProcession {
   @Column({ type: 'varchar' })
   gender_requirement: 'male' | 'female' | 'both';
 
+  @Column({ type: 'boolean', default: false })
+  show_on_dashboard: boolean;
+
   @Column({ nullable: true })
   responsible_consultant_id: number | null;
 

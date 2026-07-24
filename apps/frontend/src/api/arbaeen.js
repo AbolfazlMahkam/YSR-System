@@ -40,4 +40,7 @@ export default {
     HttpClient.get("/arbaeen/available-consultants", {
       params: gender ? { gender } : {},
     }),
+  getMyProcessions: () => HttpClient.get("/arbaeen/my-processions"),
+  toggleShowOnDashboard: (yearId) =>
+    HttpClient.put(`/arbaeen/years/${yearId}/toggle-show-on-dashboard`),
 };

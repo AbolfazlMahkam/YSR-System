@@ -25,6 +25,8 @@ import {
   Users,
   Search,
   Crown,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -73,6 +75,7 @@ interface ArbaeenProcession {
   responsible_name: string;
   responsible_phone: string;
   gender_requirement: string;
+  show_on_dashboard: boolean;
   created_at: string;
 }
 
@@ -110,6 +113,7 @@ export function ArbaeenProcessionsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [locationFilter, setLocationFilter] = useState<string>("all");
+  const [showOnDashboard, setShowOnDashboard] = useState(false);
 
   const isAdmin = user?.role === "admin" || user?.role === "super_admin";
 
@@ -172,6 +176,10 @@ export function ArbaeenProcessionsPage() {
         }),
       );
       setProcessions(withConsultants);
+      setShowOnDashboard(
+        withConsultants.length > 0 &&
+          withConsultants.some((p) => p.show_on_dashboard),
+      );
     } catch (err: unknown) {
       toast.error(translateServerError(err) || "خطا در دریافت اطلاعات");
     } finally {
@@ -233,6 +241,21 @@ export function ArbaeenProcessionsPage() {
       toast.error(translateServerError(err) || "خطا در حذف موکب", {
         id: toastId,
       });
+    }
+  };
+
+  const handleToggleShowOnDashboard = async () => {
+    if (!yearId) return;
+    try {
+      const result = await arbaeenApi.toggleShowOnDashboard(Number(yearId));
+      setShowOnDashboard(result.show_on_dashboard);
+      toast.success(
+        result.show_on_dashboard
+          ? "نمایش مواکب در داشبورد فعال شد"
+          : "نمایش مواکب در داشبورد غیرفعال شد",
+      );
+    } catch (err: unknown) {
+      toast.error(translateServerError(err) || "خطا در تغییر وضعیت نمایش");
     }
   };
 
@@ -385,6 +408,23 @@ export function ArbaeenProcessionsPage() {
                 dir="rtl"
               />
             </div>
+            <Button
+              variant={showOnDashboard ? "default" : "outline"}
+              onClick={handleToggleShowOnDashboard}
+              className="gap-1.5 max-sm:w-full"
+            >
+              {showOnDashboard ? (
+                <>
+                  <Eye className="h-4 w-4" />
+                  نمایش در داشبورد
+                </>
+              ) : (
+                <>
+                  <EyeOff className="h-4 w-4" />
+                  نمایش در داشبورد
+                </>
+              )}
+            </Button>
             <Button
               onClick={() => setIsAddDialogOpen(true)}
               className="max-sm:w-full"

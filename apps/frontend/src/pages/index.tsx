@@ -14,6 +14,8 @@ import {
   ClipboardList,
   ChevronLeft,
   ListChecks,
+  MapPin,
+  UsersRound,
 } from "lucide-react";
 import {
   Card,
@@ -27,6 +29,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useActiveForms } from "../hooks/useActiveForms";
 import formsApi from "../api/forms";
 import adminFormsApi from "../api/admin-forms";
+import arbaeenApi from "../api/arbaeen";
 import { toPersianDigits } from "@/lib/utils";
 import Image from "@/assets/IMG_20260405_115046_685.jpg";
 
@@ -88,6 +91,14 @@ interface Notification {
   action?: { label: string; to: string };
 }
 
+interface ProcessionInfo {
+  id: number;
+  name: string;
+  location: string;
+  address: string;
+  consultants: { id: number; first_name: string; last_name: string; gender: string | null }[];
+}
+
 const statusConfig = {
   pending: {
     icon: Clock,
@@ -114,6 +125,7 @@ export function Index() {
   const [selfDeclaration, setSelfDeclaration] =
     useState<SelfDeclaration | null>(null);
   const [loading, setLoading] = useState(true);
+  const [myProcessions, setMyProcessions] = useState<ProcessionInfo[]>([]);
 
   const isAdmin = user?.role === "admin" || user?.role === "super_admin";
   const [adminStats, setAdminStats] = useState<AdminDashboardStats | null>(
@@ -129,17 +141,19 @@ export function Index() {
         const promises = [
           formsApi.getMyAllSubmissions().catch(() => []),
           formsApi.getMySelfDeclaration().catch(() => null),
+          arbaeenApi.getMyProcessions().catch(() => []),
         ];
 
         if (isAdmin) {
           promises.push(adminFormsApi.getDashboardStats().catch(() => null));
         }
 
-        const [submissionsData, selfDeclData, adminStatsData] =
+        const [submissionsData, selfDeclData, myProcessionsData, adminStatsData] =
           await Promise.all(promises);
         if (cancelled) return;
         setSubmissions(submissionsData || []);
         setSelfDeclaration(selfDeclData);
+        setMyProcessions(myProcessionsData || []);
         if (adminStatsData) {
           setAdminStats(adminStatsData);
         }
@@ -237,6 +251,8 @@ export function Index() {
           به داشبورد {isAdmin ? "مدیریت" : "کاربری"} خود خوش آمدید
         </p>
       </div>
+
+      <ProcessionInfoCard processions={myProcessions} />
 
       {isAdmin && (
         <>
@@ -867,5 +883,114 @@ function NotificationsCard({
         )}
       </CardContent>
     </Card>
+  );
+}
+
+function ProcessionInfoCard({ processions }: { processions: ProcessionInfo[] }) {
+  if (processions.length === 0) return null;
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {processions.map((procession) => {
+        const maleConsultants = procession.consultants.filter(
+          (c) => c.gender === "male",
+        );
+        const femaleConsultants = procession.consultants.filter(
+          (c) => c.gender === "female",
+        );
+        const unknownGenderConsultants = procession.consultants.filter(
+          (c) => c.gender !== "male" && c.gender !== "female",
+        );
+        const isBoth = maleConsultants.length > 0 && femaleConsultants.length > 0;
+
+        return (
+          <Card key={procession.id} className="overflow-hidden border-primary/20">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <UsersRound className="h-5 w-5 text-primary" />
+                </div>
+                <CardTitle className="text-lg">{procession.name}</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-start gap-2 text-sm">
+                <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                <span className="text-muted-foreground">{procession.address}</span>
+              </div>
+              {procession.consultants.length > 0 && (
+                <div>
+                  <p className="text-xs text-muted-foreground mb-2 font-medium">
+                    مشاوران
+                  </p>
+                  {isBoth ? (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-xs font-medium text-blue-600 dark:text-blue-400 mb-2 pb-1 border-b border-blue-200 dark:border-blue-800">
+                          آقایان ({toPersianDigits(maleConsultants.length)})
+                        </p>
+                        <div className="space-y-1.5">
+                          {maleConsultants.map((consultant) => (
+                            <span
+                              key={consultant.id}
+                              className="flex px-2.5 py-1 rounded-md bg-muted text-sm"
+                            >
+                              {consultant.first_name} {consultant.last_name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-xs font-medium text-pink-600 dark:text-pink-400 mb-2 pb-1 border-b border-pink-200 dark:border-pink-800">
+                          خانم‌ها ({toPersianDigits(femaleConsultants.length)})
+                        </p>
+                        <div className="space-y-1.5">
+                          {femaleConsultants.map((consultant) => (
+                            <span
+                              key={consultant.id}
+                              className="flex px-2.5 py-1 rounded-md bg-muted text-sm"
+                            >
+                              {consultant.first_name} {consultant.last_name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      {unknownGenderConsultants.length > 0 && (
+                        <div className="col-span-2">
+                          <p className="text-xs font-medium text-muted-foreground mb-2 pb-1 border-b border-border">
+                            سایر ({toPersianDigits(unknownGenderConsultants.length)})
+                          </p>
+                          <div className="space-y-1.5">
+                            {unknownGenderConsultants.map((consultant) => (
+                              <span
+                                key={consultant.id}
+                                className="flex px-2.5 py-1 rounded-md bg-muted text-sm"
+                              >
+                                {consultant.first_name} {consultant.last_name}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {procession.consultants.map((consultant) => (
+                        <span
+                          key={consultant.id}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-muted text-sm"
+                        >
+                          {consultant.first_name} {consultant.last_name}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        );
+      })}
+    </div>
   );
 }

@@ -17,6 +17,7 @@ import { AssignConsultantDto } from './dto/assign-consultant.dto';
 import { AssignConsultantsBatchDto } from './dto/assign-consultants-batch.dto';
 import { SetResponsibleConsultantDto } from './dto/set-responsible-consultant.dto';
 import { Roles } from '../common/decorators/roles.decorator';
+import { GetUser } from '../common/decorators/get-user.decorator';
 
 @Controller('arbaeen')
 @Roles('admin', 'super_admin')
@@ -114,5 +115,16 @@ export class ArbaeenController {
   @Get('available-consultants')
   findAvailableConsultants(@Query('gender') gender?: string) {
     return this.arbaeenService.findAvailableConsultants(gender);
+  }
+
+  @Get('my-processions')
+  @Roles()
+  findMyProcessions(@GetUser('id') userId: number) {
+    return this.arbaeenService.findMyProcessions(userId);
+  }
+
+  @Put('years/:yearId/toggle-show-on-dashboard')
+  toggleShowOnDashboard(@Param('yearId', ParseIntPipe) yearId: number) {
+    return this.arbaeenService.toggleShowOnDashboard(yearId);
   }
 }

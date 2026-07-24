@@ -346,6 +346,62 @@ export class ArbaeenService {
     }));
   }
 
+  async findMyProcessions(userId: number) {
+    const assignments = await this.consultantRepo.find({
+      where: { user_id: userId },
+      relations: ['procession'],
+    });
+
+    const results = await Promise.all(
+      assignments
+        .filter((assignment) => assignment.procession.show_on_dashboard)
+        .map(async (assignment) => {
+          const consultants = await this.consultantRepo.find({
+            where: { procession_id: assignment.procession_id },
+            relations: ['user'],
+          });
+
+          return {
+            id: assignment.procession.id,
+            name: assignment.procession.name,
+            location: assignment.procession.location,
+            address: assignment.procession.address,
+            consultants: consultants.map((c) => ({
+              id: c.user.id,
+              first_name: c.user.first_name,
+              last_name: c.user.last_name,
+              gender: c.user.gender,
+            })),
+          };
+        }),
+    );
+
+    return results;
+  }
+
+  async toggleShowOnDashboard(yearId: number) {
+    const year = await this.yearRepo.findOne({ where: { id: yearId } });
+    if (!year) {
+      throw new NotFoundException('سال یافت نشد');
+    }
+
+    const processions = await this.processionRepo.find({
+      where: { year_id: yearId },
+    });
+
+    const anyHidden = processions.some((p) => !p.show_on_dashboard);
+    const newValue = anyHidden;
+
+    await Promise.all(
+      processions.map((p) => {
+        p.show_on_dashboard = newValue;
+        return this.processionRepo.save(p);
+      }),
+    );
+
+    return { show_on_dashboard: newValue };
+  }
+
   async findAvailableConsultants(gender?: string) {
     const where: any = {};
     if (gender && gender !== 'both') {
