@@ -4,6 +4,7 @@ import {
   IsNumber,
   IsIn,
   IsOptional,
+  ValidateIf,
 } from 'class-validator';
 
 export class CreateProcessionDto {
@@ -33,4 +34,9 @@ export class CreateProcessionDto {
   @IsString()
   @IsIn(['male', 'female', 'both'])
   gender_requirement: string;
+
+  @IsOptional()
+  @ValidateIf((v) => v.responsible_consultant_id !== null)
+  @IsNumber()
+  responsible_consultant_id?: number | null;
 }

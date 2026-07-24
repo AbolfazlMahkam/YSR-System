@@ -15,6 +15,7 @@ import { CreateProcessionDto } from './dto/create-procession.dto';
 import { UpdateProcessionDto } from './dto/update-procession.dto';
 import { AssignConsultantDto } from './dto/assign-consultant.dto';
 import { AssignConsultantsBatchDto } from './dto/assign-consultants-batch.dto';
+import { SetResponsibleConsultantDto } from './dto/set-responsible-consultant.dto';
 import { Roles } from '../common/decorators/roles.decorator';
 
 @Controller('arbaeen')
@@ -69,6 +70,14 @@ export class ArbaeenController {
   @Delete('processions/:id')
   removeProcession(@Param('id', ParseIntPipe) id: number) {
     return this.arbaeenService.removeProcession(id);
+  }
+
+  @Put('processions/:id/responsible-consultant')
+  setResponsibleConsultant(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: SetResponsibleConsultantDto,
+  ) {
+    return this.arbaeenService.setResponsibleConsultant(id, dto);
   }
 
   // ---- Consultants ----

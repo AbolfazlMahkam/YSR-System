@@ -16,6 +16,11 @@ export default {
   updateProcession: (id, data) =>
     HttpClient.put(`/arbaeen/processions/${id}`, data),
   deleteProcession: (id) => HttpClient.delete(`/arbaeen/processions/${id}`),
+  setResponsibleConsultant: (processionId, data) =>
+    HttpClient.put(
+      `/arbaeen/processions/${processionId}/responsible-consultant`,
+      data,
+    ),
 
   // Consultants
   getProcessionConsultants: (id) =>

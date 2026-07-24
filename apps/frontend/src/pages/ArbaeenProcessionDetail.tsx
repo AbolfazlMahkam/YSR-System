@@ -15,7 +15,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ArrowLeft, UserPlus, Trash2, Phone, User, Search } from "lucide-react";
+import {
+  ArrowLeft,
+  UserPlus,
+  Trash2,
+  Phone,
+  User,
+  Search,
+  Crown,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import arbaeenApi from "../api/arbaeen";
@@ -35,6 +43,14 @@ interface ArbaeenProcession {
   responsible_name: string;
   responsible_phone: string;
   gender_requirement: string;
+  responsible_consultant_id: number | null;
+  responsible_consultant: {
+    id: number;
+    first_name: string;
+    last_name: string;
+    phone: string;
+    gender: string | null;
+  } | null;
   created_at: string;
 }
 
@@ -71,6 +87,10 @@ export function ArbaeenProcessionDetail() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
+  const [isSetResponsibleOpen, setIsSetResponsibleOpen] = useState(false);
+  const [responsibleConsultantId, setResponsibleConsultantId] = useState<
+    number | null
+  >(null);
 
   const isAdmin = user?.role === "admin" || user?.role === "super_admin";
 
@@ -84,6 +104,9 @@ export function ArbaeenProcessionDetail() {
       const procData = await arbaeenApi.getProcession(Number(id));
       setProcession(procData);
       setConsultants(procData?.consultants || []);
+      setResponsibleConsultantId(
+        procData?.responsible_consultant_id ?? null,
+      );
 
       const genderFilter =
         procData?.gender_requirement !== "both"
@@ -147,6 +170,31 @@ export function ArbaeenProcessionDetail() {
       toast.error(translateServerError(err) || "خطا در حذف مشاور", {
         id: toastId,
       });
+    }
+  };
+
+  const handleSetResponsibleConsultant = async () => {
+    const toastId = toast.loading("در حال تنظیم مسئول مشاورین...");
+    setIsSubmitting(true);
+    try {
+      await arbaeenApi.setResponsibleConsultant(Number(id), {
+        responsible_consultant_id: responsibleConsultantId,
+      });
+      toast.success(
+        responsibleConsultantId !== null
+          ? "مسئول مشاورین با موفقیت تنظیم شد"
+          : "مسئول مشاورین حذف شد",
+        { id: toastId },
+      );
+      setIsSetResponsibleOpen(false);
+      fetchData();
+    } catch (err: unknown) {
+      toast.error(
+        translateServerError(err) || "خطا در تنظیم مسئول مشاورین",
+        { id: toastId },
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -292,6 +340,42 @@ export function ArbaeenProcessionDetail() {
                   <p className="font-medium" dir="ltr">
                     {toPersianDigits(procession.responsible_phone)}
                   </p>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">
+                      مسئول مشاورین:
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 px-2 text-xs"
+                      onClick={() => {
+                        setResponsibleConsultantId(
+                          procession.responsible_consultant_id ?? null,
+                        );
+                        setIsSetResponsibleOpen(true);
+                      }}
+                    >
+                      <Crown className="h-3 w-3 ml-1" />
+                      {procession.responsible_consultant
+                        ? "تغییر"
+                        : "انتخاب"}
+                    </Button>
+                  </div>
+                  {procession.responsible_consultant ? (
+                    <div className="flex items-center gap-2 mt-1">
+                      <Crown className="h-4 w-4 text-yellow-500" />
+                      <p className="font-medium">
+                        {procession.responsible_consultant.first_name}{" "}
+                        {procession.responsible_consultant.last_name}
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      تعیین نشده
+                    </p>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -686,6 +770,107 @@ export function ArbaeenProcessionDetail() {
             </Button>
             <Button variant="destructive" onClick={handleRemoveConsultant}>
               حذف مشاور
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Set Responsible Consultant Dialog */}
+      <Dialog
+        open={isSetResponsibleOpen}
+        onOpenChange={(open) => {
+          setIsSetResponsibleOpen(open);
+          if (!open) {
+            setResponsibleConsultantId(
+              procession?.responsible_consultant_id ?? null,
+            );
+          }
+        }}
+      >
+        <DialogContent className="max-w-md max-h-[85vh] flex flex-col">
+          <DialogHeader style={{ textAlign: "center" }}>
+            <DialogTitle className="flex items-center justify-center gap-2">
+              <Crown className="h-5 w-5 text-yellow-500" />
+              انتخاب مسئول مشاورین
+            </DialogTitle>
+            <DialogDescription>
+              یکی از مشاوران این موکب را به عنوان مسئول انتخاب کنید
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto border border-border rounded-lg">
+            {consultants.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-8">
+                هنوز مشاوری اضافه نشده است
+              </p>
+            ) : (
+              <div className="divide-y divide-border">
+                <button
+                  type="button"
+                  onClick={() => setResponsibleConsultantId(null)}
+                  className={`w-full flex items-center justify-between p-3 text-right transition-colors ${
+                    responsibleConsultantId === null
+                      ? "bg-accent text-accent-foreground"
+                      : "hover:bg-muted/50"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">—</span>
+                    <p className="font-medium text-sm text-muted-foreground">
+                      بدون مسئول مشاورین
+                    </p>
+                  </div>
+                  {responsibleConsultantId === null && (
+                    <div className="h-3 w-3 rounded-full bg-primary shrink-0" />
+                  )}
+                </button>
+                {consultants.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => setResponsibleConsultantId(c.id)}
+                    className={`w-full flex items-center justify-between p-3 text-right transition-colors ${
+                      responsibleConsultantId === c.id
+                        ? "bg-accent text-accent-foreground"
+                        : "hover:bg-muted/50"
+                    }`}
+                  >
+                    <div>
+                      <p className="font-medium text-sm">
+                        {c.first_name} {c.last_name}
+                      </p>
+                      <p className="text-xs text-muted-foreground" dir="ltr">
+                        {toPersianDigits(c.phone)}
+                      </p>
+                    </div>
+                    {responsibleConsultantId === c.id && (
+                      <Crown className="h-4 w-4 text-yellow-500 shrink-0" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsSetResponsibleOpen(false)}
+              disabled={isSubmitting}
+              className="ml-2"
+            >
+              لغو
+            </Button>
+            <Button
+              onClick={handleSetResponsibleConsultant}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <LoadingSpinner size={16} />
+                  در حال ذخیره...
+                </>
+              ) : (
+                "ذخیره"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

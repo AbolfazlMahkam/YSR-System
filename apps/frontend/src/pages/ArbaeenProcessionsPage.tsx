@@ -24,6 +24,7 @@ import {
   Phone,
   Users,
   Search,
+  Crown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -85,6 +86,11 @@ interface Consultant {
 
 interface ProcessionWithConsultants extends ArbaeenProcession {
   consultants: Consultant[];
+  responsible_consultant: {
+    id: number;
+    first_name: string;
+    last_name: string;
+  } | null;
 }
 
 export function ArbaeenProcessionsPage() {
@@ -151,9 +157,17 @@ export function ArbaeenProcessionsPage() {
         procs.map(async (proc: ArbaeenProcession) => {
           try {
             const detail = await arbaeenApi.getProcession(proc.id);
-            return { ...proc, consultants: detail?.consultants || [] };
+            return {
+              ...proc,
+              consultants: detail?.consultants || [],
+              responsible_consultant: detail?.responsible_consultant || null,
+            };
           } catch {
-            return { ...proc, consultants: [] };
+            return {
+              ...proc,
+              consultants: [],
+              responsible_consultant: null,
+            };
           }
         }),
       );
@@ -447,6 +461,18 @@ export function ArbaeenProcessionsPage() {
                         <div className="sm:col-span-2 text-muted-foreground text-xs">
                           {proc.address}
                         </div>
+                        {proc.responsible_consultant && (
+                          <div className="flex items-center gap-1.5 text-sm">
+                            <Crown className="h-3.5 w-3.5 text-yellow-500 shrink-0" />
+                            <span className="text-muted-foreground">
+                              مسئول مشاورین:
+                            </span>
+                            <span className="font-medium">
+                              {proc.responsible_consultant.first_name}{" "}
+                              {proc.responsible_consultant.last_name}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div className="flex gap-2 shrink-0">

@@ -14,6 +14,7 @@ import { CreateYearDto } from './dto/create-year.dto';
 import { CreateProcessionDto } from './dto/create-procession.dto';
 import { UpdateProcessionDto } from './dto/update-procession.dto';
 import { AssignConsultantDto } from './dto/assign-consultant.dto';
+import { SetResponsibleConsultantDto } from './dto/set-responsible-consultant.dto';
 
 @Injectable()
 export class ArbaeenService {
@@ -63,6 +64,15 @@ export class ArbaeenService {
       throw new NotFoundException('سال یافت نشد');
     }
 
+    if (dto.responsible_consultant_id) {
+      const consultant = await this.userRepo.findOne({
+        where: { id: dto.responsible_consultant_id },
+      });
+      if (!consultant) {
+        throw new NotFoundException('مشاور مسئول یافت نشد');
+      }
+    }
+
     const procession = this.processionRepo.create({
       year_id: dto.year_id,
       name: dto.name,
@@ -72,6 +82,7 @@ export class ArbaeenService {
       responsible_phone: dto.responsible_phone,
       gender_requirement:
         dto.gender_requirement as ArbaeenProcession['gender_requirement'],
+      responsible_consultant_id: dto.responsible_consultant_id ?? null,
     });
     return this.processionRepo.save(procession);
   }
@@ -88,7 +99,10 @@ export class ArbaeenService {
   }
 
   async findOneProcession(id: number) {
-    const procession = await this.processionRepo.findOne({ where: { id } });
+    const procession = await this.processionRepo.findOne({
+      where: { id },
+      relations: ['responsible_consultant'],
+    });
     if (!procession) {
       throw new NotFoundException('موکب یافت نشد');
     }
@@ -101,6 +115,15 @@ export class ArbaeenService {
 
     return {
       ...procession,
+      responsible_consultant: procession.responsible_consultant
+        ? {
+            id: procession.responsible_consultant.id,
+            first_name: procession.responsible_consultant.first_name,
+            last_name: procession.responsible_consultant.last_name,
+            phone: procession.responsible_consultant.phone,
+            gender: procession.responsible_consultant.gender,
+          }
+        : null,
       consultants: consultants.map((c) => ({
         id: c.user.id,
         first_name: c.user.first_name,
@@ -124,6 +147,18 @@ export class ArbaeenService {
       if (!year) {
         throw new NotFoundException('سال یافت نشد');
       }
+    }
+
+    if (dto.responsible_consultant_id !== undefined) {
+      if (dto.responsible_consultant_id !== null) {
+        const consultant = await this.userRepo.findOne({
+          where: { id: dto.responsible_consultant_id },
+        });
+        if (!consultant) {
+          throw new NotFoundException('مشاور مسئول یافت نشد');
+        }
+      }
+      procession.responsible_consultant_id = dto.responsible_consultant_id ?? null;
     }
 
     if (dto.location) {
@@ -150,6 +185,40 @@ export class ArbaeenService {
       throw new NotFoundException('موکب یافت نشد');
     }
     return this.processionRepo.remove(procession);
+  }
+
+  async setResponsibleConsultant(
+    processionId: number,
+    dto: SetResponsibleConsultantDto,
+  ) {
+    const procession = await this.processionRepo.findOne({
+      where: { id: processionId },
+    });
+    if (!procession) {
+      throw new NotFoundException('موکب یافت نشد');
+    }
+
+    if (dto.responsible_consultant_id !== null) {
+      const assigned = await this.consultantRepo.findOne({
+        where: {
+          procession_id: processionId,
+          user_id: dto.responsible_consultant_id,
+        },
+      });
+      if (!assigned) {
+        throw new BadRequestException(
+          'مشاور انتخاب شده باید در لیست مشاوران این موکب باشد',
+        );
+      }
+    }
+
+    procession.responsible_consultant_id = dto.responsible_consultant_id ?? null;
+    await this.processionRepo.save(procession);
+
+    return {
+      id: procession.id,
+      responsible_consultant_id: procession.responsible_consultant_id,
+    };
   }
 
   // ---- Consultants ----
@@ -242,6 +311,15 @@ export class ArbaeenService {
     if (!consultant) {
       throw new NotFoundException('مشاور در این موکب یافت نشد');
     }
+
+    const procession = await this.processionRepo.findOne({
+      where: { id: processionId },
+    });
+    if (procession && procession.responsible_consultant_id === userId) {
+      procession.responsible_consultant_id = null;
+      await this.processionRepo.save(procession);
+    }
+
     return this.consultantRepo.remove(consultant);
   }
 
