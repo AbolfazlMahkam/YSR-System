@@ -27,7 +27,9 @@ import {
   Crown,
   Eye,
   EyeOff,
+  Download,
 } from "lucide-react";
+import { generateProcessionsPdf } from "../lib/generate-processions-pdf";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -114,6 +116,7 @@ export function ArbaeenProcessionsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [locationFilter, setLocationFilter] = useState<string>("all");
   const [showOnDashboard, setShowOnDashboard] = useState(false);
+  const [exportingPdf, setExportingPdf] = useState(false);
 
   const isAdmin = user?.role === "admin" || user?.role === "super_admin";
 
@@ -256,6 +259,23 @@ export function ArbaeenProcessionsPage() {
       );
     } catch (err: unknown) {
       toast.error(translateServerError(err) || "خطا در تغییر وضعیت نمایش");
+    }
+  };
+
+  const handleExportPdf = async () => {
+    if (!year || processions.length === 0) {
+      toast.error("داده‌ای برای خروجی وجود ندارد");
+      return;
+    }
+    setExportingPdf(true);
+    const toastId = toast.loading("در حال ساخت PDF...");
+    try {
+      await generateProcessionsPdf(year.year, processions);
+      toast.success("PDF با موفقیت دانلود شد", { id: toastId });
+    } catch {
+      toast.error("خطا در ساخت PDF", { id: toastId });
+    } finally {
+      setExportingPdf(false);
     }
   };
 
@@ -424,6 +444,15 @@ export function ArbaeenProcessionsPage() {
                   نمایش در داشبورد
                 </>
               )}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleExportPdf}
+              disabled={exportingPdf || processions.length === 0}
+              className="gap-1.5 max-sm:w-full"
+            >
+              <Download className="h-4 w-4" />
+              دانلود PDF
             </Button>
             <Button
               onClick={() => setIsAddDialogOpen(true)}
