@@ -28,6 +28,7 @@ import adminFormsApi from "../api/admin-forms";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { toast } from "sonner";
 import { translateServerError } from "../lib/error-translations";
+import { uploadUrl } from "../utiles/fileUtils";
 import { toPersianDigits } from "@/lib/utils";
 import { formatProvinceCity } from "../data/iranian-provinces-cities";
 import { formatContinentCountry } from "../data/continents-countries";
@@ -254,11 +255,7 @@ export function FormSubmissions() {
                               (val.startsWith("/uploads/") ||
                                 val.startsWith("http"));
                             if (isFileUrl) {
-                              const fileUrl =
-                                typeof val === "string" &&
-                                val.startsWith("/uploads/")
-                                  ? `https://api.rohanian-ysr.ir${val}`
-                                  : val;
+                              const fileUrl = uploadUrl(val);
                               const isImage =
                                 typeof val === "string" &&
                                 /\.(png|jpe?g|gif|webp|svg)$/i.test(val);

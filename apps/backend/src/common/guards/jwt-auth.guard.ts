@@ -24,6 +24,15 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       return true;
     }
 
+    const request = context.switchToHttp().getRequest();
+    if (
+      request?.headers &&
+      !request.headers.authorization &&
+      request.query?.token
+    ) {
+      request.headers.authorization = `Bearer ${request.query.token}`;
+    }
+
     // Call parent canActivate for JWT validation
     return super.canActivate(context);
   }

@@ -13,6 +13,7 @@ import { ArbaeenModule } from './arbaeen/arbaeen.module';
 import Users from './entities/user.entity';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
+import { BlockedUserGuard } from './common/guards/blocked-user.guard';
 
 @Module({
   imports: [
@@ -55,6 +56,10 @@ import { RolesGuard } from './common/guards/roles.guard';
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: BlockedUserGuard,
     },
   ],
 })

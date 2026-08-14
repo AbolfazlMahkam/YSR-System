@@ -2,7 +2,6 @@ import axios from "axios";
 import localStorageService from "./localStorageService";
 
 const HttpClient = axios.create({
-  baseURL: "https://api.rohanian-ysr.ir/",
   baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:3000",
   timeout: 0,
   headers: {
@@ -43,6 +42,12 @@ HttpClient.interceptors.response.use(
           window.location.reload();
           break;
         case 403:
+          if (
+            typeof error.response.data?.message === "string" &&
+            error.response.data.message.includes("does not meet the requirements")
+          ) {
+            window.location.reload();
+          }
           break;
         case 404:
           break;

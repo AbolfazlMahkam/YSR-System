@@ -37,10 +37,17 @@ export class AdminParticipationService {
   ) {}
 
   async getReport() {
-    const [forms, users, pairs] = await Promise.all([
+    const [forms, allUsers, pairs] = await Promise.all([
       this.formSchemaRepository.find({ order: { created_at: 'DESC' } }),
       this.usersRepository.find({
-        select: ['id', 'first_name', 'last_name', 'phone', 'role'],
+        select: [
+          'id',
+          'first_name',
+          'last_name',
+          'phone',
+          'role',
+          'interview_status',
+        ],
         order: { id: 'ASC' },
       }),
       this.submissionRepository
@@ -50,15 +57,26 @@ export class AdminParticipationService {
         .getRawMany(),
     ]);
 
+    const includedUserIds = new Set(
+      allUsers
+        .filter((u) => u.interview_status !== 'not_meeting_requirements')
+        .map((u) => u.id),
+    );
+    const users = allUsers.filter((u) => includedUserIds.has(u.id));
+
     const perForm = new Map<number, { count: number; userIds: Set<number> }>();
     const perUser = new Map<
       number,
       { count: number; formIds: Set<number>; byForm: Map<number, number> }
     >();
+    let totalSubmissions = 0;
 
     for (const row of pairs as { user_id: unknown; form_id: unknown }[]) {
       const formId = Number(row.form_id);
       const userId = Number(row.user_id);
+
+      if (!includedUserIds.has(userId)) continue;
+      totalSubmissions += 1;
 
       let f = perForm.get(formId);
       if (!f) {
@@ -112,7 +130,6 @@ export class AdminParticipationService {
       };
     });
 
-    const totalSubmissions = pairs.length;
     const usersWithSubmissions = userParticipation.filter(
       (u) => u.submissions_count > 0,
     ).length;

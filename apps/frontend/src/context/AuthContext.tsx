@@ -31,7 +31,7 @@ interface AuthContextType {
   loginWithGoogle: (credential: string) => Promise<void>;
   register: (userData: RegisterData) => Promise<void>;
   logout: () => void;
-  checkAuth: () => void;
+  checkAuth: () => Promise<void>;
   loginAsUser: (userId: number) => Promise<void>;
 }
 
@@ -56,21 +56,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const isAuthenticated = !!token && !!user;
 
-  function checkAuth() {
+  async function checkAuth() {
     const storedToken = localStorageService.getToken();
-    const storedUser = localStorageService.getUserInfo();
 
-    if (storedToken && storedUser) {
-      setTokenState(storedToken);
-      setUser(storedUser);
+    if (!storedToken) {
+      localStorageService.removeUserInfo();
+      setTokenState(null);
+      setUser(null);
+      setIsLoading(false);
+      return;
     }
-    setIsLoading(false);
+
+    setTokenState(storedToken);
+    try {
+      const userData = await authAPI.getProfile();
+      localStorageService.setUserInfo(userData);
+      setUser(userData);
+    } catch {
+      localStorageService.removeToken();
+      localStorageService.removeUserInfo();
+      setTokenState(null);
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   // Check authentication on mount
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    checkAuth();
+    void checkAuth();
   }, []);
 
   async function login(phone: string, password: string) {

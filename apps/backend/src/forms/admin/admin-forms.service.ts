@@ -7,8 +7,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import FormSchema, { FieldDefinition } from '../../entities/form-schema.entity';
 import FormSubmission from '../../entities/form-submission.entity';
+import Users from '../../entities/user.entity';
 import { CreateFormDto } from './dto/create-form.dto';
 import { UpdateFormDto } from './dto/update-form.dto';
+import { REJECTED_INTERVIEW_STATUS } from './rejected-users.util';
 
 @Injectable()
 export class AdminFormsService {
@@ -17,6 +19,8 @@ export class AdminFormsService {
     private readonly formSchemaRepository: Repository<FormSchema>,
     @InjectRepository(FormSubmission)
     private readonly submissionRepository: Repository<FormSubmission>,
+    @InjectRepository(Users)
+    private readonly usersRepository: Repository<Users>,
   ) {}
 
   async create(dto: CreateFormDto) {
@@ -51,8 +55,13 @@ export class AdminFormsService {
 
     const counts = await this.submissionRepository
       .createQueryBuilder('s')
+      .leftJoin(Users, 'u', 'u.id = s.user_id')
       .select('s.form_id', 'form_id')
       .addSelect('COUNT(*)', 'count')
+      .where(
+        'u.id IS NULL OR u.interview_status IS NULL OR u.interview_status <> :rejected',
+        { rejected: REJECTED_INTERVIEW_STATUS },
+      )
       .groupBy('s.form_id')
       .getRawMany();
 
@@ -74,9 +83,15 @@ export class AdminFormsService {
       throw new NotFoundException('Form not found');
     }
 
-    const count = await this.submissionRepository.count({
-      where: { form_id: id },
-    });
+    const count = await this.submissionRepository
+      .createQueryBuilder('s')
+      .leftJoin(Users, 'u', 'u.id = s.user_id')
+      .where('s.form_id = :formId', { formId })
+      .andWhere(
+        'u.id IS NULL OR u.interview_status IS NULL OR u.interview_status <> :rejected',
+        { rejected: REJECTED_INTERVIEW_STATUS },
+      )
+      .getCount();
 
     return { ...form, total_submissions: count };
   }

@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import FormSchema from '../../entities/form-schema.entity';
 import FormSubmission from '../../entities/form-submission.entity';
+import Users from '../../entities/user.entity';
+import { getRejectedUserIds } from './rejected-users.util';
 
 interface FieldDefinition {
   name: string;
@@ -44,6 +46,8 @@ export class AdminStatisticsService {
     private readonly formSchemaRepository: Repository<FormSchema>,
     @InjectRepository(FormSubmission)
     private readonly submissionRepository: Repository<FormSubmission>,
+    @InjectRepository(Users)
+    private readonly usersRepository: Repository<Users>,
   ) {}
 
   async getStatistics(formId: number) {
@@ -55,9 +59,13 @@ export class AdminStatisticsService {
       throw new NotFoundException('Form not found');
     }
 
-    const submissions = await this.submissionRepository.find({
-      where: { form_id: formId },
-    });
+    const rejectedUserIds = await getRejectedUserIds(this.usersRepository);
+
+    const submissions = (
+      await this.submissionRepository.find({
+        where: { form_id: formId },
+      })
+    ).filter((s) => !rejectedUserIds.has(s.user_id));
 
     if (submissions.length === 0) {
       return {

@@ -1,14 +1,19 @@
 import {
   Controller,
   Post,
+  Get,
   UploadedFile,
   UseInterceptors,
   BadRequestException,
   Query,
+  Param,
+  Res,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
+import { Response } from 'express';
 import * as path from 'path';
+import * as fs from 'fs';
 import * as crypto from 'crypto';
 import { UploadsService } from './uploads.service';
 
@@ -113,5 +118,18 @@ export class UploadsController {
       size: file.size,
       mimeType: file.mimetype,
     };
+  }
+
+  @Get(':filename')
+  serveFile(@Param('filename') filename: string, @Res() res: Response) {
+    const safe = path.basename(filename);
+    const filePath = path.join(this.uploadsService.getUploadDir(), safe);
+
+    if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
+      res.status(404).send('File not found');
+      return;
+    }
+
+    res.sendFile(filePath);
   }
 }

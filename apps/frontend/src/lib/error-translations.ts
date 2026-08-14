@@ -25,6 +25,12 @@ const errorTranslations: Record<string, string> = {
     "حداقل یک فیلد باید برای اصلاح انتخاب شود",
   "No file provided": "هیچ فایلی ارائه نشده است",
   "User successfully deleted": "کاربر با موفقیت حذف شد",
+  "Your account does not meet the requirements and you are not allowed to perform any action":
+    "حساب شما شرایط لازم را احراز نکرده است و امکان انجام هیچ‌گونه اقدامی برای شما وجود ندارد",
+  "Your account does not meet the requirements and you are not allowed to resubmit the self-declaration form":
+    "حساب شما شرایط لازم را احراز نکرده است و امکان ارسال مجدد اظهارنامه برای شما وجود ندارد",
+  "This user does not meet the requirements and the self-declaration cannot be approved":
+    "این کاربر شرایط لازم را احراز نکرده است و امکان تأیید اظهارنامه او وجود ندارد",
 };
 
 function translateDynamicMessage(message: string): string {

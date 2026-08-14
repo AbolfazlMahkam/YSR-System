@@ -5,7 +5,6 @@ import passport from 'passport';
 import session from 'express-session';
 import { ValidationPipe } from '@nestjs/common';
 import * as express from 'express';
-import * as path from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -37,8 +36,6 @@ async function bootstrap() {
 
   app.use(passport.initialize());
   app.use(passport.session());
-
-  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
   const port = configService.get<string>('PORT') || 3000;
   await app.listen(port);

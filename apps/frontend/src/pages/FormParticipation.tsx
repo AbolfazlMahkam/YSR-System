@@ -9,6 +9,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   BarChart3,
   Users,
   ClipboardCheck,
@@ -56,12 +63,15 @@ interface ParticipationReport {
   byFormCount: { forms: number; users: number }[];
 }
 
+const ALL_FORMS = "__all__";
+
 export function FormParticipation() {
   const { user: currentUser } = useAuth();
   const [report, setReport] = useState<ParticipationReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [onlySubmitters, setOnlySubmitters] = useState(false);
+  const [selectedFormId, setSelectedFormId] = useState(ALL_FORMS);
 
   const isAdmin =
     currentUser?.role === "admin" || currentUser?.role === "super_admin";
@@ -87,13 +97,41 @@ export function FormParticipation() {
   const filteredUsers = useMemo(() => {
     if (!report) return [];
     const query = searchQuery.trim().toLowerCase();
-    return report.users.filter((user) => {
-      if (onlySubmitters && user.submissions_count === 0) return false;
+    const formId =
+      selectedFormId && selectedFormId !== ALL_FORMS
+        ? Number(selectedFormId)
+        : null;
+    const rows = report.users.filter((user) => {
+      if (onlySubmitters) {
+        if (formId) {
+          if (!(user.by_form[formId] || 0)) return false;
+        } else if (user.submissions_count === 0) return false;
+      }
       if (!query) return true;
       const fullName = `${user.first_name} ${user.last_name}`.toLowerCase();
       return fullName.includes(query) || user.phone.includes(query);
     });
-  }, [report, searchQuery, onlySubmitters]);
+    if (formId) {
+      return [...rows].sort((a, b) => {
+        const ac = a.by_form[formId] || 0;
+        const bc = b.by_form[formId] || 0;
+        if (ac > 0 && bc === 0) return -1;
+        if (bc > 0 && ac === 0) return 1;
+        return a.id - b.id;
+      });
+    }
+    return rows;
+  }, [report, searchQuery, onlySubmitters, selectedFormId]);
+
+  const selectedForm =
+    report?.forms.find((f) => String(f.id) === selectedFormId) || null;
+
+  const selectForm = (id: string) => {
+    setSelectedFormId(id);
+    document
+      .getElementById("participation-matrix")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   if (!isAdmin) {
     return (
@@ -258,7 +296,12 @@ export function FormParticipation() {
                           return (
                             <tr
                               key={form.id}
-                              className="border-b border-border hover:bg-muted/30 transition-colors"
+                              onClick={() => selectForm(String(form.id))}
+                              className={`border-b border-border hover:bg-muted/30 transition-colors cursor-pointer ${
+                                String(form.id) === selectedFormId
+                                  ? "bg-teal-500/5"
+                                  : ""
+                              }`}
                             >
                               <td className="p-3 font-medium">
                                 {toPersianDigits(index + 1)}
@@ -291,6 +334,11 @@ export function FormParticipation() {
                       </tbody>
                     </table>
                   </div>
+                )}
+                {report.forms.length > 0 && (
+                  <p className="text-xs text-muted-foreground mt-3">
+                    برای نمایش کاربران هر فرم، روی ردیف فرم کلیک کنید
+                  </p>
                 )}
               </CardContent>
             </Card>
@@ -347,18 +395,43 @@ export function FormParticipation() {
             </Card>
           </div>
 
-          <Card>
+          <Card id="participation-matrix" className="scroll-mt-4">
             <CardHeader className="pb-3">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <div className="p-2 rounded-lg bg-emerald-500/10">
                     <ClipboardCheck className="h-5 w-5 text-emerald-500" />
                   </div>
-                  <CardTitle className="text-lg">
-                    مشارکت به تفکیک کاربر و فرم
-                  </CardTitle>
+                  <div>
+                    <CardTitle className="text-lg">
+                      {selectedForm
+                        ? `مشارکت در فرم «${selectedForm.title}»`
+                        : "مشارکت به تفکیک کاربر و فرم"}
+                    </CardTitle>
+                    <CardDescription>
+                      {selectedForm
+                        ? "کاربرانی که در این فرم شرکت کرده‌اند را می‌بینید — برای نمای کلی «همه فرم‌ها» را انتخاب کنید"
+                        : "تعداد ارسال‌های هر کاربر به هر فرم را نشان می‌دهد — نشانگر سبز یعنی کاربر در آن فرم شرکت کرده است"}
+                    </CardDescription>
+                  </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
+                  <Select
+                    value={selectedFormId}
+                    onValueChange={setSelectedFormId}
+                  >
+                    <SelectTrigger className="w-[200px]">
+                      <SelectValue placeholder="انتخاب فرم" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={ALL_FORMS}>همه فرم‌ها</SelectItem>
+                      {report.forms.map((form) => (
+                        <SelectItem key={form.id} value={String(form.id)}>
+                          {form.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <div className="flex items-center gap-2">
                     <Search className="h-4 w-4 text-muted-foreground" />
                     <Input
@@ -373,14 +446,38 @@ export function FormParticipation() {
                     size="sm"
                     onClick={() => setOnlySubmitters((prev) => !prev)}
                   >
-                    فقط کاربران دارای ارسال
+                    {selectedForm
+                      ? "فقط شرکت‌کنندگان"
+                      : "فقط کاربران دارای ارسال"}
                   </Button>
                 </div>
               </div>
-              <CardDescription>
-                تعداد ارسال‌های هر کاربر به هر فرم را نشان می‌دهد — نشانگر سبز
-                یعنی کاربر در آن فرم شرکت کرده است
-              </CardDescription>
+              {selectedForm && (
+                <div className="flex flex-wrap items-center gap-2 mt-2">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-xs font-medium">
+                    <Users className="h-3.5 w-3.5" />
+                    {toPersianDigits(selectedForm.unique_users)} کاربر
+                    شرکت‌کننده
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-500 text-xs font-medium">
+                    <Send className="h-3.5 w-3.5" />
+                    {toPersianDigits(selectedForm.total_submissions)} ارسال
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-sky-500/10 text-sky-500 text-xs font-medium">
+                    <BarChart3 className="h-3.5 w-3.5" />٪
+                    {toPersianDigits(
+                      report.totals.total_users > 0
+                        ? Math.round(
+                            (selectedForm.unique_users /
+                              report.totals.total_users) *
+                              100,
+                          )
+                        : 0,
+                    )}{" "}
+                    نرخ مشارکت
+                  </span>
+                </div>
+              )}
             </CardHeader>
             <CardContent>
               {report.users.length === 0 ? (
@@ -398,15 +495,21 @@ export function FormParticipation() {
                         <th className="text-right p-3 font-semibold whitespace-nowrap">
                           شماره همراه
                         </th>
-                        {report.forms.map((form) => (
-                          <th
-                            key={form.id}
-                            className="text-center p-3 font-semibold whitespace-nowrap"
-                            title={form.title}
-                          >
-                            {form.title}
+                        {selectedForm ? (
+                          <th className="text-center p-3 font-semibold whitespace-nowrap">
+                            {selectedForm.title}
                           </th>
-                        ))}
+                        ) : (
+                          report.forms.map((form) => (
+                            <th
+                              key={form.id}
+                              className="text-center p-3 font-semibold whitespace-nowrap"
+                              title={form.title}
+                            >
+                              {form.title}
+                            </th>
+                          ))
+                        )}
                         <th className="text-center p-3 font-semibold whitespace-nowrap">
                           فرم‌های مختلف
                         </th>
@@ -419,7 +522,12 @@ export function FormParticipation() {
                       {filteredUsers.map((user) => (
                         <tr
                           key={user.id}
-                          className="border-b border-border hover:bg-muted/30 transition-colors"
+                          className={`border-b border-border hover:bg-muted/30 transition-colors ${
+                            selectedForm &&
+                            (user.by_form[selectedForm.id] || 0) > 0
+                              ? "bg-emerald-500/5"
+                              : ""
+                          }`}
                         >
                           <td className="p-3 font-medium whitespace-nowrap">
                             {user.first_name} {user.last_name}
@@ -430,22 +538,38 @@ export function FormParticipation() {
                           >
                             {toPersianDigits(user.phone)}
                           </td>
-                          {report.forms.map((form) => {
-                            const count = user.by_form[form.id] || 0;
-                            return (
-                              <td key={form.id} className="p-2 text-center">
-                                {count > 0 ? (
-                                  <span className="inline-flex items-center justify-center min-w-[28px] px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-500">
-                                    {toPersianDigits(count)}
-                                  </span>
-                                ) : (
-                                  <span className="text-muted-foreground/40">
-                                    —
-                                  </span>
-                                )}
-                              </td>
-                            );
-                          })}
+                          {selectedForm ? (
+                            <td className="p-2 text-center">
+                              {(user.by_form[selectedForm.id] || 0) > 0 ? (
+                                <span className="inline-flex items-center justify-center min-w-[28px] px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-500">
+                                  {toPersianDigits(
+                                    user.by_form[selectedForm.id] || 0,
+                                  )}
+                                </span>
+                              ) : (
+                                <span className="text-muted-foreground/40">
+                                  —
+                                </span>
+                              )}
+                            </td>
+                          ) : (
+                            report.forms.map((form) => {
+                              const count = user.by_form[form.id] || 0;
+                              return (
+                                <td key={form.id} className="p-2 text-center">
+                                  {count > 0 ? (
+                                    <span className="inline-flex items-center justify-center min-w-[28px] px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-500">
+                                      {toPersianDigits(count)}
+                                    </span>
+                                  ) : (
+                                    <span className="text-muted-foreground/40">
+                                      —
+                                    </span>
+                                  )}
+                                </td>
+                              );
+                            })
+                          )}
                           <td className="p-3 text-center">
                             <span className="font-medium whitespace-nowrap">
                               {toPersianDigits(user.forms_submitted)}

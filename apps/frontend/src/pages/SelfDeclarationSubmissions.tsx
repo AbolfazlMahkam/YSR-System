@@ -32,6 +32,7 @@ import adminFormsApi from "../api/admin-forms";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { toast } from "sonner";
 import { translateServerError } from "../lib/error-translations";
+import { uploadUrl } from "../utiles/fileUtils";
 import { cn, toPersianDigits } from "@/lib/utils";
 import { formatProvinceCity } from "../data/iranian-provinces-cities";
 import { formatContinentCountry } from "../data/continents-countries";
@@ -178,10 +179,7 @@ export function SelfDeclarationSubmissions() {
       typeof value === "string" &&
       (value.startsWith("/uploads/") || value.startsWith("http"));
     if (isFileUrl) {
-      const fileUrl =
-        typeof value === "string" && value.startsWith("/uploads/")
-          ? `https://api.rohanian-ysr.ir${value}`
-          : value;
+      const fileUrl = uploadUrl(value);
       const isImage =
         typeof value === "string" && /\.(png|jpe?g|gif|webp|svg)$/i.test(value);
       if (isImage) {

@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -13,6 +14,7 @@ import { CreateSelfDeclarationDto } from './dto/create-self-declaration.dto';
 import { ReviewSelfDeclarationDto } from './dto/review-self-declaration.dto';
 import { UsersService } from '../../users/users.service';
 import { UpdateUserDto } from '../../users/dto/update-user.dto';
+import { REJECTED_INTERVIEW_STATUS } from '../admin/rejected-users.util';
 
 const SELF_DECLARATION_SLUG = 'self-declaration';
 
@@ -28,6 +30,14 @@ export class SelfDeclarationService {
   ) {}
 
   async submit(userId: number, dto: CreateSelfDeclarationDto) {
+    const user = await this.usersService.findOne(userId);
+
+    if (user?.interview_status === REJECTED_INTERVIEW_STATUS) {
+      throw new ForbiddenException(
+        'Your account does not meet the requirements and you are not allowed to resubmit the self-declaration form',
+      );
+    }
+
     const existing = await this.selfDeclarationRepository.findOne({
       where: { user_id: userId },
     });
@@ -50,7 +60,6 @@ export class SelfDeclarationService {
 
     const validatedData = this.validator.validate(schema.fields, dto.data);
 
-    const user = await this.usersService.findOne(userId);
     if (user) {
       await this.usersService.update(user, {
         self_declaration_data: validatedData,
@@ -131,6 +140,12 @@ export class SelfDeclarationService {
       dto.status === 'returned' ? (dto.correction_fields ?? null) : null;
 
     if (dto.status === 'approved') {
+      if (submission.user?.interview_status === REJECTED_INTERVIEW_STATUS) {
+        throw new ForbiddenException(
+          'This user does not meet the requirements and the self-declaration cannot be approved',
+        );
+      }
+
       const user = await this.usersService.findOne(submission.user_id);
       if (user) {
         await this.usersService.update(user, {
