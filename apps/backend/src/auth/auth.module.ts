@@ -11,6 +11,7 @@ import { PassportModule } from '@nestjs/passport';
 import type { StringValue } from 'ms';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import Codes from '../entities/code.entity';
+import RefreshToken from '../entities/refresh-token.entity';
 import { UniquePhonePipe } from '../common/pipes/unique-phone.pipe';
 import { UserExistsByPhonePipe } from '../common/pipes/user-exists-by-phone.pipe';
 import { PasswordValidationPipe } from '../common/pipes/password-validation.pipe';
@@ -33,7 +34,7 @@ import { OtpCodeValidationPipe } from '../common/pipes/otp-code-validation.pipe'
       },
       inject: [ConfigService],
     }),
-    TypeOrmModule.forFeature([Users, Codes, SelfDeclaration]),
+    TypeOrmModule.forFeature([Users, Codes, SelfDeclaration, RefreshToken]),
   ],
   controllers: [AuthController],
   providers: [

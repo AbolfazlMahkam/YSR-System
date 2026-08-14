@@ -1,4 +1,11 @@
-import { createContext, useEffect, useState, ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  ReactNode,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import authAPI from "../api/auth";
 import localStorageService from "../utiles/localStorageService";
@@ -43,6 +50,22 @@ interface RegisterData {
   role?: string;
 }
 
+const REFRESH_BUFFER_MS = 60_000;
+
+function getTokenExpiry(token: string): number | null {
+  try {
+    const payloadBase64 = token.split(".")[1];
+    if (!payloadBase64) {
+      return null;
+    }
+    const normalized = payloadBase64.replace(/-/g, "+").replace(/_/g, "/");
+    const payload = JSON.parse(atob(normalized));
+    return typeof payload.exp === "number" ? payload.exp * 1000 : null;
+  } catch {
+    return null;
+  }
+}
+
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext<AuthContextType | undefined>(
   undefined,
@@ -52,9 +75,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setTokenState] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const refreshTimer = useRef<number | null>(null);
   const navigate = useNavigate();
 
   const isAuthenticated = !!token && !!user;
+
+  const refreshSession = useCallback(async () => {
+    const refreshToken = localStorageService.getRefreshToken();
+    if (!refreshToken) {
+      return;
+    }
+
+    try {
+      const data = await authAPI.refresh(refreshToken);
+      if (data?.access_token && data?.refresh_token) {
+        localStorageService.setSession(
+          data.access_token,
+          data.refresh_token,
+        );
+      }
+    } catch (error: unknown) {
+      if (
+        (error as { response?: { status?: number } })?.response?.status === 401
+      ) {
+        localStorageService.clearSession();
+      }
+    }
+  }, []);
+
+  const scheduleTokenRefresh = useCallback(() => {
+    if (refreshTimer.current) {
+      window.clearTimeout(refreshTimer.current);
+      refreshTimer.current = null;
+    }
+
+    const accessToken = localStorageService.getToken();
+    const refreshToken = localStorageService.getRefreshToken();
+    if (!accessToken || !refreshToken) {
+      return;
+    }
+
+    const expiresAt = getTokenExpiry(accessToken);
+    if (expiresAt === null) {
+      return;
+    }
+
+    const delay = Math.max(expiresAt - Date.now() - REFRESH_BUFFER_MS, 5000);
+    refreshTimer.current = window.setTimeout(() => {
+      void refreshSession();
+    }, delay);
+  }, [refreshSession]);
 
   async function checkAuth() {
     const storedToken = localStorageService.getToken();
@@ -73,8 +143,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorageService.setUserInfo(userData);
       setUser(userData);
     } catch {
-      localStorageService.removeToken();
-      localStorageService.removeUserInfo();
+      localStorageService.clearSession();
       setTokenState(null);
       setUser(null);
     } finally {
@@ -84,17 +153,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Check authentication on mount
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     void checkAuth();
   }, []);
+
+  // Keep React state in sync with localStorage (silent refresh / logout).
+  useEffect(() => {
+    const handleSessionChange = () => {
+      const currentToken = localStorageService.getToken();
+      setTokenState(currentToken);
+      if (!currentToken) {
+        setUser(null);
+      }
+    };
+
+    window.addEventListener("ysr:session-change", handleSessionChange);
+    return () => {
+      window.removeEventListener("ysr:session-change", handleSessionChange);
+    };
+  }, []);
+
+  // Proactively refresh the access token shortly before it expires.
+  useEffect(() => {
+    if (token) {
+      scheduleTokenRefresh();
+    } else if (refreshTimer.current) {
+      window.clearTimeout(refreshTimer.current);
+      refreshTimer.current = null;
+    }
+
+    return () => {
+      if (refreshTimer.current) {
+        window.clearTimeout(refreshTimer.current);
+        refreshTimer.current = null;
+      }
+    };
+  }, [token, scheduleTokenRefresh]);
 
   async function login(phone: string, password: string) {
     try {
       const response = await authAPI.login({ phone, password });
-      const { access_token } = response;
+      const { access_token, refresh_token } = response;
 
-      // Store token
-      localStorageService.setToken(access_token);
+      localStorageService.setSession(access_token, refresh_token);
       setTokenState(access_token);
 
       // Fetch user info from backend
@@ -121,10 +221,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { code: response.code };
       }
 
-      // Second call returns access token
+      // Second call returns tokens
       if (response.access_token) {
-        const { access_token } = response;
-        localStorageService.setToken(access_token);
+        const { access_token, refresh_token } = response;
+        localStorageService.setSession(access_token, refresh_token);
         setTokenState(access_token);
 
         // Fetch user info from backend
@@ -149,9 +249,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function loginWithGoogle(credential: string) {
     try {
       const response = await authAPI.loginWithGoogle(credential);
-      const { access_token } = response;
+      const { access_token, refresh_token } = response;
 
-      localStorageService.setToken(access_token);
+      localStorageService.setSession(access_token, refresh_token);
       setTokenState(access_token);
 
       // Fetch user info from backend
@@ -190,9 +290,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function loginAsUser(userId: number) {
     try {
       const response = await authAPI.loginAsUser(userId);
-      const { access_token } = response;
+      const { access_token, refresh_token } = response;
 
-      localStorageService.setToken(access_token);
+      localStorageService.setSession(access_token, refresh_token);
       setTokenState(access_token);
 
       const userData = await authAPI.getProfile();
@@ -210,8 +310,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   function logout() {
-    localStorageService.removeToken();
-    localStorageService.removeUserInfo();
+    const refreshToken = localStorageService.getRefreshToken();
+    if (refreshToken) {
+      authAPI.logout(refreshToken).catch(() => {
+        // Best effort revocation; session is cleared regardless.
+      });
+    }
+
+    localStorageService.clearSession();
     setTokenState(null);
     setUser(null);
     navigate("/login");

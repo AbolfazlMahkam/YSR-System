@@ -1,8 +1,10 @@
 import axios from "axios";
 import localStorageService from "./localStorageService";
 
+const baseURL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+
 const HttpClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:3000",
+  baseURL,
   timeout: 0,
   headers: {
     "Content-Type": "application/json;charset=UTF-8",
@@ -26,63 +28,103 @@ HttpClient.interceptors.request.use(
   },
 );
 
+let isRefreshing = false;
+let failedQueue = [];
+
+function processQueue(error) {
+  failedQueue.forEach(({ resolve, reject }) => {
+    if (error) {
+      reject(error);
+    } else {
+      resolve();
+    }
+  });
+  failedQueue = [];
+}
+
+function clearSessionAndRedirect() {
+  localStorageService.clearSession();
+  if (window.location.pathname !== "/login") {
+    window.location.assign("/login");
+  }
+}
+
+async function refreshAccessToken() {
+  const refreshToken = localStorageService.getRefreshToken();
+  if (!refreshToken) {
+    throw new Error("No refresh token available");
+  }
+
+  // Use a bare axios call so this request never hits the auth interceptors.
+  const response = await axios.post(`${baseURL}/auth/refresh`, {
+    refresh_token: refreshToken,
+  });
+
+  const { access_token, refresh_token } = response.data || {};
+  if (!access_token || !refresh_token) {
+    throw new Error("Refresh response is missing tokens");
+  }
+
+  localStorageService.setSession(access_token, refresh_token);
+  return access_token;
+}
+
 HttpClient.interceptors.response.use(
   (response) => response.data || null,
-  (error) => {
+  async (error) => {
     if (error.code === "ERR_NETWORK") {
       window.location.href = "#/internet";
     }
 
-    if (error && error.response) {
-      switch (error.response.status) {
-        case 400:
-          break;
-        case 401:
-          localStorageService.removeToken();
-          window.location.reload();
-          break;
-        case 403:
-          if (
-            typeof error.response.data?.message === "string" &&
-            error.response.data.message.includes("does not meet the requirements")
-          ) {
-            window.location.reload();
-          }
-          break;
-        case 404:
-          break;
-        case 405:
-          break;
-        case 408:
-          break;
-        case 411:
-          break;
-        case 413:
-          break;
-        case 414:
-          break;
-        case 415:
-          break;
-        case 422:
-          break;
-        case 500:
-          break;
-        case 501:
-          break;
-        case 502:
-          break;
-        case 503:
-          break;
-        case 504:
-          break;
-        case 505:
-          break;
-        default:
-          console.log(`http client status : ${error.response.status}`);
-      }
+    const status = error.response?.status;
+    const originalRequest = error.config;
+
+    if (
+      status === 403 &&
+      typeof error.response.data?.message === "string" &&
+      error.response.data.message.includes("does not meet the requirements")
+    ) {
+      window.location.reload();
+      return Promise.reject(error);
     }
 
-    return Promise.reject(error);
+    if (
+      status !== 401 ||
+      !originalRequest ||
+      originalRequest._retry ||
+      originalRequest.url?.includes("/auth/refresh")
+    ) {
+      return Promise.reject(error);
+    }
+
+    if (isRefreshing) {
+      return new Promise((resolve, reject) => {
+        failedQueue.push({ resolve, reject });
+      })
+        .then(() => {
+          originalRequest.headers["authorization"] =
+            `Bearer ${localStorageService.getToken()}`;
+          return HttpClient(originalRequest);
+        })
+        .catch(() => Promise.reject(error));
+    }
+
+    originalRequest._retry = true;
+    isRefreshing = true;
+
+    try {
+      await refreshAccessToken();
+      processQueue(null);
+      originalRequest.headers["authorization"] =
+        `Bearer ${localStorageService.getToken()}`;
+      return HttpClient(originalRequest);
+    } catch (refreshError) {
+      processQueue(refreshError);
+      clearSessionAndRedirect();
+      return Promise.reject(refreshError);
+    } finally {
+      isRefreshing = false;
+    }
   },
 );
 

@@ -86,7 +86,7 @@ export class AdminFormsService {
     const count = await this.submissionRepository
       .createQueryBuilder('s')
       .leftJoin(Users, 'u', 'u.id = s.user_id')
-      .where('s.form_id = :formId', { formId })
+      .where('s.form_id = :formId', { formId: form.id })
       .andWhere(
         'u.id IS NULL OR u.interview_status IS NULL OR u.interview_status <> :rejected',
         { rejected: REJECTED_INTERVIEW_STATUS },
