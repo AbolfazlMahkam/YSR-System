@@ -16,6 +16,8 @@ import {
   ListChecks,
   MapPin,
   UsersRound,
+  ClipboardCheck,
+  Send,
 } from "lucide-react";
 import {
   Card,
@@ -80,6 +82,20 @@ interface AdminDashboardStats {
       returned: number;
     };
   };
+  forms: {
+    id: number;
+    slug: string;
+    title: string;
+    total_submissions: number;
+    unique_users: number;
+  }[];
+  participation: {
+    total_forms: number;
+    total_users: number;
+    users_with_submissions: number;
+    total_submissions: number;
+    byFormCount: { forms: number; users: number }[];
+  };
 }
 
 interface Notification {
@@ -96,7 +112,12 @@ interface ProcessionInfo {
   name: string;
   location: string;
   address: string;
-  consultants: { id: number; first_name: string; last_name: string; gender: string | null }[];
+  consultants: {
+    id: number;
+    first_name: string;
+    last_name: string;
+    gender: string | null;
+  }[];
 }
 
 const statusConfig = {
@@ -148,8 +169,12 @@ export function Index() {
           promises.push(adminFormsApi.getDashboardStats().catch(() => null));
         }
 
-        const [submissionsData, selfDeclData, myProcessionsData, adminStatsData] =
-          await Promise.all(promises);
+        const [
+          submissionsData,
+          selfDeclData,
+          myProcessionsData,
+          adminStatsData,
+        ] = await Promise.all(promises);
         if (cancelled) return;
         setSubmissions(submissionsData || []);
         setSelfDeclaration(selfDeclData);
@@ -279,7 +304,7 @@ export function Index() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 <SummaryWidget
                   icon={Users}
                   label="کل کاربران"
@@ -308,11 +333,25 @@ export function Index() {
                   color="text-green-600"
                   bgColor="bg-green-50 dark:bg-green-950"
                 />
+                <SummaryWidget
+                  icon={ClipboardCheck}
+                  label="شرکت در فرم‌ها"
+                  value={adminStats.participation?.users_with_submissions ?? 0}
+                  color="text-teal-600"
+                  bgColor="bg-teal-50 dark:bg-teal-950"
+                />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <UsersStatsCard stats={adminStats.users} />
                 <SelfDeclarationStatsCard stats={adminStats.selfDeclarations} />
+              </div>
+
+              <div className="mt-6">
+                <FormsParticipationCard
+                  forms={adminStats.forms}
+                  participation={adminStats.participation}
+                />
               </div>
             </>
           ) : null}
@@ -824,6 +863,102 @@ function SelfDeclarationStatsCard({
   );
 }
 
+function FormsParticipationCard({
+  forms,
+  participation,
+}: {
+  forms: AdminDashboardStats["forms"];
+  participation: AdminDashboardStats["participation"];
+}) {
+  const maxUsers = Math.max(1, participation?.total_users ?? 0);
+
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-lg bg-teal-500/10">
+              <ClipboardCheck className="h-5 w-5 text-teal-500" />
+            </div>
+            <div>
+              <CardTitle className="text-lg">مشارکت در فرم‌ها</CardTitle>
+              <CardDescription>
+                تعداد کاربرانی که هر فرم را تکمیل کرده‌اند
+              </CardDescription>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-medium">
+              <Users className="h-3.5 w-3.5" />
+              {toPersianDigits(
+                participation?.users_with_submissions ?? 0,
+              )} از {toPersianDigits(participation?.total_users ?? 0)} کاربر
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-medium">
+              <Send className="h-3.5 w-3.5" />
+              {toPersianDigits(participation?.total_submissions ?? 0)} ارسال
+            </span>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-5">
+        {!forms || forms.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-6">
+            فرمی یافت نشد
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {forms.map((form) => {
+              const rate = Math.round((form.unique_users / maxUsers) * 100);
+              return (
+                <div key={form.id}>
+                  <div className="flex items-center justify-between mb-1 gap-3">
+                    <span className="text-sm font-medium truncate">
+                      {form.title}
+                    </span>
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">
+                      {toPersianDigits(form.unique_users)} کاربر •{" "}
+                      {toPersianDigits(form.total_submissions)} ارسال
+                    </span>
+                  </div>
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-teal-500 to-emerald-500 transition-all duration-500"
+                      style={{ width: `${rate}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+        {participation?.byFormCount && participation.byFormCount.length > 0 && (
+          <div className="pt-4 border-t border-muted/50">
+            <p className="text-xs text-muted-foreground mb-2 font-medium">
+              توزیع کاربران بر اساس تعداد فرم تکمیل‌شده
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {participation.byFormCount.map((item) => (
+                <span
+                  key={item.forms}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted text-xs"
+                >
+                  {item.forms === 0
+                    ? "بدون ارسال"
+                    : `${toPersianDigits(item.forms)} فرم`}
+                  <span className="font-bold">
+                    {toPersianDigits(item.users)}
+                  </span>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 function NotificationsCard({
   notifications,
   navigate,
@@ -886,7 +1021,11 @@ function NotificationsCard({
   );
 }
 
-function ProcessionInfoCard({ processions }: { processions: ProcessionInfo[] }) {
+function ProcessionInfoCard({
+  processions,
+}: {
+  processions: ProcessionInfo[];
+}) {
   if (processions.length === 0) return null;
 
   return (
@@ -901,10 +1040,14 @@ function ProcessionInfoCard({ processions }: { processions: ProcessionInfo[] }) 
         const unknownGenderConsultants = procession.consultants.filter(
           (c) => c.gender !== "male" && c.gender !== "female",
         );
-        const isBoth = maleConsultants.length > 0 && femaleConsultants.length > 0;
+        const isBoth =
+          maleConsultants.length > 0 && femaleConsultants.length > 0;
 
         return (
-          <Card key={procession.id} className="overflow-hidden border-primary/20">
+          <Card
+            key={procession.id}
+            className="overflow-hidden border-primary/20"
+          >
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <div className="p-2 rounded-lg bg-primary/10">
@@ -916,7 +1059,9 @@ function ProcessionInfoCard({ processions }: { processions: ProcessionInfo[] }) 
             <CardContent className="space-y-4">
               <div className="flex items-start gap-2 text-sm">
                 <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-                <span className="text-muted-foreground">{procession.address}</span>
+                <span className="text-muted-foreground">
+                  {procession.address}
+                </span>
               </div>
               {procession.consultants.length > 0 && (
                 <div>
@@ -958,7 +1103,8 @@ function ProcessionInfoCard({ processions }: { processions: ProcessionInfo[] }) 
                       {unknownGenderConsultants.length > 0 && (
                         <div className="col-span-2">
                           <p className="text-xs font-medium text-muted-foreground mb-2 pb-1 border-b border-border">
-                            سایر ({toPersianDigits(unknownGenderConsultants.length)})
+                            سایر (
+                            {toPersianDigits(unknownGenderConsultants.length)})
                           </p>
                           <div className="space-y-1.5">
                             {unknownGenderConsultants.map((consultant) => (

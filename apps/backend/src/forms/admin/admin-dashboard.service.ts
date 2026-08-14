@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import Users from '../../entities/user.entity';
 import SelfDeclaration from '../../entities/self-declaration.entity';
+import { AdminParticipationService } from './admin-participation.service';
 
 @Injectable()
 export class AdminDashboardService {
@@ -11,6 +12,7 @@ export class AdminDashboardService {
     private readonly usersRepository: Repository<Users>,
     @InjectRepository(SelfDeclaration)
     private readonly selfDeclarationRepository: Repository<SelfDeclaration>,
+    private readonly participationService: AdminParticipationService,
   ) {}
 
   async getStats() {
@@ -55,6 +57,8 @@ export class AdminDashboardService {
       selfDeclByStatus[sd.status] = (selfDeclByStatus[sd.status] || 0) + 1;
     }
 
+    const participation = await this.participationService.getReport();
+
     return {
       users: {
         total: totalUsers,
@@ -70,6 +74,22 @@ export class AdminDashboardService {
       selfDeclarations: {
         total: selfDeclTotal,
         byStatus: selfDeclByStatus,
+      },
+      forms: participation.forms.map(
+        ({ id, slug, title, total_submissions, unique_users }) => ({
+          id,
+          slug,
+          title,
+          total_submissions,
+          unique_users,
+        }),
+      ),
+      participation: {
+        total_forms: participation.totals.total_forms,
+        total_users: participation.totals.total_users,
+        users_with_submissions: participation.totals.users_with_submissions,
+        total_submissions: participation.totals.total_submissions,
+        byFormCount: participation.byFormCount,
       },
     };
   }

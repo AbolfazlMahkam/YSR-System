@@ -11,6 +11,7 @@ import {
   X,
   BarChart3,
   Calendar,
+  ClipboardCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
@@ -185,6 +186,24 @@ export function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
                     >
                       <BarChart3 className="h-4 w-4" />
                       <span>آمار فرم‌ها</span>
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to="/admin/form-participation"
+                      onClick={handleNavClick}
+                      className={({ isActive }) =>
+                        cn(
+                          "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 text-sm",
+                          "hover:bg-accent hover:text-accent-foreground",
+                          isActive
+                            ? "bg-accent text-accent-foreground font-medium"
+                            : "text-muted-foreground",
+                        )
+                      }
+                    >
+                      <ClipboardCheck className="h-4 w-4" />
+                      <span>گزارش مشارکت</span>
                     </NavLink>
                   </li>
                 </ul>

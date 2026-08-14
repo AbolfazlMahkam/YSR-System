@@ -9,10 +9,12 @@ export default {
   getSubmissions: (formId) =>
     HttpClient.get(`/admin/forms/${formId}/submissions`),
   getSelfDeclarations: () => HttpClient.get("/forms/self-declaration/admin"),
-  getSelfDeclaration: (id) => HttpClient.get(`/forms/self-declaration/admin/${id}`),
+  getSelfDeclaration: (id) =>
+    HttpClient.get(`/forms/self-declaration/admin/${id}`),
   reviewSelfDeclaration: (id, data) =>
     HttpClient.patch(`/forms/self-declaration/admin/${id}/review`, data),
   getDashboardStats: () => HttpClient.get("/admin/dashboard/stats"),
   getStatistics: (formId) =>
     HttpClient.get(`/admin/forms/${formId}/statistics`),
+  getParticipation: () => HttpClient.get("/admin/participation"),
 };

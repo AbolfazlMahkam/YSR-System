@@ -12,6 +12,7 @@ import {
   FormSubmissions,
   SelfDeclarationSubmissions,
   FormStatistics,
+  FormParticipation,
   ArbaeenYearsPage,
   ArbaeenProcessionsPage,
   ArbaeenProcessionDetail,
@@ -57,6 +58,10 @@ function App() {
                 <Route
                   path="admin/form-statistics"
                   element={<FormStatistics />}
+                />
+                <Route
+                  path="admin/form-participation"
+                  element={<FormParticipation />}
                 />
                 <Route
                   path="admin/self-declarations"
